@@ -1,0 +1,2457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>问卷调查 - 小程序端原型</title>
+<style>
+  :root {
+    --primary: #FF4D4F;
+    --primary-dark: #CF1322;
+    --primary-light: #FFF1F0;
+    --gold: #FAAD14;
+    --bg-dark: #1a1a2e;
+    --text-primary: #262626;
+    --text-secondary: #8c8c8c;
+    --text-tertiary: #bfbfbf;
+    --border: #e8e8e8;
+    --bg-page: #f5f5f7;
+    --green: #52C41A;
+    --blue: #1890FF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: #e9ebf0;
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #262626;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .page-subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #8c8c8c;
+    margin-bottom: 36px;
+  }
+
+  .mobile-container {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ========== 手机模拟框 ========== */
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-frame {
+    width: 375px;
+    height: 760px;
+    background: #fff;
+    border-radius: 40px;
+    border: 8px solid #1a1a2e;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 24px;
+    background: #1a1a2e;
+    border-radius: 0 0 18px 18px;
+    z-index: 100;
+  }
+  .phone-label {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 14px;
+    color: #595959;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    background: var(--bg-page);
+  }
+  .phone-screen::-webkit-scrollbar { width: 0; }
+
+  /* ========== 状态栏 ========== */
+  .status-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px 0 28px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+    background: transparent;
+    position: relative;
+    z-index: 10;
+  }
+  .status-bar.on-dark { color: #fff; }
+  .status-bar .time { font-weight: 700; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .status-bar .signal { letter-spacing: -1px; }
+  .status-bar .battery {
+    display: inline-block;
+    width: 22px; height: 11px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+    margin-left: 2px;
+  }
+  .status-bar .battery::before {
+    content: '';
+    position: absolute;
+    left: 1px; top: 1px;
+    width: 16px; height: 7px;
+    background: currentColor;
+    border-radius: 1px;
+  }
+  .status-bar .battery::after {
+    content: '';
+    position: absolute;
+    right: -3px; top: 3px;
+    width: 2px; height: 3px;
+    background: currentColor;
+    border-radius: 0 1px 1px 0;
+  }
+
+  /* ========== 顶栏 ========== */
+  .nav-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    background: #fff;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .nav-bar.transparent {
+    background: transparent;
+    border-bottom: none;
+    color: #fff;
+  }
+  .nav-bar .back {
+    font-size: 26px;
+    color: inherit;
+    cursor: pointer;
+    width: 32px;
+    line-height: 1;
+    font-weight: 300;
+  }
+  .nav-bar .nav-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 17px;
+    font-weight: 600;
+    color: inherit;
+  }
+  .nav-bar .nav-right {
+    margin-left: auto;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  /* 我的奖品 入口 */
+  .my-prize-entry {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    padding: 5px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .my-prize-entry .mp-icon { font-size: 13px; }
+  .my-prize-entry .mp-text { font-weight: 500; }
+  .my-prize-entry .mp-dot {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff4d4f;
+    border: 1.5px solid #fff;
+  }
+
+  /* ==================== 手机5：我的奖品页 ==================== */
+  .p5-screen {
+    background: #f5f5f7;
+    overflow-y: auto;
+  }
+  .p5-list {
+    padding: 12px 14px;
+  }
+  .p5-paper-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .p5-rewards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #ececec;
+    margin-bottom: 10px;
+  }
+  .p5-reward-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1f2329;
+  }
+  .p5-r-icon {
+    font-size: 18px;
+    width: 22px;
+    text-align: center;
+  }
+  .p5-r-label {
+    font-weight: 500;
+    flex: 1;
+  }
+  .p5-paper-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .p5-meta-left {
+    flex: 1;
+    min-width: 0;
+  }
+  .p5-source {
+    font-size: 12px;
+    color: #8c8c8c;
+    margin-bottom: 2px;
+  }
+  .p5-time {
+    font-size: 11px;
+    color: #b0b0b0;
+  }
+  .p5-action {
+    flex-shrink: 0;
+  }
+  .p5-claim-btn {
+    background: linear-gradient(180deg, #ff4d4f 0%, #cf1322 100%);
+    color: #fff;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(255,77,79,0.3);
+  }
+  .p5-claimed-badge {
+    background: #f0f0f0;
+    color: #999;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  /* ==================== 手机1：问卷主页 ==================== */
+  .p1-screen { background: #f5f5f7; }
+  .p1-hero {
+    position: relative;
+    height: 200px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4d4f 50%, #cf1322 100%);
+    overflow: hidden;
+  }
+  .p1-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+  }
+  .p1-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .p1-hero-status {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+  }
+  .p1-hero-nav {
+    position: absolute;
+    top: 44px; left: 0; right: 0;
+  }
+  .p1-hero-content {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 26px;
+    text-align: center;
+    color: #fff;
+    padding: 0 20px;
+  }
+  .p1-hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    backdrop-filter: blur(4px);
+  }
+  .p1-hero-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .p1-card {
+    background: #fff;
+    margin: 12px 16px;
+    border-radius: 14px;
+    padding: 18px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #262626;
+    margin-bottom: 12px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--primary);
+    border-radius: 2px;
+    margin-right: 8px;
+  }
+  .p1-intro-text {
+    font-size: 13px;
+    color: #595959;
+    line-height: 1.7;
+  }
+
+  .reward-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .reward-badge {
+    flex: 1;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffe082;
+    border-radius: 12px;
+    padding: 14px 6px;
+    text-align: center;
+  }
+  .reward-badge .ri {
+    font-size: 26px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .reward-badge .rv {
+    font-size: 14px;
+    font-weight: 700;
+    color: #d48806;
+  }
+  .reward-badge .rl {
+    font-size: 11px;
+    color: #8c8c8c;
+    margin-top: 2px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 4px 0;
+  }
+  .info-item {
+    text-align: center;
+    flex: 1;
+  }
+  .info-item .iv {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .info-item .il {
+    font-size: 12px;
+    color: #8c8c8c;
+    margin-top: 2px;
+  }
+  .info-divider {
+    width: 1px;
+    background: #f0f0f0;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 12px 16px 20px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    z-index: 20;
+  }
+  .primary-btn {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 23px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4d4f 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(255,77,79,0.3);
+  }
+  .primary-btn:active { transform: translateY(1px); }
+
+  /* ==================== 手机2：答题页 ==================== */
+  .p2-screen {
+    background: #f5f5f7;
+    overflow: hidden;
+  }
+  .p2-scroll {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    padding-bottom: 86px; /* 留出吸底按钮的高度 */
+  }
+  .p2-scroll::-webkit-scrollbar { width: 0; }
+  .countdown-row {
+    background: #fff;
+    padding: 10px 16px 4px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .countdown-row .cd-label {
+    color: #8c8c8c;
+  }
+  .countdown-row .cd-time {
+    color: #ff4d4f;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .progress-wrap {
+    background: #fff;
+    padding: 10px 16px 14px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 37.5%;
+    background: linear-gradient(90deg, #ff6b6b, #ff4d4f);
+    border-radius: 3px;
+  }
+
+  .q-list {
+    padding: 12px 16px 90px;
+  }
+  .q-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .q-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .q-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 0 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .q-required {
+    color: var(--primary);
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .q-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #262626;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .q-guide {
+    font-size: 12px;
+    color: #8c8c8c;
+    margin: 6px 0 12px 34px;
+    line-height: 1.5;
+  }
+  .q-sub {
+    font-size: 12px;
+    color: var(--primary);
+    margin: 4px 0 10px 34px;
+  }
+
+  .opt-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .opt {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 10px;
+    background: #fafafa;
+    font-size: 14px;
+    color: #262626;
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .opt .opt-mark {
+    width: 18px; height: 18px;
+    border: 1.5px solid #d9d9d9;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+  }
+  .opt.multi .opt-mark { border-radius: 4px; }
+  .opt.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+  .opt.selected .opt-mark {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  .opt.selected .opt-mark::after {
+    content: '';
+    width: 5px; height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+
+  /* 评分题 */
+  .rate-list {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .rate-item {
+    flex: 1;
+    text-align: center;
+    border: 1.5px solid #e8e8e8;
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 10px 2px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .rate-item .rn {
+    font-size: 18px;
+    font-weight: 700;
+    color: #262626;
+    line-height: 1.2;
+  }
+  .rate-item .rd {
+    font-size: 10px;
+    color: #8c8c8c;
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+  .rate-item.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .rate-item.selected .rn,
+  .rate-item.selected .rd {
+    color: var(--primary-dark);
+  }
+
+  /* 简答题 */
+  .q-textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 10px;
+    background: #fafafa;
+    font-size: 14px;
+    color: #262626;
+    font-family: inherit;
+    resize: none;
+    margin-top: 8px;
+  }
+  .q-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+  }
+
+  /* 图片题 */
+  .img-upload-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .img-slot {
+    width: 78px; height: 78px;
+    border: 1.5px dashed #d9d9d9;
+    border-radius: 10px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #8c8c8c;
+    font-size: 11px;
+    transition: all 0.18s;
+  }
+  .img-slot .plus {
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .img-slot.filled {
+    border-style: solid;
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .q-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 10px;
+    background: #fafafa;
+    font-size: 13px;
+    color: #262626;
+    margin-top: 10px;
+  }
+  .q-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+  }
+
+  /* ==================== 手机3：完成奖励 ==================== */
+  .p3-screen {
+    background: linear-gradient(180deg, #fff5f5 0%, #f5f5f7 40%);
+  }
+  .success-hero {
+    text-align: center;
+    padding: 8px 20px 20px;
+  }
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #73d13d, #52c41a);
+    margin: 20px auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(82,196,26,0.3);
+    position: relative;
+  }
+  .success-icon::after {
+    content: '';
+    width: 28px;
+    height: 14px;
+    border: solid #fff;
+    border-width: 0 0 4px 4px;
+    transform: rotate(-45deg) translateY(-4px);
+  }
+  .timeout-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffc53d, #fa8c16);
+    margin: 20px auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(250,140,22,0.35);
+    color: #fff;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    padding-bottom: 6px;
+  }
+  .success-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #262626;
+    margin-bottom: 6px;
+  }
+  .success-subtitle {
+    font-size: 14px;
+    color: #8c8c8c;
+  }
+
+  .p3-reward-card {
+    background: #fff;
+    margin: 14px 16px 12px;
+    border-radius: 14px;
+    padding: 18px 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .p3-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #262626;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #f0f0f0;
+    margin-bottom: 4px;
+  }
+  .p3-reward-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .p3-reward-item:last-child { border-bottom: none; }
+  .p3-reward-item .ri-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    margin-right: 12px;
+  }
+  .p3-reward-item .ri-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+  }
+  .p3-reward-item .ri-badge {
+    font-size: 11px;
+    color: #52c41a;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .p3-custom-text {
+    margin: 0 16px 12px;
+    background: #f5f5f7;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #595959;
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  .p3-btn-row {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 12px 16px 20px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 10px;
+  }
+  .secondary-btn {
+    flex: 1;
+    height: 46px;
+    border: 1.5px solid var(--primary);
+    border-radius: 23px;
+    background: #fff;
+    color: var(--primary);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .primary-btn.half {
+    flex: 1;
+    width: auto;
+  }
+  .p3-btn-row-single {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .p3-btn-row-single .primary-btn {
+    width: 100%;
+  }
+  .p3-btn-tip {
+    font-size: 11px;
+    color: #bfbfbf;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  /* ==================== 手机4：完成奖励（手动领取） ==================== */
+  .ri-badge.unclaimed {
+    color: #8c8c8c;
+    background: #f5f5f5;
+    border: 1px solid #e8e8e8;
+  }
+  .reset-link {
+    display: block;
+    text-align: center;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #bfbfbf;
+    cursor: pointer;
+    user-select: none;
+  }
+  .reset-link:hover { color: #8c8c8c; }
+
+  /* ==================== 手机7：订单列表页 ==================== */
+  .p7-screen { background: #f5f5f7; }
+  .p7-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0 4px;
+  }
+  .p7-tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0 10px;
+    font-size: 13px;
+    color: #595959;
+    position: relative;
+    cursor: pointer;
+  }
+  .p7-tab.active {
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .p7-tab.active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--primary);
+  }
+  .p7-list { padding: 12px 14px 20px; }
+  .p7-order-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 14px 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .p7-order-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .p7-store {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #262626;
+    font-weight: 600;
+  }
+  .p7-store-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #ffd666, #fa8c16);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .p7-status {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .p7-status.done { color: var(--green); }
+  .p7-status.shipped { color: var(--blue); }
+  .p7-goods {
+    padding: 12px 0 8px;
+  }
+  .p7-good-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .p7-good-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #ffd3a5 0%, #fd9853 100%);
+  }
+  .p7-good-img.g2 { background: linear-gradient(135deg, #a1ffce 0%, #faffd1 100%); }
+  .p7-good-img.g3 { background: linear-gradient(135deg, #c3cfe2 0%, #f5f7fa 100%); }
+  .p7-good-img.g4 { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+  .p7-good-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .p7-good-name {
+    font-size: 13px;
+    color: #262626;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  .p7-good-spec {
+    font-size: 11px;
+    color: #8c8c8c;
+  }
+  .p7-good-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .p7-good-price {
+    font-size: 13px;
+    color: #262626;
+    font-weight: 600;
+  }
+  .p7-good-qty {
+    font-size: 11px;
+    color: #8c8c8c;
+    margin-top: 2px;
+  }
+  .p7-order-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid #f5f5f5;
+  }
+  .p7-total {
+    font-size: 12px;
+    color: #595959;
+  }
+  .p7-total .tv {
+    font-size: 15px;
+    color: #262626;
+    font-weight: 700;
+    margin-left: 2px;
+  }
+  .p7-foot-btns { display: flex; gap: 8px; }
+  .p7-mini-btn {
+    padding: 6px 14px;
+    border-radius: 14px;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #595959;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .p7-mini-btn.primary {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .p7-mini-btn.solid-primary {
+    border: none;
+    background: linear-gradient(180deg, #ff4d4f 0%, #cf1322 100%);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(255,77,79,0.25);
+  }
+  /* 问卷入口行 */
+  .p7-survey-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ececec;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .p7-survey-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .p7-survey-text {
+    flex: 1;
+    font-size: 12px;
+    color: #262626;
+    font-weight: 500;
+  }
+  .p7-survey-text .hl {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .p7-survey-btn {
+    padding: 5px 12px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ff4d4f 0%, #cf1322 100%);
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(255,77,79,0.25);
+  }
+  .p7-survey-done {
+    padding: 5px 12px;
+    border-radius: 12px;
+    background: #f0f0f0;
+    color: #999;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* ==================== 手机8：订单详情页 ==================== */
+  .p8-screen { background: #f5f5f7; }
+  .p8-status-card {
+    background: #fff;
+    margin: 12px 14px 0;
+    border-radius: 14px;
+    padding: 20px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .p8-status-main {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .p8-status-sub {
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+  .p8-status-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .p8-status-btn {
+    padding: 7px 16px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .p8-status-btn.secondary {
+    background: #fff;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+  }
+  .p8-status-btn.primary {
+    background: linear-gradient(180deg, #ff4d4f 0%, #cf1322 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 6px rgba(255,77,79,0.25);
+  }
+  .p8-survey-banner {
+    margin: 12px 14px 0;
+    height: 104px;
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 40%),
+      radial-gradient(circle at 20% 90%, rgba(255,221,87,0.35) 0%, rgba(255,221,87,0) 45%),
+      linear-gradient(135deg, #ffb088 0%, #ff7a4d 35%, #ff4d4f 70%, #cf1322 100%);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(255,77,79,0.28);
+  }
+  .p8-banner-deco {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.14);
+    pointer-events: none;
+  }
+  .p8-banner-deco-1 {
+    right: -36px;
+    top: -36px;
+    width: 120px;
+    height: 120px;
+  }
+  .p8-banner-deco-2 {
+    right: 78px;
+    bottom: -30px;
+    width: 70px;
+    height: 70px;
+    background: rgba(255,255,255,0.08);
+  }
+  .p8-banner-deco-3 {
+    left: 52px;
+    top: -18px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.12);
+  }
+  .p8-banner-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.18) 100%);
+    border: 1px solid rgba(255,255,255,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .p8-banner-text {
+    flex: 1;
+    color: #fff;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+  .p8-banner-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    letter-spacing: 0.2px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.12);
+  }
+  .p8-banner-sub {
+    font-size: 11px;
+    opacity: 0.95;
+    line-height: 1.35;
+  }
+  .p8-banner-btn {
+    background: #fff;
+    color: var(--primary);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  }
+  .p8-card {
+    background: #fff;
+    margin: 12px 14px 0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .p8-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #262626;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f5f5f5;
+    margin-bottom: 10px;
+  }
+  .p8-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 6px 0;
+  }
+  .p8-info-row .il { color: #8c8c8c; }
+  .p8-info-row .iv { color: #262626; }
+  .p8-survey-entry {
+    margin: 12px 14px 0;
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px dashed #ffccc7;
+  }
+  .p8-survey-entry-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .p8-survey-entry-text {
+    flex: 1;
+    font-size: 13px;
+    color: #262626;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .p8-survey-entry-text .sub {
+    display: block;
+    font-size: 11px;
+    color: #8c8c8c;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .p8-survey-entry-btn {
+    padding: 6px 14px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ff4d4f 0%, #cf1322 100%);
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(255,77,79,0.25);
+  }
+  .p8-foot {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: #fff;
+    padding: 10px 16px 18px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .p8-foot-total {
+    font-size: 12px;
+    color: #595959;
+  }
+  .p8-foot-total .fv {
+    font-size: 16px;
+    color: var(--primary);
+    font-weight: 800;
+    margin-left: 2px;
+  }
+  .p8-foot-btn {
+    padding: 9px 18px;
+    border: 1px solid #d9d9d9;
+    border-radius: 18px;
+    background: #fff;
+    color: #595959;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ==================== 手机9：订单详情页弹窗 ==================== */
+  .p9-screen { background: #f5f5f7; position: relative; }
+  .p9-blurred {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    filter: blur(2px);
+    overflow: hidden;
+  }
+  .p9-mask {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 50;
+    opacity: 1;
+    transition: opacity 0.3s;
+  }
+  .p9-dialog {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    z-index: 60;
+    overflow: hidden;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .p9-dialog.hidden,
+  .p9-mask.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .p9-dialog.hidden {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  .p9-dialog-hero {
+    position: relative;
+    height: 150px;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 45%),
+      radial-gradient(circle at 15% 85%, rgba(255,221,87,0.35) 0%, rgba(255,221,87,0) 50%),
+      linear-gradient(135deg, #ff6b6b 0%, #ff4d4f 55%, #cf1322 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .p9-dialog-hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+  }
+  .p9-dialog-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .p9-dialog-hero-title {
+    position: relative;
+    z-index: 1;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .p9-dialog-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 2;
+    border: none;
+    line-height: 1;
+  }
+  .p9-dialog-body {
+    padding: 18px 18px 14px;
+    text-align: center;
+  }
+  .p9-dialog-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #262626;
+    margin-bottom: 4px;
+  }
+  .p9-dialog-sub {
+    font-size: 12px;
+    color: #8c8c8c;
+    margin-bottom: 14px;
+  }
+  .p9-dialog-rewards {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .p9-dialog-reward {
+    flex: 1;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 8px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .p9-dialog-reward .pr-i { font-size: 18px; }
+  .p9-dialog-reward .pr-l {
+    font-size: 11px;
+    font-weight: 700;
+    color: #d48806;
+  }
+  .p9-dialog-btns {
+    display: flex;
+    gap: 10px;
+    padding: 4px 18px 18px;
+  }
+  .p9-btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+  }
+  .p9-btn.secondary {
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    color: #8c8c8c;
+  }
+  .p9-btn.primary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4d4f 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255,77,79,0.3);
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">问卷调查 - 小程序端原型</div>
+<div class="page-subtitle">基于 PRD V0.3 · 问卷主页 / 答题页 / 完成奖励提醒 / 我的奖品 / 超时无奖励 / 订单列表 / 订单详情 / 订单详情页弹窗</div>
+
+<div class="mobile-container">
+
+  <!-- ============================================================ -->
+  <!-- 手机1：问卷主页                                                -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p1-screen">
+
+        <div class="p1-hero">
+          <div class="status-bar on-dark p1-hero-status">
+            <span class="time">22:30</span>
+            <span class="icons">
+              <span class="signal">●●●○</span>
+              <span>Wi-Fi</span>
+              <span class="battery"></span>
+            </span>
+          </div>
+          <div class="nav-bar transparent p1-hero-nav">
+            <span class="back">‹</span>
+            <span class="nav-title">问卷调查</span>
+            <span class="my-prize-entry">
+              <span class="mp-icon">🎁</span>
+              <span class="mp-text">我的奖品</span>
+              <span class="mp-dot"></span>
+            </span>
+          </div>
+          <div class="p1-hero-content">
+            <div class="p1-hero-tag">限时活动 · 奖励丰厚</div>
+            <div class="p1-hero-title">用户偏好调查</div>
+          </div>
+        </div>
+
+        <div class="p1-card">
+          <div class="card-title">问卷说明</div>
+          <div class="p1-intro-text">亲，您的反馈对我们非常重要！完成本次问卷可获得积分+优惠券奖励～</div>
+        </div>
+
+        <div class="p1-card">
+          <div class="card-title">完成可获得</div>
+          <div class="reward-row">
+            <div class="reward-badge">
+              <span class="ri">💎</span>
+              <div class="rv">100积分</div>
+              <div class="rl">Points</div>
+            </div>
+            <div class="reward-badge">
+              <span class="ri">🎟️</span>
+              <div class="rv">5元券</div>
+              <div class="rl">Coupon</div>
+            </div>
+            <div class="reward-badge">
+              <span class="ri">⭐</span>
+              <div class="rv">50经验</div>
+              <div class="rl">EXP</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p1-card">
+          <div class="card-title">活动信息</div>
+          <div class="info-row">
+            <div class="info-item">
+              <div class="iv">1,234</div>
+              <div class="il">已参与人数</div>
+            </div>
+            <div class="info-divider"></div>
+            <div class="info-item">
+              <div class="iv">8</div>
+              <div class="il">题目数量</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 100px;"></div>
+
+        <div class="bottom-bar">
+          <button class="primary-btn">开始答题</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">① 问卷主页</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机2：答题页                                                  -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p2-screen">
+        <div class="p2-scroll">
+
+        <div class="status-bar">
+          <span class="time">22:30</span>
+          <span class="icons">
+            <span class="signal">●●●○</span>
+            <span>Wi-Fi</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="nav-bar">
+          <span class="back">‹</span>
+          <span class="nav-title">用户偏好调查</span>
+          <span class="nav-right">3/8</span>
+        </div>
+
+        <div class="countdown-row">
+          <span class="cd-label">⏱ 剩余</span>
+          <span class="cd-time" id="p2-countdown">03:25</span>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="q-list">
+
+          <!-- 题型1：单选题 -->
+          <div class="q-card">
+            <div class="q-head">
+              <span class="q-num">01</span>
+              <span class="q-required">*</span>
+              <span class="q-title">您最喜欢哪种饮品类型？</span>
+            </div>
+            <div class="q-guide">请选择最常喝的一类</div>
+            <div class="opt-list" data-q="single">
+              <div class="opt single"><span class="opt-mark"></span>奶茶</div>
+              <div class="opt single"><span class="opt-mark"></span>咖啡</div>
+              <div class="opt single"><span class="opt-mark"></span>果茶</div>
+              <div class="opt single"><span class="opt-mark"></span>鲜榨果汁</div>
+            </div>
+          </div>
+
+          <!-- 题型2：多选题 -->
+          <div class="q-card">
+            <div class="q-head">
+              <span class="q-num">02</span>
+              <span class="q-required">*</span>
+              <span class="q-title">您通常在什么场景购买饮品？</span>
+            </div>
+            <div class="q-sub">（最少选2项，最多选4项）</div>
+            <div class="opt-list" data-q="multi">
+              <div class="opt multi"><span class="opt-mark"></span>上班通勤</div>
+              <div class="opt multi"><span class="opt-mark"></span>朋友聚会</div>
+              <div class="opt multi"><span class="opt-mark"></span>加班提神</div>
+              <div class="opt multi"><span class="opt-mark"></span>周末休闲</div>
+            </div>
+          </div>
+
+          <!-- 题型3：评分题 -->
+          <div class="q-card">
+            <div class="q-head">
+              <span class="q-num">03</span>
+              <span class="q-required">*</span>
+              <span class="q-title">您对我们的服务满意度评分</span>
+            </div>
+            <div class="rate-list" data-q="rate">
+              <div class="rate-item"><div class="rn">1</div><div class="rd">非常不满意</div></div>
+              <div class="rate-item"><div class="rn">2</div><div class="rd">不满意</div></div>
+              <div class="rate-item"><div class="rn">3</div><div class="rd">一般</div></div>
+              <div class="rate-item"><div class="rn">4</div><div class="rd">满意</div></div>
+              <div class="rate-item"><div class="rn">5</div><div class="rd">非常满意</div></div>
+            </div>
+          </div>
+
+          <!-- 题型4：简答题 -->
+          <div class="q-card">
+            <div class="q-head">
+              <span class="q-num">04</span>
+              <span class="q-title">对我们有什么建议？</span>
+            </div>
+            <textarea class="q-textarea" placeholder="请输入您的建议"></textarea>
+          </div>
+
+          <!-- 题型5：图片题 -->
+          <div class="q-card">
+            <div class="q-head">
+              <span class="q-num">05</span>
+              <span class="q-title">上传您喜欢的饮品照片</span>
+            </div>
+            <div class="q-guide">最多上传3张</div>
+            <div class="img-upload-row" data-q="img">
+              <div class="img-slot"><span class="plus">+</span><span>添加图片</span></div>
+              <div class="img-slot"><span class="plus">+</span><span>添加图片</span></div>
+              <div class="img-slot"><span class="plus">+</span><span>添加图片</span></div>
+            </div>
+            <input class="q-input" placeholder="请描述照片内容" />
+          </div>
+
+        </div>
+
+        </div><!-- /.p2-scroll -->
+
+        <div class="bottom-bar">
+          <button class="primary-btn">提交问卷</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">② 答题页（5种题型）</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机3：完成奖励提醒                                             -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p3-screen">
+
+        <div class="status-bar">
+          <span class="time">22:30</span>
+          <span class="icons">
+            <span class="signal">●●●○</span>
+            <span>Wi-Fi</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="nav-bar" style="background: transparent; border: none;">
+          <span class="back">‹</span>
+          <span class="nav-title">提交结果</span>
+        </div>
+
+        <div class="success-hero">
+          <div class="success-icon"></div>
+          <div class="success-title">提交成功！</div>
+          <div class="success-subtitle">感谢您的参与</div>
+        </div>
+
+        <div class="p3-reward-card">
+          <div class="p3-card-title">已为您发放以下奖励</div>
+          <div class="p3-reward-item">
+            <div class="ri-icon">💎</div>
+            <div class="ri-name">100 积分</div>
+            <div class="ri-badge">已发放</div>
+          </div>
+          <div class="p3-reward-item">
+            <div class="ri-icon">🎟️</div>
+            <div class="ri-name">5元优惠券 ×1</div>
+            <div class="ri-badge">已发放</div>
+          </div>
+          <div class="p3-reward-item">
+            <div class="ri-icon">⭐</div>
+            <div class="ri-name">50 经验值</div>
+            <div class="ri-badge">已发放</div>
+          </div>
+        </div>
+
+        <div class="p3-custom-text">
+          您的反馈我们已收到，期待为您提供更好的服务！
+        </div>
+
+        <div style="height: 100px;"></div>
+
+        <div class="p3-btn-row p3-btn-row-single">
+          <button class="primary-btn">查看券包</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">③ 完成奖励提醒（自动发放）</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机4：完成奖励提醒（手动领取）                                 -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p3-screen" id="phone4-screen" data-state="unclaimed">
+        <!-- 内容由 JS 渲染 -->
+      </div>
+    </div>
+    <div class="phone-label">④ 完成奖励提醒（手动领取）</div>
+    <a class="reset-link" id="phone4-reset">[重置演示]</a>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机5：我的奖品页                                              -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p5-screen">
+
+        <div class="status-bar">
+          <span class="time">22:30</span>
+          <span class="icons">
+            <span class="signal">●●●○</span>
+            <span>Wi-Fi</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="nav-bar">
+          <span class="back">‹</span>
+          <span class="nav-title">我的奖品</span>
+        </div>
+
+        <div class="p5-list" id="p5-list">
+          <!-- 列表项由 JS 渲染 -->
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">⑤ 我的奖品</div>
+    <a class="reset-link" id="phone5-reset">[重置演示]</a>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机6：超时无奖励页                                            -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p3-screen">
+
+        <div class="status-bar">
+          <span class="time">22:30</span>
+          <span class="icons">
+            <span class="signal">●●●○</span>
+            <span>Wi-Fi</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="nav-bar" style="background: transparent; border: none;">
+          <span class="back">‹</span>
+          <span class="nav-title">提交结果</span>
+        </div>
+
+        <div class="success-hero">
+          <div class="timeout-icon">!</div>
+          <div class="success-title">答题时间已超出</div>
+          <div class="success-subtitle">本次作答未在规定时间内完成<br/>奖励无法发放</div>
+        </div>
+
+        <div class="p3-custom-text" style="margin-top: 24px;">
+          您的反馈我们已收到，期待下次再来～
+        </div>
+
+        <div style="height: 120px;"></div>
+
+        <div class="p3-btn-row p3-btn-row-single">
+          <button class="primary-btn">返回首页</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">⑥ 超时无奖励</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机7：订单列表页（订单问卷入口）                               -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p7-screen">
+
+        <div class="status-bar">
+          <span class="time">22:30</span>
+          <span class="icons">
+            <span class="signal">●●●○</span>
+            <span>Wi-Fi</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="nav-bar">
+          <span class="back">‹</span>
+          <span class="nav-title">我的订单</span>
+        </div>
+
+        <div class="p7-tabs">
+          <div class="p7-tab active">全部订单</div>
+          <div class="p7-tab">待付款</div>
+          <div class="p7-tab">待发货</div>
+          <div class="p7-tab">已完成</div>
+        </div>
+
+        <div class="p7-list">
+
+          <!-- 订单1：已完成 + 问卷入口（未填写） -->
+          <div class="p7-order-card">
+            <div class="p7-order-head">
+              <div class="p7-store">
+                <span class="p7-store-icon">🏪</span>
+                <span>南京西路店</span>
+              </div>
+              <div class="p7-status done">已完成</div>
+            </div>
+            <div class="p7-goods">
+              <div class="p7-good-row">
+                <div class="p7-good-img"></div>
+                <div class="p7-good-info">
+                  <div class="p7-good-name">招牌桂花乌龙拿铁</div>
+                  <div class="p7-good-spec">大杯 / 冰 / 少糖</div>
+                </div>
+                <div class="p7-good-right">
+                  <div class="p7-good-price">¥28.00</div>
+                  <div class="p7-good-qty">x1</div>
+                </div>
+              </div>
+              <div class="p7-good-row">
+                <div class="p7-good-img g2"></div>
+                <div class="p7-good-info">
+                  <div class="p7-good-name">抹茶千层蛋糕</div>
+                  <div class="p7-good-spec">原味</div>
+                </div>
+                <div class="p7-good-right">
+                  <div class="p7-good-price">¥22.00</div>
+                  <div class="p7-good-qty">x1</div>
+                </div>
+              </div>
+            </div>
+            <div class="p7-order-foot">
+              <div class="p7-total">共2件 合计<span class="tv">¥50.00</span></div>
+              <div class="p7-foot-btns">
+                <button class="p7-mini-btn solid-primary">填写问卷</button>
+                <button class="p7-mini-btn primary">再来一单</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 订单2：已完成（问卷已填写，不再显示入口） -->
+          <div class="p7-order-card">
+            <div class="p7-order-head">
+              <div class="p7-store">
+                <span class="p7-store-icon">🏪</span>
+                <span>陆家嘴店</span>
+              </div>
+              <div class="p7-status done">已完成</div>
+            </div>
+            <div class="p7-goods">
+              <div class="p7-good-row">
+                <div class="p7-good-img g3"></div>
+                <div class="p7-good-info">
+                  <div class="p7-good-name">冷萃美式咖啡</div>
+                  <div class="p7-good-spec">中杯 / 冰 / 无糖</div>
+                </div>
+                <div class="p7-good-right">
+                  <div class="p7-good-price">¥25.00</div>
+                  <div class="p7-good-qty">x2</div>
+                </div>
+              </div>
+            </div>
+            <div class="p7-order-foot">
+              <div class="p7-total">共2件 合计<span class="tv">¥50.00</span></div>
+              <div class="p7-foot-btns">
+                <button class="p7-mini-btn">查看详情</button>
+                <button class="p7-mini-btn primary">再来一单</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 订单3：已发货，无问卷入口 -->
+          <div class="p7-order-card">
+            <div class="p7-order-head">
+              <div class="p7-store">
+                <span class="p7-store-icon">🏪</span>
+                <span>徐家汇店</span>
+              </div>
+              <div class="p7-status shipped">已发货</div>
+            </div>
+            <div class="p7-goods">
+              <div class="p7-good-row">
+                <div class="p7-good-img g4"></div>
+                <div class="p7-good-info">
+                  <div class="p7-good-name">樱花草莓慕斯礼盒</div>
+                  <div class="p7-good-spec">6枚装 / 限定款</div>
+                </div>
+                <div class="p7-good-right">
+                  <div class="p7-good-price">¥88.00</div>
+                  <div class="p7-good-qty">x1</div>
+                </div>
+              </div>
+            </div>
+            <div class="p7-order-foot">
+              <div class="p7-total">共1件 合计<span class="tv">¥88.00</span></div>
+              <div class="p7-foot-btns">
+                <button class="p7-mini-btn">查看物流</button>
+                <button class="p7-mini-btn primary">确认收货</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">⑦ 订单列表页（订单问卷）</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机8：订单详情页（订单问卷入口）                               -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p8-screen">
+
+        <div class="status-bar">
+          <span class="time">22:30</span>
+          <span class="icons">
+            <span class="signal">●●●○</span>
+            <span>Wi-Fi</span>
+            <span class="battery"></span>
+          </span>
+        </div>
+
+        <div class="nav-bar">
+          <span class="back">‹</span>
+          <span class="nav-title">订单详情</span>
+        </div>
+
+        <div class="p8-status-card">
+          <div class="p8-status-main">已完成</div>
+          <div class="p8-status-sub">感谢您的光临，期待再次为您服务</div>
+          <div class="p8-status-btns">
+            <button class="p8-status-btn secondary">再来一单</button>
+            <button class="p8-status-btn primary">填写问卷</button>
+          </div>
+        </div>
+
+        <!-- 问卷调查 Banner（营销形态） -->
+        <div class="p8-survey-banner">
+          <div class="p8-banner-deco p8-banner-deco-1"></div>
+          <div class="p8-banner-deco p8-banner-deco-2"></div>
+          <div class="p8-banner-deco p8-banner-deco-3"></div>
+          <div class="p8-banner-icon">📋</div>
+          <div class="p8-banner-text">
+            <div class="p8-banner-title">参与问卷调研，赢取惊喜奖励</div>
+            <div class="p8-banner-sub">仅需1分钟，完成即得积分+优惠券</div>
+          </div>
+          <button class="p8-banner-btn">去填写 ›</button>
+        </div>
+
+        <!-- 商品卡片 -->
+        <div class="p8-card">
+          <div class="p8-card-title">商品信息</div>
+          <div class="p7-good-row">
+            <div class="p7-good-img"></div>
+            <div class="p7-good-info">
+              <div class="p7-good-name">招牌桂花乌龙拿铁</div>
+              <div class="p7-good-spec">大杯 / 冰 / 少糖</div>
+            </div>
+            <div class="p7-good-right">
+              <div class="p7-good-price">¥28.00</div>
+              <div class="p7-good-qty">x1</div>
+            </div>
+          </div>
+          <div class="p7-good-row">
+            <div class="p7-good-img g2"></div>
+            <div class="p7-good-info">
+              <div class="p7-good-name">抹茶千层蛋糕</div>
+              <div class="p7-good-spec">原味</div>
+            </div>
+            <div class="p7-good-right">
+              <div class="p7-good-price">¥22.00</div>
+              <div class="p7-good-qty">x1</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 订单信息卡片 -->
+        <div class="p8-card">
+          <div class="p8-card-title">订单信息</div>
+          <div class="p8-info-row"><span class="il">订单编号</span><span class="iv">2026040122300001</span></div>
+          <div class="p8-info-row"><span class="il">下单时间</span><span class="iv">2026-04-01 22:15</span></div>
+          <div class="p8-info-row"><span class="il">配送方式</span><span class="iv">门店自提</span></div>
+          <div class="p8-info-row"><span class="il">联系方式</span><span class="iv">138****8888</span></div>
+          <div class="p8-info-row"><span class="il">自提门店</span><span class="iv">南京西路店</span></div>
+        </div>
+
+        <div style="height: 120px;"></div>
+
+        <div class="p8-foot">
+          <div class="p8-foot-total">总计<span class="fv">¥50.00</span></div>
+          <button class="p8-foot-btn">申请售后</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">⑧ 订单详情页（订单问卷）</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 手机9：订单详情页弹窗                                          -->
+  <!-- ============================================================ -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen p9-screen">
+
+        <!-- 模糊后的订单详情页背景 -->
+        <div class="p9-blurred">
+          <div style="background:#f5f5f7;min-height:100%;">
+            <div class="status-bar">
+              <span class="time">22:30</span>
+              <span class="icons">
+                <span class="signal">●●●○</span>
+                <span>Wi-Fi</span>
+                <span class="battery"></span>
+              </span>
+            </div>
+            <div class="nav-bar">
+              <span class="back">‹</span>
+              <span class="nav-title">订单详情</span>
+            </div>
+            <div class="p8-status-card">
+              <div class="p8-status-main">已完成</div>
+              <div class="p8-status-sub">感谢您的光临，期待再次为您服务</div>
+              <div class="p8-status-btns">
+                <button class="p8-status-btn secondary">再来一单</button>
+                <button class="p8-status-btn primary">填写问卷</button>
+              </div>
+            </div>
+            <div class="p8-survey-banner">
+              <div class="p8-banner-deco p8-banner-deco-1"></div>
+              <div class="p8-banner-deco p8-banner-deco-2"></div>
+              <div class="p8-banner-deco p8-banner-deco-3"></div>
+              <div class="p8-banner-icon">📋</div>
+              <div class="p8-banner-text">
+                <div class="p8-banner-title">参与问卷调研，赢取惊喜奖励</div>
+                <div class="p8-banner-sub">仅需1分钟，完成即得积分+优惠券</div>
+              </div>
+              <button class="p8-banner-btn">去填写 ›</button>
+            </div>
+            <div class="p8-card">
+              <div class="p8-card-title">商品信息</div>
+              <div class="p7-good-row">
+                <div class="p7-good-img"></div>
+                <div class="p7-good-info">
+                  <div class="p7-good-name">招牌桂花乌龙拿铁</div>
+                  <div class="p7-good-spec">大杯 / 冰 / 少糖</div>
+                </div>
+                <div class="p7-good-right">
+                  <div class="p7-good-price">¥28.00</div>
+                  <div class="p7-good-qty">x1</div>
+                </div>
+              </div>
+              <div class="p7-good-row">
+                <div class="p7-good-img g2"></div>
+                <div class="p7-good-info">
+                  <div class="p7-good-name">抹茶千层蛋糕</div>
+                  <div class="p7-good-spec">原味</div>
+                </div>
+                <div class="p7-good-right">
+                  <div class="p7-good-price">¥22.00</div>
+                  <div class="p7-good-qty">x1</div>
+                </div>
+              </div>
+            </div>
+            <div class="p8-card">
+              <div class="p8-card-title">订单信息</div>
+              <div class="p8-info-row"><span class="il">订单编号</span><span class="iv">2026040122300001</span></div>
+              <div class="p8-info-row"><span class="il">下单时间</span><span class="iv">2026-04-01 22:15</span></div>
+              <div class="p8-info-row"><span class="il">配送方式</span><span class="iv">门店自提</span></div>
+            </div>
+            <div style="height: 120px;"></div>
+            <div class="p8-foot">
+              <div class="p8-foot-total">总计<span class="fv">¥50.00</span></div>
+              <button class="p8-foot-btn">申请售后</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 半透明遮罩 -->
+        <div class="p9-mask" id="p9-mask"></div>
+
+        <!-- 弹窗 -->
+        <div class="p9-dialog" id="p9-dialog">
+          <div class="p9-dialog-hero">
+            <div class="p9-dialog-hero-title">用户偏好调查</div>
+            <button class="p9-dialog-close" id="p9-close">✕</button>
+          </div>
+          <div class="p9-dialog-body">
+            <div class="p9-dialog-title">邀您参与问卷调研</div>
+            <div class="p9-dialog-sub">完成问卷可获得奖励</div>
+            <div class="p9-dialog-rewards">
+              <div class="p9-dialog-reward">
+                <span class="pr-i">💎</span>
+                <span class="pr-l">100积分</span>
+              </div>
+              <div class="p9-dialog-reward">
+                <span class="pr-i">🎟️</span>
+                <span class="pr-l">5元券</span>
+              </div>
+              <div class="p9-dialog-reward">
+                <span class="pr-i">⭐</span>
+                <span class="pr-l">50经验</span>
+              </div>
+            </div>
+          </div>
+          <div class="p9-dialog-btns single">
+            <button class="p9-btn primary">去填写</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="phone-label">⑨ 订单详情页弹窗</div>
+    <div class="reset-link" id="phone9-reset">[重置演示]</div>
+  </div>
+
+</div>
+
+<script>
+  // ========== 手机2 交互 ==========
+
+  // 单选
+  document.querySelectorAll('[data-q="single"]').forEach(function(group) {
+    group.querySelectorAll('.opt').forEach(function(opt) {
+      opt.addEventListener('click', function() {
+        group.querySelectorAll('.opt').forEach(function(o) { o.classList.remove('selected'); });
+        opt.classList.add('selected');
+      });
+    });
+  });
+
+  // 多选
+  document.querySelectorAll('[data-q="multi"]').forEach(function(group) {
+    group.querySelectorAll('.opt').forEach(function(opt) {
+      opt.addEventListener('click', function() {
+        if (opt.classList.contains('selected')) {
+          opt.classList.remove('selected');
+        } else {
+          var selected = group.querySelectorAll('.opt.selected');
+          if (selected.length >= 4) return;
+          opt.classList.add('selected');
+        }
+      });
+    });
+  });
+
+  // 评分
+  document.querySelectorAll('[data-q="rate"]').forEach(function(group) {
+    group.querySelectorAll('.rate-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        group.querySelectorAll('.rate-item').forEach(function(i) { i.classList.remove('selected'); });
+        item.classList.add('selected');
+      });
+    });
+  });
+
+  // ========== 手机4：手动领取交互（整页渲染切换） ==========
+  (function() {
+    var phone4 = document.getElementById('phone4-screen');
+    var resetLink = document.getElementById('phone4-reset');
+    if (!phone4) return;
+
+    var rewards = [
+      { icon: '💎', name: '100 积分' },
+      { icon: '🎟️', name: '5元优惠券 ×1' },
+      { icon: '⭐', name: '50 经验值' }
+    ];
+
+    function renderUnclaimed() {
+      var itemsHtml = rewards.map(function(r) {
+        return '' +
+          '<div class="p3-reward-item">' +
+            '<div class="ri-icon">' + r.icon + '</div>' +
+            '<div class="ri-name">' + r.name + '</div>' +
+            '<span class="ri-badge unclaimed">未领取</span>' +
+          '</div>';
+      }).join('');
+
+      phone4.innerHTML = '' +
+        '<div class="status-bar">' +
+          '<span class="time">22:30</span>' +
+          '<span class="icons">' +
+            '<span class="signal">●●●○</span>' +
+            '<span>Wi-Fi</span>' +
+            '<span class="battery"></span>' +
+          '</span>' +
+        '</div>' +
+        '<div class="nav-bar" style="background: transparent; border: none;">' +
+          '<span class="back">‹</span>' +
+          '<span class="nav-title">提交结果</span>' +
+        '</div>' +
+        '<div class="success-hero">' +
+          '<div class="success-icon"></div>' +
+          '<div class="success-title">提交成功！</div>' +
+          '<div class="success-subtitle">请领取您的奖励</div>' +
+        '</div>' +
+        '<div class="p3-reward-card">' +
+          '<div class="p3-card-title">您可领取以下奖励</div>' +
+          itemsHtml +
+        '</div>' +
+        '<div class="p3-custom-text">您的反馈我们已收到，期待为您提供更好的服务！</div>' +
+        '<div style="height: 120px;"></div>' +
+        '<div class="p3-btn-row">' +
+          '<button class="primary-btn" id="phone4-claim-all" style="width:100%;">一键领取全部奖励</button>' +
+        '</div>';
+
+      phone4.setAttribute('data-state', 'unclaimed');
+      var btn = document.getElementById('phone4-claim-all');
+      if (btn) btn.addEventListener('click', renderClaimed);
+    }
+
+    function renderClaimed() {
+      var itemsHtml = rewards.map(function(r) {
+        return '' +
+          '<div class="p3-reward-item">' +
+            '<div class="ri-icon">' + r.icon + '</div>' +
+            '<div class="ri-name">' + r.name + '</div>' +
+            '<span class="ri-badge">已发放</span>' +
+          '</div>';
+      }).join('');
+
+      phone4.innerHTML = '' +
+        '<div class="status-bar">' +
+          '<span class="time">22:30</span>' +
+          '<span class="icons">' +
+            '<span class="signal">●●●○</span>' +
+            '<span>Wi-Fi</span>' +
+            '<span class="battery"></span>' +
+          '</span>' +
+        '</div>' +
+        '<div class="nav-bar" style="background: transparent; border: none;">' +
+          '<span class="back">‹</span>' +
+          '<span class="nav-title">提交结果</span>' +
+        '</div>' +
+        '<div class="success-hero">' +
+          '<div class="success-icon"></div>' +
+          '<div class="success-title">提交成功！</div>' +
+          '<div class="success-subtitle">感谢您的参与</div>' +
+        '</div>' +
+        '<div class="p3-reward-card">' +
+          '<div class="p3-card-title">已为您发放以下奖励</div>' +
+          itemsHtml +
+        '</div>' +
+        '<div class="p3-custom-text">您的反馈我们已收到，期待为您提供更好的服务！</div>' +
+        '<div style="height: 120px;"></div>' +
+        '<div class="p3-btn-row p3-btn-row-single">' +
+          '<button class="primary-btn">查看券包</button>' +
+        '</div>';
+
+      phone4.setAttribute('data-state', 'claimed');
+    }
+
+    if (resetLink) {
+      resetLink.addEventListener('click', renderUnclaimed);
+    }
+
+    renderUnclaimed();
+  })();
+
+  // ========== 手机5：我的奖品页 ==========
+  (function() {
+    var listEl = document.getElementById('p5-list');
+    var resetLink = document.getElementById('phone5-reset');
+    if (!listEl) return;
+
+    // 初始数据：按答卷为单位，每张答卷一个卡片，卡片内多行展示该答卷的所有奖励
+    var initialPapers = [
+      {
+        id: 1,
+        source: '用户偏好调查',
+        time: '2026-04-08 22:30',
+        claimed: false,
+        rewards: [
+          { type: 'point', icon: '💎', label: '100 积分' },
+          { type: 'coupon', icon: '🎟️', label: '5元优惠券 ×2' },
+          { type: 'coupon', icon: '🎟️', label: '10元优惠券 ×1' },
+          { type: 'exp', icon: '⭐', label: '500 经验值' }
+        ]
+      },
+      {
+        id: 2,
+        source: '春季新品口味调研',
+        time: '2026-04-05 14:20',
+        claimed: false,
+        rewards: [
+          { type: 'point', icon: '💎', label: '50 积分' },
+          { type: 'coupon', icon: '🎟️', label: '8元优惠券 ×1' }
+        ]
+      },
+      {
+        id: 3,
+        source: '门店服务满意度',
+        time: '2026-04-01 10:15',
+        claimed: true,
+        rewards: [
+          { type: 'point', icon: '💎', label: '200 积分' },
+          { type: 'exp', icon: '⭐', label: '100 经验值' }
+        ]
+      },
+      {
+        id: 4,
+        source: '春节年货问卷',
+        time: '2026-02-08 18:45',
+        claimed: true,
+        rewards: [
+          { type: 'coupon', icon: '🎟️', label: '20元优惠券 ×1' }
+        ]
+      }
+    ];
+    var papers = [];
+
+    function reset() {
+      papers = initialPapers.map(function(p) {
+        return Object.assign({}, p, { rewards: p.rewards.slice() });
+      });
+      render();
+    }
+
+    function render() {
+      // 排序：未领取在前，已领取在后；同状态内按 id 升序（id 越小越新）
+      var sorted = papers.slice().sort(function(a, b) {
+        if (a.claimed !== b.claimed) return a.claimed ? 1 : -1;
+        return a.id - b.id;
+      });
+
+      listEl.innerHTML = sorted.map(function(p) {
+        var rewardsHtml = p.rewards.map(function(r) {
+          return '' +
+            '<div class="p5-reward-row">' +
+              '<span class="p5-r-icon">' + r.icon + '</span>' +
+              '<span class="p5-r-label">' + r.label + '</span>' +
+            '</div>';
+        }).join('');
+
+        var actionHtml = p.claimed
+          ? '<span class="p5-claimed-badge">已领取</span>'
+          : '<button class="p5-claim-btn" data-id="' + p.id + '">一键领取</button>';
+
+        return '' +
+          '<div class="p5-paper-card">' +
+            '<div class="p5-rewards">' + rewardsHtml + '</div>' +
+            '<div class="p5-paper-meta">' +
+              '<div class="p5-meta-left">' +
+                '<div class="p5-source">来源：' + p.source + '</div>' +
+                '<div class="p5-time">' + p.time + '</div>' +
+              '</div>' +
+              '<div class="p5-action">' + actionHtml + '</div>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+
+      // 绑定一键领取按钮
+      listEl.querySelectorAll('.p5-claim-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = parseInt(btn.getAttribute('data-id'), 10);
+          var paper = papers.find(function(p) { return p.id === id; });
+          if (paper) {
+            paper.claimed = true;
+            render();
+          }
+        });
+      });
+    }
+
+    if (resetLink) {
+      resetLink.addEventListener('click', reset);
+    }
+
+    reset();
+  })();
+
+  // ========== 手机9：订单详情页弹窗 ==========
+  (function() {
+    var dialog = document.getElementById('p9-dialog');
+    var mask = document.getElementById('p9-mask');
+    var closeBtn = document.getElementById('p9-close');
+    var resetLink = document.getElementById('phone9-reset');
+    if (!dialog || !mask) return;
+
+    function hide() {
+      dialog.classList.add('hidden');
+      mask.classList.add('hidden');
+    }
+    function show() {
+      dialog.classList.remove('hidden');
+      mask.classList.remove('hidden');
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', hide);
+    if (resetLink) resetLink.addEventListener('click', show);
+  })();
+
+  // 图片上传占位
+  document.querySelectorAll('[data-q="img"]').forEach(function(group) {
+    group.querySelectorAll('.img-slot').forEach(function(slot) {
+      slot.addEventListener('click', function() {
+        slot.classList.toggle('filled');
+        if (slot.classList.contains('filled')) {
+          slot.innerHTML = '<span class="plus" style="font-size:22px;">✓</span><span>已添加</span>';
+        } else {
+          slot.innerHTML = '<span class="plus">+</span><span>添加图片</span>';
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

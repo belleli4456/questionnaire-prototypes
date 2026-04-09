@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>问卷调查 - 运营后台原型</title>
+  <style>
+    :root {
+      --brand: #c8191e;
+      --brand-soft: #fff3f2;
+      --bg: #f5f6f8;
+      --panel: #ffffff;
+      --line: #ebeef3;
+      --line-dark: #d8dde6;
+      --text: #1f2329;
+      --subtext: #4e5969;
+      --muted: #86909c;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    /* ================= Topbar ================= */
+    .topbar {
+      height: 68px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 28px; }
+    .brand {
+      color: var(--brand);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .system-nav { display: flex; align-items: stretch; gap: 10px; height: 68px; }
+    .system-item {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: #5b6575;
+      font-size: 16px;
+      position: relative;
+      white-space: nowrap;
+    }
+    .system-item.active {
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .system-item.active::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+      height: 3px;
+      background: var(--brand);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .search-box {
+      width: 250px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 16px;
+      background: #fafbfc;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ================= Layout ================= */
+    .layout {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      min-height: calc(100vh - 68px);
+    }
+
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 14px 0 24px;
+      overflow: auto;
+    }
+
+    .menu-item {
+      padding: 12px 28px;
+      font-size: 16px;
+      color: #2f3640;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-item.group {
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .submenu { padding: 4px 0 6px 14px; }
+
+    .submenu-item {
+      padding: 12px 20px 12px 32px;
+      font-size: 15px;
+      color: #4c5563;
+      border-right: 3px solid transparent;
+    }
+
+    .submenu-item.active {
+      color: var(--brand);
+      background: var(--brand-soft);
+      border-right-color: var(--brand);
+      font-weight: 600;
+    }
+
+    .page-wrap { padding: 20px 24px 40px; }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 30px;
+      font-weight: 700;
+      margin: 0 0 18px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ================= Top tabs ================= */
+    .main-tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .main-tab {
+      padding: 14px 20px;
+      font-size: 17px;
+      color: #5b6575;
+      cursor: pointer;
+      position: relative;
+    }
+    .main-tab.active {
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .main-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18px; right: 18px; bottom: -1px;
+      height: 3px; border-radius: 3px 3px 0 0;
+      background: var(--brand);
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ================= Card & Form ================= */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 28px 32px 32px;
+    }
+
+    .section + .section {
+      margin-top: 42px;
+      padding-top: 4px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 22px;
+      padding-left: 12px;
+      border-left: 4px solid var(--brand);
+      line-height: 1;
+    }
+
+    .subsection-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #2f3640;
+      margin: 20px 0 16px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .label {
+      width: 164px;
+      padding-top: 10px;
+      text-align: right;
+      color: var(--subtext);
+      font-size: 15px;
+      line-height: 24px;
+      white-space: nowrap;
+      flex: 0 0 164px;
+    }
+
+    .required::before {
+      content: "*";
+      color: var(--brand);
+      margin-right: 6px;
+    }
+
+    .control { flex: 1; min-width: 0; }
+
+    .input, .select, .textarea {
+      height: 40px;
+      border: 1px solid var(--line-dark);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 14px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+    }
+    .input:focus, .textarea:focus, .select:focus { border-color: var(--brand); }
+
+    .textarea {
+      padding: 10px 14px;
+      min-height: 72px;
+      resize: vertical;
+      width: 520px;
+      max-width: 100%;
+      line-height: 22px;
+    }
+
+    .input.large { width: 420px; }
+    .input.medium { width: 260px; }
+    .input.short { width: 110px; }
+    .input.tiny { width: 80px; }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+    }
+
+    .radio, .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #2f3640;
+      font-size: 15px;
+      line-height: 24px;
+      cursor: pointer;
+    }
+
+    .radio input, .check input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--brand);
+    }
+
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 22px;
+      border-radius: 999px;
+      background: #cad1dd;
+      flex: 0 0 auto;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .switch::after {
+      content: "";
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+      transition: left .15s ease;
+    }
+    .switch.active { background: var(--brand); }
+    .switch.active::after { left: 22px; }
+
+    .text-link, .danger-link {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: var(--brand);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .helper {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    /* ================= Question card ================= */
+    .q-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .q-add-btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 6px;
+      border: 1px dashed var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .q-add-btn:hover { background: #ffe9e7; }
+
+    .q-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .q-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fcfcfd;
+      padding: 18px 20px 16px;
+    }
+
+    .q-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .q-card-head-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #2f3640;
+    }
+    .q-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .q-type-select {
+      height: 28px;
+      width: 106px;
+      border: 1px solid var(--brand);
+      border-radius: 4px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 24px 4px 10px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='none' stroke='%23c8191e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2 4l3 3 3-3'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+    .q-type-select:focus { border-color: var(--brand); }
+
+    /* required toggle group inside head */
+    .q-req-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 4px;
+      font-size: 13px;
+      color: #5b6575;
+      font-weight: 400;
+    }
+    .q-req-inline .switch {
+      width: 34px;
+      height: 18px;
+    }
+    .q-req-inline .switch::after {
+      width: 14px;
+      height: 14px;
+    }
+    .q-req-inline .switch.active::after { left: 18px; }
+
+    .q-help-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid #b0b8c5;
+      color: #8c95a3;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: help;
+      line-height: 1;
+    }
+    .q-help-icon::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(17, 24, 39, 0.94);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 400;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s ease;
+      z-index: 5;
+    }
+    .q-help-icon::before {
+      content: "";
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(17, 24, 39, 0.94);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s ease;
+    }
+    .q-help-icon:hover::after,
+    .q-help-icon:hover::before {
+      opacity: 1;
+    }
+
+    /* field label inside question card */
+    .q-field {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .q-field-label {
+      width: 76px;
+      flex: 0 0 76px;
+      text-align: right;
+      padding-top: 10px;
+      color: var(--subtext);
+      font-size: 14px;
+      line-height: 20px;
+      white-space: nowrap;
+    }
+    .q-field-label.required::before {
+      content: "*";
+      color: var(--brand);
+      margin-right: 4px;
+    }
+    .q-field-control { flex: 1; min-width: 0; }
+
+    /* rate score chip */
+    .rate-score {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 4px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #ffd9d6;
+    }
+
+    /* add question dropdown */
+    .q-add-wrap {
+      position: relative;
+      display: inline-block;
+      margin-top: 6px;
+    }
+    .q-add-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 140px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      padding: 6px 0;
+      z-index: 10;
+      display: none;
+    }
+    .q-add-menu.show { display: block; }
+    .q-add-menu-item {
+      padding: 8px 16px;
+      font-size: 14px;
+      color: #2f3640;
+      cursor: pointer;
+    }
+    .q-add-menu-item:hover {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+    .q-actions { display: flex; gap: 14px; }
+    .q-actions button {
+      border: 0; background: transparent; cursor: pointer;
+      color: #5b6575; font-size: 13px; padding: 0;
+    }
+    .q-actions button:hover { color: var(--brand); }
+
+    .q-body { display: flex; flex-direction: column; gap: 10px; }
+    .q-body .input { width: 100%; }
+
+    .opt-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .opt-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .opt-row .dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid #c3cad6;
+      flex: 0 0 auto;
+    }
+    .opt-row.box .dot { border-radius: 3px; }
+    .opt-row .opt-input { flex: 1; height: 36px; }
+    .opt-row .mini-btn {
+      border: 0; background: transparent; color: #8c95a3;
+      cursor: pointer; font-size: 13px; padding: 0 4px;
+    }
+    .opt-row .mini-btn:hover { color: var(--brand); }
+
+    .add-opt-btn {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      border: 1px dashed #c3cad6;
+      background: #fff;
+      color: #5b6575;
+      font-size: 13px;
+      cursor: pointer;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+    .add-opt-btn:hover { border-color: var(--brand); color: var(--brand); }
+
+    .q-req-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      font-size: 14px; color: #5b6575;
+    }
+
+    .q-sub-row {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: #5b6575;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nested-box {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+
+    /* ================= Footer ================= */
+    .footer-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 34px;
+      padding-left: 182px;
+    }
+
+    .btn {
+      min-width: 104px;
+      height: 40px;
+      border-radius: 6px;
+      border: 1px solid var(--line-dark);
+      background: #fff;
+      color: #36404d;
+      cursor: pointer;
+      font-size: 15px;
+      padding: 0 18px;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    /* ================= Table ================= */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px 22px;
+      margin-bottom: 16px;
+    }
+    .filter-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; color: #4e5969;
+    }
+    .filter-item .input, .filter-item .select { height: 36px; font-size: 13px; }
+    .filter-actions { display: flex; gap: 10px; margin-left: auto; }
+
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 14px 14px;
+      border-bottom: 1px solid #eff2f6;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+      color: #36404d;
+    }
+    th {
+      background: #fafbfd;
+      color: #5c6678;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .name-cell { line-height: 22px; }
+    .code {
+      display: block; margin-top: 2px;
+      color: var(--muted); font-size: 12px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-draft { background: #f0f2f5; color: #6b7180; }
+    .status-pending { background: #e8f0ff; color: #2563eb; }
+    .status-running { background: #e6f7ec; color: #16a34a; }
+    .status-ended { background: #f0f2f5; color: #6b7180; }
+    .status-void { background: #fdebec; color: var(--brand); }
+    .status-valid { background: #e6f7ec; color: #16a34a; }
+    .status-invalid { background: #fdebec; color: var(--brand); }
+    .type-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .type-normal { background: #e8f0ff; color: #2563eb; }
+    .type-order { background: #fff3e8; color: #f97316; }
+
+    .row-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .row-actions button {
+      border: 0; background: transparent; cursor: pointer;
+      color: var(--brand); font-size: 13px; padding: 0;
+    }
+
+    /* ================= Activity data ================= */
+    .act-info-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .act-info-card .big-name {
+      font-size: 18px; font-weight: 700; color: #1f2329;
+    }
+    .act-info-card .meta {
+      color: var(--muted); font-size: 13px; margin-top: 4px;
+    }
+
+    .sub-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sub-tab {
+      padding: 12px 18px;
+      font-size: 15px;
+      color: #5b6575;
+      cursor: pointer;
+      position: relative;
+    }
+    .sub-tab.active { color: var(--brand); font-weight: 600; }
+    .sub-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 16px; right: 16px; bottom: -1px;
+      height: 2px; background: var(--brand);
+    }
+    .sub-pane { display: none; }
+    .sub-pane.active { display: block; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .metric-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex: 0 0 auto;
+      font-weight: 700;
+    }
+    .metric-val {
+      font-size: 26px; font-weight: 700; color: #1f2329;
+      line-height: 1.2;
+    }
+    .metric-label {
+      font-size: 13px; color: var(--muted); margin-top: 3px;
+    }
+
+    .stats-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 18px 0 14px;
+    }
+    .stats-head h3 {
+      margin: 0; font-size: 17px; font-weight: 600;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 14px;
+    }
+    .stat-card-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px;
+      font-size: 15px; color: #2f3640; font-weight: 600;
+      flex-wrap: wrap;
+    }
+    .stat-card-head .resp-count {
+      margin-left: auto;
+      color: var(--muted); font-weight: 400; font-size: 13px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 140px;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-size: 13px; color: #4e5969;
+    }
+    .bar-track {
+      height: 10px;
+      background: #f0f2f5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff7a7e, var(--brand));
+      border-radius: 999px;
+    }
+    .bar-val { text-align: right; color: #4e5969; }
+
+    .stat-card-head .stat-q-no {
+      font-weight: 700;
+      color: var(--brand);
+      font-size: 15px;
+    }
+    .stat-card-tip {
+      margin: -8px 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ----- Rating card ----- */
+    .rate-stat-wrap {
+      display: flex;
+      align-items: stretch;
+      gap: 28px;
+    }
+    .rate-stat-avg {
+      flex: 0 0 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--brand-soft);
+      border-radius: 10px;
+      padding: 18px 10px;
+    }
+    .rate-stat-avg .avg-num {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--brand);
+      line-height: 1;
+    }
+    .rate-stat-avg .avg-label {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--subtext);
+    }
+    .rate-stat-chart {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      gap: 14px;
+      padding: 10px 4px 0;
+      min-height: 160px;
+    }
+    .rate-bar-col {
+      flex: 1;
+      max-width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .rate-bar-num {
+      font-size: 13px;
+      color: var(--subtext);
+      font-weight: 600;
+    }
+    .rate-bar-bar {
+      width: 28px;
+      background: linear-gradient(180deg, #ff7a7e, var(--brand));
+      border-radius: 6px 6px 0 0;
+      min-height: 4px;
+    }
+    .rate-bar-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ----- Text answer list ----- */
+    .text-ans-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .text-ans-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #fafbfd;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 20px;
+    }
+    .text-ans-meta {
+      flex: 0 0 200px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .text-ans-meta .meta-name {
+      color: #2f3640;
+      font-weight: 600;
+      font-size: 13px;
+      margin-right: 6px;
+    }
+    .text-ans-content {
+      flex: 1;
+      color: #36404d;
+    }
+    .stat-card-foot {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      text-align: center;
+    }
+    .stat-card-foot button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .stat-card-foot button:hover { color: var(--brand); }
+
+    /* ----- Image thumb grid ----- */
+    .img-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 420px;
+    }
+    .img-stat-thumb {
+      position: relative;
+      width: 100%;
+      padding-top: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .img-stat-thumb .thumb-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    .img-stat-thumb .more-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    /* ----- Detail table scroll ----- */
+    .table-scroll {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .table-scroll table {
+      min-width: 1480px;
+    }
+    .table-scroll th.q-col,
+    .table-scroll td.q-col {
+      min-width: 160px;
+    }
+    .table-scroll th.q-col {
+      font-weight: 700;
+      color: #1f2329;
+    }
+
+    /* ================= Style settings ================= */
+    .img-uploader {
+      width: 140px;
+      height: 88px;
+      border: 1.5px dashed #c3cad6;
+      border-radius: 8px;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .img-uploader:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .img-uploader.active { border-color: var(--brand); background: var(--brand-soft); }
+    .img-uploader .plus {
+      font-size: 32px;
+      color: #c3cad6;
+      font-weight: 300;
+      line-height: 1;
+    }
+    .img-uploader:hover .plus, .img-uploader.active .plus { color: var(--brand); }
+
+    .btn-style-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 820px;
+      margin-left: 20px;
+    }
+    .btn-style-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fcfcfd;
+      padding: 18px 20px 16px;
+    }
+    .btn-style-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2f3640;
+      margin-bottom: 14px;
+    }
+    .btn-style-card .form-row { margin-bottom: 14px; }
+    .color-input {
+      width: 56px;
+      height: 32px;
+      padding: 2px;
+      border: 1px solid var(--line-dark);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ================= Msg preview card ================= */
+    .msg-preview-card {
+      width: 360px;
+      max-width: 100%;
+      background: #fffaf0;
+      border: 1px solid #ffe6b3;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .msg-preview-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #b8860b;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #ffe6b3;
+    }
+    .msg-preview-list { display: flex; flex-direction: column; gap: 6px; }
+    .msg-preview-item {
+      font-size: 13px;
+      line-height: 20px;
+      color: #d48806;
+    }
+    .msg-preview-item .mp-key { color: #ad6800; }
+    .msg-preview-item .mp-val { color: #d48806; }
+
+    /* ================= Nested style box ================= */
+    .style-nested {
+      margin-top: 10px;
+      padding: 14px 16px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .style-nested .form-row { margin-bottom: 12px; }
+    .style-nested .form-row:last-child { margin-bottom: 0; }
+    .style-nested .label { width: 92px; flex: 0 0 92px; }
+
+    /* ================= Coupon reward table ================= */
+    .coupon-add-btn {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      border: 1px dashed #52c41a;
+      background: #f6ffed;
+      color: #389e0d;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .coupon-add-btn:hover { background: #e6ffdb; border-color: #389e0d; }
+    .coupon-add-btn:disabled {
+      border-color: #d9d9d9;
+      background: #f5f5f5;
+      color: #b0b8c5;
+      cursor: not-allowed;
+    }
+    .coupon-hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 18px;
+    }
+    .coupon-table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .coupon-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .coupon-table thead th {
+      background: #fafbfd;
+      color: #5c6678;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    .coupon-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eff2f6;
+      font-size: 14px;
+      color: #36404d;
+      vertical-align: middle;
+      height: 60px;
+    }
+    .coupon-table tbody tr:last-child td { border-bottom: 0; }
+    .coupon-table tbody tr:hover { background: #fafbfd; }
+    .coupon-tpl-name {
+      font-weight: 600;
+      color: #1f2329;
+      font-size: 14px;
+      line-height: 20px;
+      word-break: break-all;
+    }
+    .coupon-tpl-id {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 16px;
+    }
+    .num-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line-dark);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      height: 32px;
+    }
+    .num-stepper button {
+      width: 28px;
+      height: 30px;
+      border: 0;
+      background: #fafbfd;
+      color: #5b6575;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .num-stepper button:hover { background: #f0f2f5; color: var(--brand); }
+    .num-stepper button:disabled { color: #c3cad6; cursor: not-allowed; background: #fafbfd; }
+    .num-stepper input {
+      width: 58px;
+      height: 30px;
+      border: 0;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: center;
+      outline: none;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+      -moz-appearance: textfield;
+    }
+    .num-stepper input::-webkit-outer-spin-button,
+    .num-stepper input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .num-stepper.wide input { width: 78px; }
+    .coupon-del-btn {
+      border: 0;
+      background: transparent;
+      color: var(--brand);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .coupon-del-btn:hover { text-decoration: underline; }
+    .coupon-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 28px 16px !important;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%; bottom: 30px;
+      transform: translateX(-50%);
+      background: rgba(17, 24, 39, 0.94);
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 40;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand">食亨</div>
+      <div class="system-nav">
+        <div class="system-item">经营中台</div>
+        <div class="system-item active">智慧门店</div>
+        <div class="system-item">供应链订货</div>
+        <div class="system-item">数据中心</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <input class="search-box" value="搜索页面/功能" />
+      <div style="font-size:14px;color:#5b6575;">蒋洋洋</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="menu-item">我的桌面</div>
+      <div class="menu-item">店铺</div>
+      <div class="menu-item">商品</div>
+      <div class="menu-item">订单中心</div>
+      <div class="menu-item group">营销中心</div>
+      <div class="submenu">
+        <div class="submenu-item">营销活动</div>
+        <div class="submenu-item">优惠券</div>
+        <div class="submenu-item">超值加购</div>
+        <div class="submenu-item">抽奖活动</div>
+        <div class="submenu-item active">问卷调查</div>
+        <div class="submenu-item">营销标签</div>
+        <div class="submenu-item">活动管控</div>
+      </div>
+      <div class="menu-item">卡券中心</div>
+      <div class="menu-item">会员</div>
+      <div class="menu-item">数据</div>
+    </aside>
+
+    <main class="page-wrap">
+      <div class="breadcrumb">营销中心 / 问卷调查</div>
+      <h1 class="page-title">问卷调查</h1>
+
+      <div class="main-tabs">
+        <div class="main-tab active" data-tab="create">新建活动</div>
+        <div class="main-tab" data-tab="list">活动列表</div>
+        <div class="main-tab" data-tab="data">活动数据</div>
+      </div>
+
+      <!-- ================= Tab 1: 新建活动 ================= -->
+      <div class="tab-pane active" id="pane-create">
+        <section class="card">
+          <!-- Section A: 基础信息 -->
+          <div class="section">
+            <h2 class="section-title">基础信息</h2>
+
+            <div class="form-row">
+              <div class="label required">活动名称:</div>
+              <div class="control">
+                <input class="input large" maxlength="30" placeholder="请输入活动名称，限30字以内" />
+                <div class="helper">用于后台识别活动</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">活动时间:</div>
+              <div class="control inline">
+                <input class="input medium" placeholder="开始时间" />
+                <span style="color:#98a2b3;">~</span>
+                <input class="input medium" placeholder="结束时间" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">问卷类型:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="surveyType" data-stype="normal" checked /> 普通问卷</label>
+                  <label class="radio"><input type="radio" name="surveyType" data-stype="order" /> 订单问卷</label>
+                </div>
+                <div class="helper">
+                  普通问卷：常用于收集一般性的信息或意见，可在多种渠道投放<br/>
+                  订单问卷：侧重收集与订单相关的信息，订单完成后发放
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section B: 问卷题目 -->
+          <div class="section">
+            <h2 class="section-title">问卷题目</h2>
+
+            <div class="form-row">
+              <div class="label">添加题目:</div>
+              <div class="control">
+                <div class="q-list" id="qList"></div>
+                <div class="q-add-wrap" id="addQuestionWrap">
+                  <button class="q-add-btn" id="addQuestionBtn">+ 添加题目</button>
+                  <div class="q-add-menu" id="addQuestionMenu">
+                    <div class="q-add-menu-item" data-type="single">单选题</div>
+                    <div class="q-add-menu-item" data-type="multi">多选题</div>
+                    <div class="q-add-menu-item" data-type="rate">评分题</div>
+                    <div class="q-add-menu-item" data-type="text">简答题</div>
+                    <div class="q-add-menu-item" data-type="image">图片题</div>
+                  </div>
+                </div>
+                <div class="helper">单个问卷建议不超过100道题目</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section C: 活动规则 -->
+          <div class="section">
+            <h2 class="section-title">活动规则</h2>
+
+            <div class="form-row">
+              <div class="label required">每人可参与次数:</div>
+              <div class="control inline">
+                <label class="radio"><input type="radio" name="joinLimit" data-toggle="joinLimitBox" data-val="unlimited" checked /> 不限</label>
+                <label class="radio"><input type="radio" name="joinLimit" data-toggle="joinLimitBox" data-val="limit" /> 限制</label>
+                <span id="joinLimitBox" class="hidden inline">
+                  <input class="input short" placeholder="次数" />
+                  <span style="color:#5b6575;font-size:14px;">次</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">每人每天可参与次数:</div>
+              <div class="control inline">
+                <label class="radio"><input type="radio" name="dayLimit" data-toggle="dayLimitBox" data-val="unlimited" checked /> 不限</label>
+                <label class="radio"><input type="radio" name="dayLimit" data-toggle="dayLimitBox" data-val="limit" /> 限制</label>
+                <span id="dayLimitBox" class="hidden inline">
+                  <input class="input short" placeholder="次数" />
+                  <span style="color:#5b6575;font-size:14px;">次</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">答题时间限制:</div>
+              <div class="control inline">
+                <label class="radio"><input type="radio" name="timeLimit" data-toggle="timeLimitBox" data-val="unlimited" checked /> 不限</label>
+                <label class="radio"><input type="radio" name="timeLimit" data-toggle="timeLimitBox" data-val="limit" /> 限制</label>
+                <span id="timeLimitBox" class="hidden inline">
+                  <input class="input short" placeholder="分钟数" />
+                  <span style="color:#5b6575;font-size:14px;">分钟</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">奖励设置:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="check"><input type="checkbox" data-reward="points" /> 积分</label>
+                  <label class="check"><input type="checkbox" data-reward="coupon" /> 优惠券</label>
+                  <label class="check"><input type="checkbox" data-reward="exp" /> 经验值</label>
+                </div>
+                <div class="nested-box hidden" id="rewardBox">
+                  <div class="form-row hidden" id="reward-points" style="margin-bottom:10px;">
+                    <div class="label required" style="width:92px;flex:0 0 92px;">发放数量:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" placeholder="请输入" />
+                      <span style="color:#5b6575;font-size:14px;">积分</span>
+                    </div>
+                  </div>
+                  <div class="form-row hidden" id="reward-coupon" style="margin-bottom:10px;align-items:flex-start;">
+                    <div class="label" style="width:92px;flex:0 0 92px;padding-top:10px;">优惠券:</div>
+                    <div class="control" style="max-width:760px;">
+                      <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap;">
+                        <button type="button" class="coupon-add-btn" id="addCouponBtn">+ 添加优惠券</button>
+                        <span class="coupon-hint">用户提交问卷后将获得添加的优惠券，最多可添加5种券，库存消耗完将不再奖励</span>
+                      </div>
+                      <div class="coupon-table-wrap">
+                        <table class="coupon-table">
+                          <thead>
+                            <tr>
+                              <th style="width:42%;">券模板</th>
+                              <th style="width:20%;">发放张数</th>
+                              <th style="width:24%;">优惠券库存</th>
+                              <th style="width:14%;">操作</th>
+                            </tr>
+                          </thead>
+                          <tbody id="couponTbody"></tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row hidden" id="reward-exp" style="margin-bottom:0;">
+                    <div class="label required" style="width:92px;flex:0 0 92px;">发放数量:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" placeholder="请输入" />
+                      <span style="color:#5b6575;font-size:14px;">经验值</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">奖励发放方式:</div>
+              <div class="control inline">
+                <label class="radio"><input type="radio" name="grantWay" checked /> 自动发放</label>
+                <label class="radio"><input type="radio" name="grantWay" /> 手动发放</label>
+              </div>
+            </div>
+
+            <!-- 订单问卷专属字段 -->
+            <div id="orderSurveyFields" class="hidden">
+              <div class="form-row">
+                <div class="label required">参与业务/场景:</div>
+                <div class="control inline">
+                  <label class="check"><input type="checkbox" checked /> 堂食</label>
+                  <label class="check"><input type="checkbox" checked /> 自提</label>
+                  <label class="check"><input type="checkbox" checked /> 自营外卖</label>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="label required">参与门店:</div>
+                <div class="control">
+                  <div class="inline">
+                    <label class="radio"><input type="radio" name="orderStores" data-storeval="all" checked /> 全部门店</label>
+                    <label class="radio"><input type="radio" name="orderStores" data-storeval="include" /> 指定门店参与</label>
+                    <label class="radio"><input type="radio" name="orderStores" data-storeval="exclude" /> 指定门店不参与</label>
+                  </div>
+                  <div id="orderStoresBox" class="style-nested hidden">
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:64px;flex:0 0 64px;padding-top:6px;">方式:</div>
+                      <div class="control inline">
+                        <label class="radio"><input type="radio" name="orderStoresMode" data-smode="store" checked /> 按门店</label>
+                        <label class="radio"><input type="radio" name="orderStoresMode" data-smode="org" /> 按组织</label>
+                        <label class="radio"><input type="radio" name="orderStoresMode" data-smode="tag" /> 按门店标签</label>
+                      </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:0;">
+                      <div class="label" style="width:64px;flex:0 0 64px;padding-top:6px;">选择:</div>
+                      <div class="control">
+                        <button type="button" class="add-opt-btn" id="orderStoresPickBtn">+ 选择门店</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="label required">下单商品:</div>
+                <div class="control">
+                  <div class="inline">
+                    <label class="radio"><input type="radio" name="orderGoods" data-goodsval="all" checked /> 全部商品</label>
+                    <label class="radio"><input type="radio" name="orderGoods" data-goodsval="include" /> 指定商品/分类参与</label>
+                    <label class="radio"><input type="radio" name="orderGoods" data-goodsval="exclude" /> 指定商品/分类不参与</label>
+                  </div>
+                  <div id="orderGoodsBox" class="style-nested hidden">
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:64px;flex:0 0 64px;padding-top:6px;">方式:</div>
+                      <div class="control inline">
+                        <label class="radio"><input type="radio" name="orderGoodsMode" data-gmode="goods" checked /> 按商品</label>
+                        <label class="radio"><input type="radio" name="orderGoodsMode" data-gmode="cat" /> 按分类</label>
+                      </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:0;">
+                      <div class="label" style="width:64px;flex:0 0 64px;padding-top:6px;">选择:</div>
+                      <div class="control">
+                        <button type="button" class="add-opt-btn" id="orderGoodsPickBtn">+ 选择商品</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="label required">单笔订单实付:</div>
+                <div class="control inline">
+                  <label class="radio"><input type="radio" name="orderPay" data-toggle="orderPayBox" data-val="unlimited" checked /> 不限制</label>
+                  <label class="radio"><input type="radio" name="orderPay" data-toggle="orderPayBox" data-val="limit" /> 限制</label>
+                  <span id="orderPayBox" class="hidden inline">
+                    <input class="input short" placeholder="金额" />
+                    <span style="color:#5b6575;font-size:14px;">元</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section C2: 推送设置 -->
+          <div class="section" id="pushSettingsSection">
+            <h2 class="section-title">推送设置</h2>
+
+            <div class="form-row">
+              <div class="label required">消息通知:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="msgNotify" data-msgval="off" checked /> 关闭</label>
+                  <label class="radio"><input type="radio" name="msgNotify" data-msgval="on" /> 开启</label>
+                </div>
+                <div id="msgPreviewBox" class="hidden" style="margin-top:12px;">
+                  <div class="msg-preview-card">
+                    <div class="msg-preview-title">活动开始提醒（微信订阅消息）</div>
+                    <div class="msg-preview-list">
+                      <div class="msg-preview-item"><span class="mp-key">商家名称：</span><span class="mp-val">xxx 商户</span></div>
+                      <div class="msg-preview-item"><span class="mp-key">活动主题：</span><span class="mp-val">xxx 活动</span></div>
+                      <div class="msg-preview-item"><span class="mp-key">活动时间：</span><span class="mp-val">2026年04月09日 12:00 ~ 2026年04月30日 23:59</span></div>
+                      <div class="msg-preview-item"><span class="mp-key">温馨提示：</span><span class="mp-val">请记得准时参与哦</span></div>
+                    </div>
+                  </div>
+                  <div class="helper">小程序订阅消息需要先订阅才能推送，此处勾选后还需到【订阅场景】进行配置</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="orderEntries" class="hidden">
+            <div class="form-row">
+              <div class="label required">订单列表页入口:</div>
+              <div class="control inline">
+                <label class="radio"><input type="radio" name="pushListEntry" checked /> 关闭</label>
+                <label class="radio"><input type="radio" name="pushListEntry" /> 开启</label>
+                <a class="push-example-link" style="color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;">查看示例</a>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">订单详情页入口:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="check"><input type="checkbox" id="pushDetailEntryBtn" data-detailentry="button" /> 按钮</label>
+                  <label class="check"><input type="checkbox" id="pushDetailEntryPopup" data-detailentry="popup" /> 弹窗</label>
+                  <a class="push-example-link" style="color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;">查看示例</a>
+                </div>
+                <div id="pushDetailEntryPopupTip" class="hidden" style="margin-top:10px;padding:8px 12px;background:#f5f5f5;border-radius:6px;color:#f5a623;font-size:13px;line-height:1.5;">
+                  ⚠️ 此弹窗优先级高于小程序弹窗广告，开启后用户进入订单详情页将优先弹出问卷弹窗
+                </div>
+                <div id="pushDetailEntryPopupUpload" class="hidden" style="margin-top:12px;">
+                  <div class="img-uploader" onclick="this.classList.toggle('active');showToast('点击上传图片（原型演示）');">
+                    <span class="plus">+</span>
+                  </div>
+                  <div class="helper">建议尺寸 750×1000px（竖向图，适配弹窗形态）</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">订单详情页 Banner:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="pushDetailBanner" data-bannerval="off" checked /> 关闭</label>
+                  <label class="radio"><input type="radio" name="pushDetailBanner" data-bannerval="on" /> 开启</label>
+                  <a class="push-example-link" style="color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;">查看示例</a>
+                </div>
+                <div id="pushDetailBannerUpload" class="hidden" style="margin-top:12px;">
+                  <div class="img-uploader" onclick="this.classList.toggle('active');showToast('点击上传图片（原型演示）');">
+                    <span class="plus">+</span>
+                  </div>
+                  <div class="helper">建议尺寸 750×200px</div>
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <!-- Section D: 样式设置 -->
+          <div class="section">
+            <h2 class="section-title">样式设置</h2>
+
+            <div class="form-row">
+              <div class="label required">活动主图:</div>
+              <div class="control">
+                <div class="img-uploader" onclick="this.classList.toggle('active');showToast('点击上传图片（原型演示）');">
+                  <span class="plus">+</span>
+                </div>
+                <div class="helper">建议尺寸 750×400px</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">问卷名称:</div>
+              <div class="control">
+                <input class="input large" maxlength="30" placeholder="C端展示的问卷标题" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label">问卷说明:</div>
+              <div class="control">
+                <textarea class="textarea" maxlength="200" placeholder="展示在问卷主页的说明文案"></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label">奖励说明:</div>
+              <div class="control">
+                <div class="inline" style="margin-bottom:10px;">
+                  <label class="radio"><input type="radio" name="rewardDescType" data-rdtype="text" checked /> 文案</label>
+                  <label class="radio"><input type="radio" name="rewardDescType" data-rdtype="image" /> 图片</label>
+                </div>
+                <div id="rewardDescText">
+                  <textarea class="textarea" maxlength="100" placeholder="如：完成问卷可获得 100积分 + 5元优惠券"></textarea>
+                </div>
+                <div id="rewardDescImage" class="hidden">
+                  <div class="img-uploader" onclick="this.classList.toggle('active');showToast('点击上传图片（原型演示）');">
+                    <span class="plus">+</span>
+                  </div>
+                  <div class="helper">建议尺寸 750×400px</div>
+                </div>
+                <div class="helper">活动主页会展示给用户看到的「完成可获得的奖励信息」，建议突出最有吸引力的奖励</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">活动主题色:</div>
+              <div class="control">
+                <input type="color" class="color-input" value="#c8191e" />
+                <div class="helper">用于小程序端进度条、题目序号背景、按钮背景等强调色，建议跟活动主图颜色搭配</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label">跳转按钮文案:</div>
+              <div class="control">
+                <div class="helper" style="margin-top:0;margin-bottom:8px;">提交问卷后引导用户跳转的按钮</div>
+                <input class="input medium" maxlength="8" placeholder="返回首页" value="返回首页" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label">跳转页面:</div>
+              <div class="control">
+                <select class="select" style="width:260px;" id="jumpPageSelect">
+                  <option value="home">小程序首页</option>
+                  <option value="order">点单页</option>
+                  <option value="coupon">我的优惠券</option>
+                  <option value="custom">自定义</option>
+                </select>
+                <div id="jumpUrlBox" class="hidden" style="margin-top:10px;">
+                  <input class="input large" placeholder="请输入跳转链接" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">分享设置:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="share" data-share="on" checked /> 支持分享</label>
+                  <label class="radio"><input type="radio" name="share" data-share="off" /> 不支持分享</label>
+                </div>
+                <div id="shareBox" class="style-nested">
+                  <div class="form-row">
+                    <div class="label">分享标题:</div>
+                    <div class="control">
+                      <input class="input large" maxlength="30" placeholder="默认与问卷名称一致" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="label">分享图片:</div>
+                    <div class="control">
+                      <div class="img-uploader" onclick="this.classList.toggle('active');showToast('点击上传图片（原型演示）');">
+                        <span class="plus">+</span>
+                      </div>
+                      <div class="helper">默认使用活动主图</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-bar">
+            <button class="btn">取消</button>
+            <button class="btn btn-primary">保存活动</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= Tab 2: 活动列表 ================= -->
+      <div class="tab-pane" id="pane-list">
+        <section class="card">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span>活动信息:</span>
+              <input class="input" style="width:200px;" placeholder="活动名称/ID" />
+            </div>
+            <div class="filter-item">
+              <span>问卷名称:</span>
+              <input class="input" style="width:180px;" placeholder="请输入" />
+            </div>
+            <div class="filter-item">
+              <span>活动时间:</span>
+              <input class="input" style="width:140px;" placeholder="开始" />
+              <span style="color:#98a2b3;">~</span>
+              <input class="input" style="width:140px;" placeholder="结束" />
+            </div>
+            <div class="filter-item">
+              <span>活动状态:</span>
+              <select class="select" style="width:140px;">
+                <option>全部</option>
+                <option>草稿</option>
+                <option>待开始</option>
+                <option>进行中</option>
+                <option>已结束</option>
+                <option>已作废</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <span>问卷类型:</span>
+              <select class="select" style="width:140px;">
+                <option>全部</option>
+                <option>普通问卷</option>
+                <option>订单问卷</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <span>活动门店:</span>
+              <select class="select" style="width:140px;">
+                <option>全部门店</option>
+                <option>指定门店</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary">查询</button>
+              <button class="btn">重置</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <button class="btn btn-primary" id="newFromList">+ 新建问卷活动</button>
+          </div>
+
+          <div class="table-card">
+            <table>
+              <colgroup>
+                <col style="width:17%" />
+                <col style="width:12%" />
+                <col style="width:9%" />
+                <col style="width:13%" />
+                <col style="width:6%" />
+                <col style="width:7%" />
+                <col style="width:7%" />
+                <col style="width:7%" />
+                <col style="width:22%" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>活动信息</th>
+                  <th>问卷名称</th>
+                  <th>问卷类型</th>
+                  <th>活动时间</th>
+                  <th>问题数量</th>
+                  <th>参与人数</th>
+                  <th>答卷总量</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="name-cell">春季新品口味调研<span class="code">ID: SVY20260315001</span></td>
+                  <td>春季新品体验问卷</td>
+                  <td><span class="type-badge type-normal">普通问卷</span></td>
+                  <td>2026-03-15 00:00<br/>2026-04-15 23:59</td>
+                  <td>8</td>
+                  <td>1,258</td>
+                  <td>1,342</td>
+                  <td><span class="status-badge status-running">进行中</span></td>
+                  <td><div class="row-actions">
+                    <button>查看</button><button>编辑</button><button>复制</button><button>暂停</button><button>作废</button><button>统计分析</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">门店服务满意度调研<span class="code">ID: SVY20260220003</span></td>
+                  <td>门店服务反馈</td>
+                  <td><span class="type-badge type-order">订单问卷</span></td>
+                  <td>2026-02-20 00:00<br/>2026-03-20 23:59</td>
+                  <td>12</td>
+                  <td>3,421</td>
+                  <td>3,580</td>
+                  <td><span class="status-badge status-ended">已结束</span></td>
+                  <td><div class="row-actions">
+                    <button>查看</button><button>复制</button><button>统计分析</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">会员日活动预热问卷<span class="code">ID: SVY20260328005</span></td>
+                  <td>会员日心愿单</td>
+                  <td><span class="type-badge type-normal">普通问卷</span></td>
+                  <td>2026-04-05 00:00<br/>2026-04-20 23:59</td>
+                  <td>6</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td><span class="status-badge status-pending">待开始</span></td>
+                  <td><div class="row-actions">
+                    <button>查看</button><button>编辑</button><button>复制</button><button>作废</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">新品包装设计征集<span class="code">ID: SVY20260330008</span></td>
+                  <td>包装偏好调研</td>
+                  <td><span class="type-badge type-order">订单问卷</span></td>
+                  <td>—</td>
+                  <td>4</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td><span class="status-badge status-draft">草稿</span></td>
+                  <td><div class="row-actions">
+                    <button>查看</button><button>编辑</button><button>复制</button><button>作废</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">冬季套餐问卷（旧版）<span class="code">ID: SVY20251120001</span></td>
+                  <td>冬季套餐偏好</td>
+                  <td><span class="type-badge type-normal">普通问卷</span></td>
+                  <td>2025-11-20 00:00<br/>2025-12-20 23:59</td>
+                  <td>5</td>
+                  <td>86</td>
+                  <td>86</td>
+                  <td><span class="status-badge status-void">已作废</span></td>
+                  <td><div class="row-actions">
+                    <button>查看</button><button>复制</button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= Tab 3: 活动数据 ================= -->
+      <div class="tab-pane" id="pane-data">
+        <div class="act-info-card">
+          <div style="flex:1;">
+            <div class="big-name">春季新品口味调研</div>
+            <div class="meta">活动ID: SVY20260315001 &nbsp;·&nbsp; 活动时间: 2026-03-15 00:00 ~ 2026-04-15 23:59</div>
+          </div>
+          <span class="status-badge status-running">进行中</span>
+          <button class="btn">切换活动</button>
+        </div>
+
+        <div class="sub-tabs">
+          <div class="sub-tab active" data-sub="stat">问卷统计</div>
+          <div class="sub-tab" data-sub="detail">问卷明细</div>
+        </div>
+
+        <!-- Sub: 问卷统计 -->
+        <div class="sub-pane active" id="sub-stat">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+            <button class="btn">导出</button>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-icon">+</div>
+              <div>
+                <div class="metric-val">128</div>
+                <div class="metric-label">今日新增</div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">✓</div>
+              <div>
+                <div class="metric-val">1,258</div>
+                <div class="metric-label">有效答卷</div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">≡</div>
+              <div>
+                <div class="metric-val">1,342</div>
+                <div class="metric-label">问卷总量</div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">◎</div>
+              <div>
+                <div class="metric-val">4,875</div>
+                <div class="metric-label">总访问次数</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-head">
+            <h3>按题目统计</h3>
+          </div>
+
+          <!-- 卡片1：单选题 -->
+          <div class="stat-card">
+            <div class="stat-card-head">
+              <span class="stat-q-no">01</span>
+              <span>您最喜欢哪种春季新品？</span>
+              <span class="q-badge">单选题</span>
+              <span class="resp-count">回答人数：127人</span>
+            </div>
+            <div class="bar-row">
+              <div>樱花奶茶</div>
+              <div class="bar-track"><div class="bar-fill" style="width:40.9%;"></div></div>
+              <div class="bar-val">52人 · 40.9%</div>
+            </div>
+            <div class="bar-row">
+              <div>抹茶千层</div>
+              <div class="bar-track"><div class="bar-fill" style="width:24.4%;"></div></div>
+              <div class="bar-val">31人 · 24.4%</div>
+            </div>
+            <div class="bar-row">
+              <div>青梅气泡水</div>
+              <div class="bar-track"><div class="bar-fill" style="width:22.1%;"></div></div>
+              <div class="bar-val">28人 · 22.1%</div>
+            </div>
+            <div class="bar-row">
+              <div>水蜜桃乌龙</div>
+              <div class="bar-track"><div class="bar-fill" style="width:12.6%;"></div></div>
+              <div class="bar-val">16人 · 12.6%</div>
+            </div>
+          </div>
+
+          <!-- 卡片2：多选题 -->
+          <div class="stat-card">
+            <div class="stat-card-head">
+              <span class="stat-q-no">02</span>
+              <span>您喜欢的口味系列？（多选）</span>
+              <span class="q-badge">多选题</span>
+              <span class="resp-count">回答人数：127人</span>
+            </div>
+            <div class="stat-card-tip">多选题占比之和可能超过 100%</div>
+            <div class="bar-row">
+              <div>水果系</div>
+              <div class="bar-track"><div class="bar-fill" style="width:77.2%;"></div></div>
+              <div class="bar-val">98人 · 77.2%</div>
+            </div>
+            <div class="bar-row">
+              <div>茶香系</div>
+              <div class="bar-track"><div class="bar-fill" style="width:59.8%;"></div></div>
+              <div class="bar-val">76人 · 59.8%</div>
+            </div>
+            <div class="bar-row">
+              <div>咖啡系</div>
+              <div class="bar-track"><div class="bar-fill" style="width:35.4%;"></div></div>
+              <div class="bar-val">45人 · 35.4%</div>
+            </div>
+            <div class="bar-row">
+              <div>奶盖系</div>
+              <div class="bar-track"><div class="bar-fill" style="width:17.3%;"></div></div>
+              <div class="bar-val">22人 · 17.3%</div>
+            </div>
+          </div>
+
+          <!-- 卡片3：评分题 -->
+          <div class="stat-card">
+            <div class="stat-card-head">
+              <span class="stat-q-no">03</span>
+              <span>您对新品的整体满意度？</span>
+              <span class="q-badge">评分题</span>
+              <span class="resp-count">回答人数：127人</span>
+            </div>
+            <div class="rate-stat-wrap">
+              <div class="rate-stat-avg">
+                <div class="avg-num">4.5</div>
+                <div class="avg-label">平均分</div>
+              </div>
+              <div class="rate-stat-chart">
+                <div class="rate-bar-col">
+                  <div class="rate-bar-num">2人</div>
+                  <div class="rate-bar-bar" style="height:6px;"></div>
+                  <div class="rate-bar-label">1分</div>
+                </div>
+                <div class="rate-bar-col">
+                  <div class="rate-bar-num">5人</div>
+                  <div class="rate-bar-bar" style="height:14px;"></div>
+                  <div class="rate-bar-label">2分</div>
+                </div>
+                <div class="rate-bar-col">
+                  <div class="rate-bar-num">15人</div>
+                  <div class="rate-bar-bar" style="height:42px;"></div>
+                  <div class="rate-bar-label">3分</div>
+                </div>
+                <div class="rate-bar-col">
+                  <div class="rate-bar-num">38人</div>
+                  <div class="rate-bar-bar" style="height:84px;"></div>
+                  <div class="rate-bar-label">4分</div>
+                </div>
+                <div class="rate-bar-col">
+                  <div class="rate-bar-num">67人</div>
+                  <div class="rate-bar-bar" style="height:140px;"></div>
+                  <div class="rate-bar-label">5分</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 卡片4：简答题 -->
+          <div class="stat-card">
+            <div class="stat-card-head">
+              <span class="stat-q-no">04</span>
+              <span>对我们有什么建议？</span>
+              <span class="q-badge">简答题</span>
+              <span class="resp-count">回答人数：95人</span>
+            </div>
+            <div class="text-ans-list">
+              <div class="text-ans-item">
+                <div class="text-ans-meta"><span class="meta-name">糖糖小姐</span>· 2026-04-01 10:23</div>
+                <div class="text-ans-content">希望多出限定口味，包装也可以再可爱一些～</div>
+              </div>
+              <div class="text-ans-item">
+                <div class="text-ans-meta"><span class="meta-name">阿Ken</span>· 2026-04-01 09:56</div>
+                <div class="text-ans-content">包装可以再精致一些，茶饮口感很不错</div>
+              </div>
+              <div class="text-ans-item">
+                <div class="text-ans-meta"><span class="meta-name">小芝士</span>· 2026-03-31 18:42</div>
+                <div class="text-ans-content">樱花季的氛围感拉满！期待更多季节限定</div>
+              </div>
+              <div class="text-ans-item">
+                <div class="text-ans-meta"><span class="meta-name">喵喵</span>· 2026-03-31 14:15</div>
+                <div class="text-ans-content">价格略贵，但口感能打</div>
+              </div>
+            </div>
+            <div class="stat-card-foot">
+              <button>查看全部 95 条回答 ›</button>
+            </div>
+          </div>
+
+          <!-- 卡片5：图片题 -->
+          <div class="stat-card">
+            <div class="stat-card-head">
+              <span class="stat-q-no">05</span>
+              <span>上传您喜欢的饮品照片</span>
+              <span class="q-badge">图片题</span>
+              <span class="resp-count">回答人数：63人</span>
+            </div>
+            <div class="img-stat-grid">
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#ffd5d8,#ff9aa0);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#ffe2b8,#ffb86b);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#d4f5c8,#7cd09a);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#c8e6ff,#6fa8ef);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#e0d4ff,#a48fef);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#ffd0f0,#f070c0);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#fff3b8,#f0c850);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#b8f0ec,#5cc7be);"><div class="thumb-inner">📷</div></div>
+              <div class="img-stat-thumb" style="background:linear-gradient(135deg,#f0c8a8,#c88858);"><div class="thumb-inner">📷</div><div class="more-mask">+54</div></div>
+            </div>
+            <div class="stat-card-foot">
+              <button>查看全部 63 张图片 ›</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub: 问卷明细 -->
+        <div class="sub-pane" id="sub-detail">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span>提交时间:</span>
+              <input class="input" style="width:140px;" placeholder="开始" />
+              <span style="color:#98a2b3;">~</span>
+              <input class="input" style="width:140px;" placeholder="结束" />
+            </div>
+            <div class="filter-item">
+              <span>手机号:</span>
+              <input class="input" style="width:160px;" placeholder="请输入" />
+            </div>
+            <div class="filter-item">
+              <span>门店:</span>
+              <select class="select" style="width:180px;">
+                <option>全部门店</option>
+                <option>南京西路店</option>
+                <option>静安嘉里店</option>
+                <option>徐家汇店</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary">查询</button>
+              <button class="btn">重置</button>
+              <button class="btn">导出</button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th style="min-width:160px;">提交时间</th>
+                  <th style="min-width:180px;">会员</th>
+                  <th class="q-col">题1</th>
+                  <th class="q-col">题2</th>
+                  <th class="q-col">题3</th>
+                  <th class="q-col" style="min-width:220px;">题4</th>
+                  <th style="min-width:150px;">门店</th>
+                  <th style="min-width:90px;">时长</th>
+                  <th style="min-width:80px;">状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>2026-04-01 10:23:18</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ffe2b8,#ef6f75);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>糖糖小姐</div><div style="color:var(--muted);font-size:12px;">138****2341</div></div>
+                    </div>
+                  </td>
+                  <td class="q-col">樱花奶茶</td>
+                  <td class="q-col">水果系,茶香系</td>
+                  <td class="q-col">5分-非常满意</td>
+                  <td class="q-col">希望多出限定口味...</td>
+                  <td class="name-cell"><div>南京西路店</div><span class="code">BX001</span></td>
+                  <td>3分12秒</td>
+                  <td><span class="status-badge status-valid">有效</span></td>
+                </tr>
+                <tr>
+                  <td>2026-04-01 09:56:02</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#b8e2ff,#6f93ef);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>阿Ken</div><div style="color:var(--muted);font-size:12px;">139****8812</div></div>
+                    </div>
+                  </td>
+                  <td class="q-col">青梅气泡水</td>
+                  <td class="q-col">水果系,咖啡系</td>
+                  <td class="q-col">4分-比较满意</td>
+                  <td class="q-col">包装可以再精致一些...</td>
+                  <td class="name-cell"><div>静安嘉里店</div><span class="code">BX008</span></td>
+                  <td>2分44秒</td>
+                  <td><span class="status-badge status-valid">有效</span></td>
+                </tr>
+                <tr>
+                  <td>2026-03-31 22:10:47</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d4ffb8,#6fef95);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>米粒</div><div style="color:var(--muted);font-size:12px;">136****5520</div></div>
+                    </div>
+                  </td>
+                  <td class="q-col">抹茶千层</td>
+                  <td class="q-col">茶香系</td>
+                  <td class="q-col">5分-非常满意</td>
+                  <td class="q-col" style="color:var(--muted);">（未填写）</td>
+                  <td class="name-cell"><div>徐家汇店</div><span class="code">BX012</span></td>
+                  <td>7分30秒</td>
+                  <td><span class="status-badge status-invalid">无效</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">已添加</div>
+
+  <script>
+    // ================= Main tab switch =================
+    document.querySelectorAll('.main-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.main-tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const tab = t.dataset.tab;
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('pane-' + tab).classList.add('active');
+      });
+    });
+
+    document.getElementById('newFromList').addEventListener('click', () => {
+      document.querySelector('.main-tab[data-tab="create"]').click();
+    });
+
+    // ================= Sub tab switch =================
+    document.querySelectorAll('.sub-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const sub = t.dataset.sub;
+        document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('sub-' + sub).classList.add('active');
+      });
+    });
+
+    // ================= Toast =================
+    const toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    // ================= Questions =================
+    const qList = document.getElementById('qList');
+
+    const TYPE_LABEL = {
+      single: '单选题',
+      multi: '多选题',
+      rate: '评分题',
+      text: '简答题',
+      image: '图片题'
+    };
+
+    function renumberOpts(list) {
+      [...list.children].forEach((row, i) => {
+        const lab = row.querySelector('.opt-label');
+        if (lab) lab.textContent = '选项' + (i + 1);
+        const score = row.querySelector('.rate-score');
+        if (score) score.textContent = (i + 1) + '分';
+      });
+    }
+
+    function makeOption(type, placeholder) {
+      const row = document.createElement('div');
+      row.className = 'opt-row' + (type === 'multi' ? ' box' : '');
+      const isRate = type === 'rate';
+      row.innerHTML = `
+        <span class="q-field-label opt-label" style="padding-top:6px;">选项?</span>
+        ${isRate ? '<span class="rate-score">1分</span>' : '<span class="dot"></span>'}
+        <input class="input opt-input" placeholder="${placeholder}" />
+        <button class="mini-btn" data-act="up" title="上移">↑</button>
+        <button class="mini-btn" data-act="down" title="下移">↓</button>
+        <button class="mini-btn" data-act="del" title="删除">✕</button>
+      `;
+      row.querySelector('[data-act="up"]').addEventListener('click', () => {
+        if (row.previousElementSibling) {
+          row.parentNode.insertBefore(row, row.previousElementSibling);
+          renumberOpts(row.parentNode);
+        }
+      });
+      row.querySelector('[data-act="down"]').addEventListener('click', () => {
+        if (row.nextElementSibling) {
+          row.parentNode.insertBefore(row.nextElementSibling, row);
+          renumberOpts(row.parentNode);
+        }
+      });
+      row.querySelector('[data-act="del"]').addEventListener('click', () => {
+        const parent = row.parentNode;
+        row.remove();
+        if (parent) renumberOpts(parent);
+      });
+      return row;
+    }
+
+    function buildOptionsArea(type) {
+      const wrap = document.createElement('div');
+
+      if (type === 'single' || type === 'multi') {
+        const list = document.createElement('div');
+        list.className = 'opt-list';
+        list.appendChild(makeOption(type, '请输入选项内容'));
+        list.appendChild(makeOption(type, '请输入选项内容'));
+        wrap.appendChild(list);
+        renumberOpts(list);
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-opt-btn';
+        addBtn.textContent = '+ 添加选项';
+        addBtn.style.marginLeft = '88px';
+        addBtn.addEventListener('click', () => {
+          if (list.children.length >= 20) { showToast('最多20个选项'); return; }
+          list.appendChild(makeOption(type, '请输入选项内容'));
+          renumberOpts(list);
+        });
+        wrap.appendChild(addBtn);
+
+        if (type === 'multi') {
+          const req = document.createElement('div');
+          req.className = 'q-field';
+          req.style.marginTop = '10px';
+          req.innerHTML = `
+            <div class="q-field-label">必选数量</div>
+            <div class="q-field-control inline" style="padding-top:6px;">
+              <span>最少</span>
+              <input class="input tiny" placeholder="X" />
+              <span>个，最多</span>
+              <input class="input tiny" placeholder="Y" />
+              <span>个</span>
+            </div>
+          `;
+          wrap.appendChild(req);
+        }
+      } else if (type === 'rate') {
+        const list = document.createElement('div');
+        list.className = 'opt-list';
+        const presets = ['非常不满意', '不满意', '一般', '满意', '非常满意'];
+        presets.forEach(p => {
+          const row = makeOption('rate', '请输入分值文案');
+          const input = row.querySelector('.opt-input');
+          if (input) input.value = p;
+          list.appendChild(row);
+        });
+        wrap.appendChild(list);
+        renumberOpts(list);
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-opt-btn';
+        addBtn.textContent = '+ 添加选项';
+        addBtn.style.marginLeft = '88px';
+        addBtn.addEventListener('click', () => {
+          if (list.children.length >= 10) { showToast('评分题最多10个选项'); return; }
+          list.appendChild(makeOption('rate', '请输入分值文案'));
+          renumberOpts(list);
+        });
+        wrap.appendChild(addBtn);
+      } else if (type === 'text') {
+        const note = document.createElement('div');
+        note.className = 'q-field';
+        note.innerHTML = `
+          <div class="q-field-label">作答方式</div>
+          <div class="q-field-control" style="padding-top:8px;color:var(--muted);font-size:13px;">用户将通过文本输入框作答</div>
+        `;
+        wrap.appendChild(note);
+      } else if (type === 'image') {
+        const row1 = document.createElement('div');
+        row1.className = 'q-field';
+        row1.innerHTML = `
+          <div class="q-field-label">数量限制</div>
+          <div class="q-field-control inline" style="padding-top:6px;">
+            <span>最多</span>
+            <input class="input tiny" placeholder="张数" value="3" />
+            <span>张</span>
+          </div>
+        `;
+        wrap.appendChild(row1);
+
+        const row2 = document.createElement('div');
+        row2.className = 'q-field';
+        row2.style.marginTop = '10px';
+        row2.innerHTML = `
+          <div class="q-field-label">文本输入</div>
+          <div class="q-field-control inline" style="padding-top:6px;">
+            <span class="switch" data-img-switch></span>
+            <span style="color:var(--muted);">开启后用户除图片外还可填写文字</span>
+          </div>
+        `;
+        wrap.appendChild(row2);
+
+        const nested = document.createElement('div');
+        nested.className = 'nested-box hidden';
+        nested.style.marginLeft = '88px';
+        nested.innerHTML = `
+          <div class="q-sub-row" style="margin-top:0;">
+            <span>是否必填:</span>
+            <span class="switch" data-img-req></span>
+            <span style="margin-left:20px;">字数最少</span>
+            <input class="input tiny" placeholder="X" />
+            <span>最多</span>
+            <input class="input tiny" placeholder="Y" />
+            <span>字</span>
+          </div>
+        `;
+        wrap.appendChild(nested);
+
+        const sw = row2.querySelector('[data-img-switch]');
+        sw.addEventListener('click', () => {
+          sw.classList.toggle('active');
+          nested.classList.toggle('hidden');
+        });
+        const reqSw = nested.querySelector('[data-img-req]');
+        reqSw.addEventListener('click', () => reqSw.classList.toggle('active'));
+      }
+
+      return wrap;
+    }
+
+    function renumber() {
+      [...qList.children].forEach((c, i) => {
+        const numEl = c.querySelector('.q-num');
+        if (numEl) numEl.textContent = '题目' + (i + 1);
+      });
+    }
+
+    function addQuestion(type, presetTitle = '', presetGuide = '') {
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      card.innerHTML = `
+        <div class="q-card-head">
+          <div class="q-card-head-left">
+            <span class="q-num">题目?</span>
+            <select class="q-type-select">
+              <option value="single"${type==='single'?' selected':''}>单选题</option>
+              <option value="multi"${type==='multi'?' selected':''}>多选题</option>
+              <option value="rate"${type==='rate'?' selected':''}>评分题</option>
+              <option value="text"${type==='text'?' selected':''}>简答题</option>
+              <option value="image"${type==='image'?' selected':''}>图片题</option>
+            </select>
+            <span class="q-req-inline">
+              <span>必答</span>
+              <span class="switch active" data-req></span>
+              <span class="q-help-icon" data-tip="必答题用户必须完成后才能提交">?</span>
+            </span>
+          </div>
+          <div class="q-actions">
+            <button data-act="up">上移</button>
+            <button data-act="down">下移</button>
+            <button data-act="top">置顶</button>
+            <button data-act="copy">复制</button>
+            <button data-act="del">删除</button>
+          </div>
+        </div>
+        <div class="q-body">
+          <div class="q-field">
+            <div class="q-field-label required">题目</div>
+            <div class="q-field-control">
+              <input class="input q-title" maxlength="50" placeholder="请输入题目" value="${presetTitle}" />
+            </div>
+          </div>
+          <div class="q-field">
+            <div class="q-field-label">填写引导</div>
+            <div class="q-field-control">
+              <input class="input q-guide" maxlength="100" placeholder="对题目的补充说明（选填）" value="${presetGuide}" />
+            </div>
+          </div>
+        </div>
+        <div class="q-opts-slot"></div>
+      `;
+      card.dataset.type = type;
+      const slot = card.querySelector('.q-opts-slot');
+      slot.appendChild(buildOptionsArea(type));
+
+      card.querySelector('[data-act="up"]').addEventListener('click', () => {
+        if (card.previousElementSibling) qList.insertBefore(card, card.previousElementSibling);
+        renumber();
+      });
+      card.querySelector('[data-act="down"]').addEventListener('click', () => {
+        if (card.nextElementSibling) qList.insertBefore(card.nextElementSibling, card);
+        renumber();
+      });
+      card.querySelector('[data-act="top"]').addEventListener('click', () => {
+        qList.insertBefore(card, qList.firstChild);
+        renumber();
+      });
+      card.querySelector('[data-act="copy"]').addEventListener('click', () => {
+        const title = card.querySelector('.q-title').value;
+        const guide = card.querySelector('.q-guide').value;
+        addQuestion(card.dataset.type, title, guide);
+        showToast('已复制题目');
+      });
+      card.querySelector('[data-act="del"]').addEventListener('click', () => {
+        card.remove();
+        renumber();
+      });
+      const reqSw = card.querySelector('[data-req]');
+      reqSw.addEventListener('click', () => reqSw.classList.toggle('active'));
+
+      const typeSel = card.querySelector('.q-type-select');
+      typeSel.addEventListener('change', () => {
+        const newType = typeSel.value;
+        card.dataset.type = newType;
+        const slotEl = card.querySelector('.q-opts-slot');
+        slotEl.innerHTML = '';
+        slotEl.appendChild(buildOptionsArea(newType));
+      });
+
+      qList.appendChild(card);
+      renumber();
+      return card;
+    }
+
+    const addQMenu = document.getElementById('addQuestionMenu');
+    const addQBtn = document.getElementById('addQuestionBtn');
+    addQBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      addQMenu.classList.toggle('show');
+    });
+    addQMenu.querySelectorAll('.q-add-menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        addQuestion(item.dataset.type);
+        addQMenu.classList.remove('show');
+        showToast('已添加题目');
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!addQMenu.contains(e.target) && e.target !== addQBtn) {
+        addQMenu.classList.remove('show');
+      }
+    });
+
+    // ================= Reward description type toggle =================
+    document.querySelectorAll('input[data-rdtype]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="rewardDescType"]:checked').dataset.rdtype;
+        document.getElementById('rewardDescText').classList.toggle('hidden', val !== 'text');
+        document.getElementById('rewardDescImage').classList.toggle('hidden', val !== 'image');
+      });
+    });
+
+    // Preset questions
+    addQuestion('single', '你最喜欢的春季新品是？', '单选一个你最爱的新品');
+    addQuestion('multi', '希望看到哪些口味的新品？', '');
+    addQuestion('rate', '对本次新品整体满意度评分？', '');
+    addQuestion('text', '还有什么建议想告诉我们？', '');
+
+    // ================= Reward checkboxes =================
+    const rewardBox = document.getElementById('rewardBox');
+    document.querySelectorAll('[data-reward]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const type = cb.dataset.reward;
+        document.getElementById('reward-' + type).classList.toggle('hidden', !cb.checked);
+        const anyOn = [...document.querySelectorAll('[data-reward]')].some(x => x.checked);
+        rewardBox.classList.toggle('hidden', !anyOn);
+      });
+    });
+
+    // ================= Coupon reward table =================
+    const COUPON_MAX = 5;
+    const couponTbody = document.getElementById('couponTbody');
+    const addCouponBtn = document.getElementById('addCouponBtn');
+
+    const presetCoupons = [
+      { name: '单杯赠饮券（湖里万达广场店）', id: '1248709432398413824', qty: 1, stock: 999999 },
+      { name: '买A赠B券（湖里万达广场店）', id: '1248709010988417025', qty: 1, stock: 999999 }
+    ];
+    const samplePool = [
+      { name: '满30减5元券（湖里万达广场店）', id: '1248710112233445566' },
+      { name: '新客立减券（湖里万达广场店）', id: '1248710998877665544' },
+      { name: '生日专享券（湖里万达广场店）', id: '1248711223344556677' },
+      { name: '周末特惠券（湖里万达广场店）', id: '1248712334455667788' }
+    ];
+
+    function renderCouponTable() {
+      const rows = [...couponTbody.querySelectorAll('tr[data-coupon-row]')];
+      // Refresh add button state
+      const count = rows.length;
+      if (count >= COUPON_MAX) {
+        addCouponBtn.disabled = true;
+      } else {
+        addCouponBtn.disabled = false;
+      }
+      if (count === 0) {
+        couponTbody.innerHTML = '<tr><td colspan="4" class="coupon-empty">暂无优惠券，请点击上方「+ 添加优惠券」按钮添加</td></tr>';
+      }
+    }
+
+    function createCouponRow(data) {
+      // Remove empty placeholder if exists
+      const empty = couponTbody.querySelector('.coupon-empty');
+      if (empty) couponTbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-coupon-row', '');
+      tr.innerHTML = `
+        <td>
+          <div class="coupon-tpl-name">${data.name}</div>
+          <div class="coupon-tpl-id">ID: ${data.id}</div>
+        </td>
+        <td>
+          <div class="num-stepper" data-stepper>
+            <button type="button" data-step="-1">−</button>
+            <input type="number" min="1" value="${data.qty}" />
+            <button type="button" data-step="1">+</button>
+          </div>
+        </td>
+        <td>
+          <div class="num-stepper wide" data-stepper>
+            <button type="button" data-step="-1">−</button>
+            <input type="number" min="1" value="${data.stock}" />
+            <button type="button" data-step="1">+</button>
+          </div>
+        </td>
+        <td>
+          <button type="button" class="coupon-del-btn">删除</button>
+        </td>
+      `;
+      couponTbody.appendChild(tr);
+
+      // Stepper handlers
+      tr.querySelectorAll('[data-stepper]').forEach(stepper => {
+        const input = stepper.querySelector('input');
+        stepper.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const delta = parseInt(btn.dataset.step, 10);
+            let v = parseInt(input.value, 10) || 1;
+            v = Math.max(1, v + delta);
+            input.value = v;
+          });
+        });
+        input.addEventListener('input', () => {
+          let v = parseInt(input.value, 10);
+          if (isNaN(v) || v < 1) input.value = 1;
+        });
+      });
+
+      // Delete handler
+      tr.querySelector('.coupon-del-btn').addEventListener('click', () => {
+        tr.remove();
+        renderCouponTable();
+      });
+    }
+
+    // Init preset
+    presetCoupons.forEach(c => createCouponRow(c));
+    renderCouponTable();
+
+    addCouponBtn.addEventListener('click', () => {
+      const count = couponTbody.querySelectorAll('tr[data-coupon-row]').length;
+      if (count >= COUPON_MAX) {
+        showToast('最多可添加5种券');
+        return;
+      }
+      // Pick from pool cyclically
+      const pick = samplePool[(count - presetCoupons.length + samplePool.length) % samplePool.length] || samplePool[0];
+      createCouponRow({ name: pick.name, id: pick.id, qty: 1, stock: 999999 });
+      renderCouponTable();
+      if (couponTbody.querySelectorAll('tr[data-coupon-row]').length >= COUPON_MAX) {
+        showToast('最多可添加5种券');
+      }
+    });
+
+    // ================= Limit radio toggles =================
+    document.querySelectorAll('input[data-toggle]').forEach(r => {
+      r.addEventListener('change', () => {
+        const box = document.getElementById(r.dataset.toggle);
+        const group = r.name;
+        const checked = document.querySelector(`input[name="${group}"]:checked`);
+        const val = checked && checked.dataset.val;
+        box.classList.toggle('hidden', val !== 'limit');
+      });
+    });
+
+    // ================= Share toggle =================
+    document.querySelectorAll('input[data-share]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="share"]:checked').dataset.share;
+        document.getElementById('shareBox').classList.toggle('hidden', val !== 'on');
+      });
+    });
+
+    // ================= Generic switch =================
+    document.querySelectorAll('[data-switch]').forEach(sw => {
+      sw.addEventListener('click', () => {
+        sw.classList.toggle('active');
+      });
+    });
+
+    // ================= Message notify radio =================
+    document.querySelectorAll('input[data-msgval]').forEach(r => {
+      r.addEventListener('change', () => {
+        const on = document.querySelector('input[name="msgNotify"]:checked').dataset.msgval === 'on';
+        document.getElementById('msgPreviewBox').classList.toggle('hidden', !on);
+      });
+    });
+
+    // ================= Order stores nested =================
+    document.querySelectorAll('input[data-storeval]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="orderStores"]:checked').dataset.storeval;
+        document.getElementById('orderStoresBox').classList.toggle('hidden', val === 'all');
+      });
+    });
+    document.querySelectorAll('input[data-smode]').forEach(r => {
+      r.addEventListener('change', () => {
+        const mode = document.querySelector('input[name="orderStoresMode"]:checked').dataset.smode;
+        const btn = document.getElementById('orderStoresPickBtn');
+        btn.textContent = mode === 'store' ? '+ 选择门店' : (mode === 'org' ? '+ 选择组织' : '+ 选择标签');
+      });
+    });
+
+    // ================= Order goods nested =================
+    document.querySelectorAll('input[data-goodsval]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="orderGoods"]:checked').dataset.goodsval;
+        document.getElementById('orderGoodsBox').classList.toggle('hidden', val === 'all');
+      });
+    });
+    document.querySelectorAll('input[data-gmode]').forEach(r => {
+      r.addEventListener('change', () => {
+        const mode = document.querySelector('input[name="orderGoodsMode"]:checked').dataset.gmode;
+        const btn = document.getElementById('orderGoodsPickBtn');
+        btn.textContent = mode === 'goods' ? '+ 选择商品' : '+ 选择分类';
+      });
+    });
+
+    // ================= Survey type (普通/订单) toggle =================
+    document.querySelectorAll('input[data-stype]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="surveyType"]:checked').dataset.stype;
+        const isOrder = val === 'order';
+        document.getElementById('orderSurveyFields').classList.toggle('hidden', !isOrder);
+        document.getElementById('orderEntries').classList.toggle('hidden', !isOrder);
+      });
+    });
+
+    // ================= Push settings 查看示例 =================
+    document.querySelectorAll('.push-example-link').forEach(el => {
+      el.addEventListener('click', () => showToast('查看示例'));
+    });
+
+    // ================= 订单详情页入口 弹窗提示和图片上传显隐 =================
+    document.getElementById('pushDetailEntryPopup').addEventListener('change', (e) => {
+      document.getElementById('pushDetailEntryPopupTip').classList.toggle('hidden', !e.target.checked);
+      document.getElementById('pushDetailEntryPopupUpload').classList.toggle('hidden', !e.target.checked);
+    });
+
+    // ================= 订单详情页 Banner 图片上传显隐 =================
+    document.querySelectorAll('input[name="pushDetailBanner"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const on = document.querySelector('input[name="pushDetailBanner"]:checked').dataset.bannerval === 'on';
+        document.getElementById('pushDetailBannerUpload').classList.toggle('hidden', !on);
+      });
+    });
+
+    // ================= Jump page select =================
+    document.getElementById('jumpPageSelect').addEventListener('change', (e) => {
+      document.getElementById('jumpUrlBox').classList.toggle('hidden', e.target.value !== 'custom');
+    });
+  </script>
+</body>
+</html>
