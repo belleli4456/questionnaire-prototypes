@@ -703,6 +703,14 @@
       color: var(--brand); font-size: 13px; padding: 0;
     }
 
+    .promote-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18px; right: 18px; bottom: -1px;
+      height: 3px; border-radius: 3px 3px 0 0;
+      background: var(--brand);
+    }
+
     /* ================= Activity data ================= */
     .act-info-card {
       background: #fff;
@@ -1052,20 +1060,20 @@
 
     /* ================= Msg preview card ================= */
     .msg-preview-card {
-      width: 360px;
+      width: 380px;
       max-width: 100%;
-      background: #fffaf0;
-      border: 1px solid #ffe6b3;
+      background: #fff8e6;
+      border: 1px solid #ffe58f;
       border-radius: 10px;
       padding: 14px 16px;
     }
     .msg-preview-title {
       font-size: 14px;
       font-weight: 600;
-      color: #b8860b;
+      color: #d48806;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 1px dashed #ffe6b3;
+      border-bottom: 1px dashed #ffe58f;
     }
     .msg-preview-list { display: flex; flex-direction: column; gap: 6px; }
     .msg-preview-item {
@@ -1075,6 +1083,38 @@
     }
     .msg-preview-item .mp-key { color: #ad6800; }
     .msg-preview-item .mp-val { color: #d48806; }
+    #msgPreviewBox { margin-top: 12px; }
+    #msgPreviewBox .helper { margin-top: 10px; }
+
+    /* ================= 跳转配置按钮 & 提示卡 ================= */
+    .config-tip {
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #8c8c8c;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+    .jump-config-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 6px 16px;
+      background: #ffffff;
+      border: 1px solid #f5c2c4;
+      color: var(--brand, #c8191e);
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .jump-config-btn:hover {
+      background: #fff1f2;
+    }
+    a.jump-config-btn { text-decoration: none; }
 
     /* ================= Nested style box ================= */
     .style-nested {
@@ -1521,6 +1561,7 @@
           <div class="section" id="pushSettingsSection">
             <h2 class="section-title">推送设置</h2>
 
+            <!-- 消息通知：开关 + 订阅消息预览卡片 -->
             <div class="form-row">
               <div class="label required">消息通知:</div>
               <div class="control">
@@ -1528,7 +1569,7 @@
                   <label class="radio"><input type="radio" name="msgNotify" data-msgval="off" checked /> 关闭</label>
                   <label class="radio"><input type="radio" name="msgNotify" data-msgval="on" /> 开启</label>
                 </div>
-                <div id="msgPreviewBox" class="hidden" style="margin-top:12px;">
+                <div id="msgPreviewBox" class="hidden">
                   <div class="msg-preview-card">
                     <div class="msg-preview-title">活动开始提醒（微信订阅消息）</div>
                     <div class="msg-preview-list">
@@ -1538,9 +1579,97 @@
                       <div class="msg-preview-item"><span class="mp-key">温馨提示：</span><span class="mp-val">请记得准时参与哦</span></div>
                     </div>
                   </div>
-                  <div class="helper">小程序订阅消息需要先订阅才能推送，此处勾选后还需到【订阅场景】进行配置</div>
+                  <div class="helper">小程序订阅消息需要用户先订阅才能推送，这里默认推送给全部有订阅的用户，若要限人群推送，请到「精准营销」设置</div>
                 </div>
               </div>
+            </div>
+
+            <div id="normalSurveyEntries">
+              <!-- 小程序弹窗入口：开关 + 核心字段 -->
+              <div class="form-row">
+                <div class="label required">小程序弹窗入口:</div>
+                <div class="control">
+                  <div class="inline">
+                    <label class="radio"><input type="radio" name="popupEntry" data-popupval="off" checked /> 关闭</label>
+                    <label class="radio"><input type="radio" name="popupEntry" data-popupval="on" /> 开启</label>
+                  </div>
+                  <div id="popupEntryBox" class="style-nested hidden" style="margin-top:12px;">
+                    <div class="form-row">
+                      <div class="label required">广告图片:</div>
+                      <div class="control">
+                        <div class="img-uploader" onclick="this.classList.toggle('active');showToast('点击上传图片（原型演示）');">
+                          <span class="plus">+</span>
+                        </div>
+                        <div class="helper">建议尺寸 750×1000px</div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="label required">面向用户:</div>
+                      <div class="control">
+                        <div class="inline">
+                          <label class="radio"><input type="radio" name="popupAudience" value="all" checked /> 全部</label>
+                          <label class="radio"><input type="radio" name="popupAudience" value="visible" /> 指定用户可见</label>
+                          <label class="radio"><input type="radio" name="popupAudience" value="invisible" /> 指定用户不可见</label>
+                        </div>
+                        <div id="popupAudienceVisibleBox" class="hidden" style="margin-top:12px;padding:12px 16px;background:#fafbfc;border:1px solid var(--line);border-radius:8px;">
+                          <div style="font-size:14px;font-weight:600;color:var(--subtext);margin-bottom:10px;">选择可见用户:</div>
+                          <div class="inline">
+                            <label class="radio"><input type="radio" name="popupVisibleUser" value="老客" /> 老客</label>
+                            <label class="radio"><input type="radio" name="popupVisibleUser" value="注册会员" /> 注册会员</label>
+                            <label class="radio"><input type="radio" name="popupVisibleUser" value="企微好友" /> 企微好友</label>
+                            <label class="radio"><input type="radio" name="popupVisibleUser" value="指定标签" /> 指定标签</label>
+                            <label class="radio"><input type="radio" name="popupVisibleUser" value="指定等级会员" /> 指定等级会员</label>
+                          </div>
+                        </div>
+                        <div id="popupAudienceInvisibleBox" class="hidden" style="margin-top:12px;padding:12px 16px;background:#fafbfc;border:1px solid var(--line);border-radius:8px;">
+                          <div style="font-size:14px;font-weight:600;color:var(--subtext);margin-bottom:10px;">选择不可见用户:</div>
+                          <div class="inline">
+                            <label class="radio"><input type="radio" name="popupInvisibleUser" value="老客" /> 老客</label>
+                            <label class="radio"><input type="radio" name="popupInvisibleUser" value="注册会员" /> 注册会员</label>
+                            <label class="radio"><input type="radio" name="popupInvisibleUser" value="企微好友" /> 企微好友</label>
+                            <label class="radio"><input type="radio" name="popupInvisibleUser" value="指定标签" /> 指定标签</label>
+                            <label class="radio"><input type="radio" name="popupInvisibleUser" value="指定等级会员" /> 指定等级会员</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="label required">展示页面:</div>
+                      <div class="control inline">
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="首页" /> 首页</label>
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="点单页" /> 点单页</label>
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="结算页" /> 结算页</label>
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="订单完成页" /> 订单完成页</label>
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="评价完成页" /> 评价完成页</label>
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="订单列表" /> 订单列表</label>
+                        <label class="check"><input type="checkbox" class="popup-page-cb" value="个人中心" /> 个人中心</label>
+                      </div>
+                    </div>
+
+                    <div class="form-row hidden" id="popupStoreField">
+                      <div class="label required">活动门店:</div>
+                      <div class="control inline">
+                        <label class="radio"><input type="radio" name="popupStore" checked /> 全部</label>
+                        <label class="radio"><input type="radio" name="popupStore" /> 指定门店/组织参与</label>
+                        <label class="radio"><input type="radio" name="popupStore" /> 指定门店/组织不参与</label>
+                      </div>
+                    </div>
+
+
+                    <div class="form-row" id="popupPriorityField">
+                      <div class="label required">优先级:</div>
+                      <div class="control inline">
+                        <input class="input short" type="number" value="9998" id="popupPriorityInput" />
+                        <label class="check"><input type="checkbox" id="popupPriorityMax" /> 最高优先级</label>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             <div id="orderEntries" class="hidden">
@@ -1701,7 +1830,7 @@
 
           <div class="footer-bar">
             <button class="btn">取消</button>
-            <button class="btn btn-primary">保存活动</button>
+            <button class="btn btn-primary" id="saveActivityBtn">保存活动</button>
           </div>
         </section>
       </div>
@@ -1797,7 +1926,7 @@
                   <td>1,342</td>
                   <td><span class="status-badge status-running">进行中</span></td>
                   <td><div class="row-actions">
-                    <button>查看</button><button>编辑</button><button>复制</button><button>暂停</button><button>作废</button><button>统计分析</button>
+                    <button class="edit-activity-btn" data-id="SVY20260315001">编辑</button><button>复制</button><button>作废</button><button>统计分析</button><button class="promote-btn">推广</button>
                   </div></td>
                 </tr>
                 <tr>
@@ -1810,7 +1939,7 @@
                   <td>3,580</td>
                   <td><span class="status-badge status-ended">已结束</span></td>
                   <td><div class="row-actions">
-                    <button>查看</button><button>复制</button><button>统计分析</button>
+                    <button>编辑</button><button>复制</button><button>统计分析</button><button class="promote-btn">推广</button>
                   </div></td>
                 </tr>
                 <tr>
@@ -1823,7 +1952,7 @@
                   <td>0</td>
                   <td><span class="status-badge status-pending">待开始</span></td>
                   <td><div class="row-actions">
-                    <button>查看</button><button>编辑</button><button>复制</button><button>作废</button>
+                    <button>编辑</button><button>复制</button><button>作废</button><button>统计分析</button><button class="promote-btn">推广</button>
                   </div></td>
                 </tr>
                 <tr>
@@ -1836,7 +1965,7 @@
                   <td>0</td>
                   <td><span class="status-badge status-draft">草稿</span></td>
                   <td><div class="row-actions">
-                    <button>查看</button><button>编辑</button><button>复制</button><button>作废</button>
+                    <button>编辑</button><button>复制</button><button>作废</button><button>统计分析</button><button class="promote-btn">推广</button>
                   </div></td>
                 </tr>
                 <tr>
@@ -1849,13 +1978,154 @@
                   <td>86</td>
                   <td><span class="status-badge status-void">已作废</span></td>
                   <td><div class="row-actions">
-                    <button>查看</button><button>复制</button>
+                    <button>复制</button><button>统计分析</button><button class="promote-btn">推广</button>
                   </div></td>
                 </tr>
               </tbody>
             </table>
           </div>
         </section>
+      </div>
+
+      <!-- ================= 推广弹窗 ================= -->
+      <div id="promoteModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:rgba(0,0,0,.38);justify-content:center;align-items:center;">
+        <div style="background:#fff;border-radius:12px;width:680px;max-height:80vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.18);position:relative;">
+          <button onclick="document.getElementById('promoteModal').style.display='none';" style="position:absolute;top:16px;right:20px;border:0;background:transparent;font-size:24px;cursor:pointer;color:#86909c;">×</button>
+          <div style="padding:28px 32px 0;">
+            <div style="font-size:20px;font-weight:700;margin-bottom:20px;">推广</div>
+            <div style="display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:20px;">
+              <div class="promote-tab active" data-ptab="qrcode" style="padding:10px 20px;font-size:15px;cursor:pointer;position:relative;color:var(--brand);font-weight:600;">二维码</div>
+              <div class="promote-tab" data-ptab="address" style="padding:10px 20px;font-size:15px;cursor:pointer;color:#5b6575;">活动地址</div>
+              <div class="promote-tab" data-ptab="preview" style="padding:10px 20px;font-size:15px;cursor:pointer;color:#5b6575;">手机扫码预览</div>
+            </div>
+          </div>
+          <!-- Tab: 二维码 -->
+          <div class="promote-pane active" id="promote-qrcode" style="padding:0 32px 32px;">
+            <div style="padding:14px 18px;background:#f0f7ff;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+              <span style="color:#1677ff;font-size:16px;">ℹ</span>
+              <span style="font-size:14px;color:#1f2329;">您可以下载对应活动的二维码，会员可直接扫码参与活动</span>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;">
+              <span style="color:var(--subtext);font-size:14px;white-space:nowrap;padding-top:2px;">下载内容:</span>
+              <div style="border:2px solid var(--brand);border-radius:8px;padding:16px 24px;display:inline-block;">
+                <div style="font-size:16px;font-weight:700;color:var(--brand);margin-bottom:4px;">二维码图片</div>
+                <div style="font-size:13px;color:var(--muted);">直接提供对应的二维码图片，会员可直接扫码参与</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:18px;margin-bottom:24px;">
+              <span style="color:var(--subtext);font-size:14px;white-space:nowrap;">二维码尺寸:</span>
+              <label class="radio"><input type="radio" name="qrSize" checked /> 1280*1280</label>
+              <label class="radio"><input type="radio" name="qrSize" /> 860*860</label>
+              <label class="radio"><input type="radio" name="qrSize" /> 430*430</label>
+            </div>
+            <button class="btn btn-primary" onclick="showToast('二维码已下载（原型演示）')">立即下载</button>
+          </div>
+          <!-- Tab: 活动地址 -->
+          <div class="promote-pane" id="promote-address" style="padding:0 32px 32px;display:none;">
+            <div style="padding:14px 18px;background:#f0f7ff;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+              <span style="color:#1677ff;font-size:16px;">ℹ</span>
+              <span style="font-size:14px;color:#1f2329;">您可以在小程序的营销入口中使用下面的地址，会员点击营销入口即可跳转到指定活动</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+              <span style="color:var(--subtext);font-size:14px;white-space:nowrap;">小程序页面地址:</span>
+              <code style="font-size:13px;color:#1f2329;background:#f5f6f8;padding:8px 12px;border-radius:6px;word-break:break-all;">pages/router/main?jumpCode=QD_SURVEY&jumpPara=%7B%22id%22%3ASVY20260315001%7D</code>
+              <button class="text-link" onclick="showToast('地址已复制')">复制</button>
+            </div>
+            <div style="background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:20px;">
+              <div style="font-size:16px;font-weight:700;margin-bottom:12px;">以营销活动 - 弹窗广告为例</div>
+              <div style="color:var(--muted);font-size:13px;line-height:1.8;">
+                1. 复制上方小程序页面地址<br/>
+                2. 在弹窗广告 / Banner 广告的「跳转目标」中选择「自定义页面」<br/>
+                3. 将地址粘贴到页面地址输入框即可
+              </div>
+            </div>
+          </div>
+          <!-- Tab: 手机扫码预览 -->
+          <div class="promote-pane" id="promote-preview" style="padding:0 32px 32px;display:none;">
+            <div style="color:var(--brand);font-size:14px;margin-bottom:16px;">此码为临时二维码，只可扫码预览活动样式，切勿将其分享或作为宣传物料使用</div>
+            <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:16px;">
+              <span style="color:var(--subtext);font-size:14px;white-space:nowrap;padding-top:2px;">预览二维码:</span>
+              <div style="width:180px;height:180px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fafbfc;">
+                <svg viewBox="0 0 100 100" width="140" height="140"><rect x="5" y="5" width="25" height="25" rx="3" fill="#333"/><rect x="70" y="5" width="25" height="25" rx="3" fill="#333"/><rect x="5" y="70" width="25" height="25" rx="3" fill="#333"/><rect x="10" y="10" width="15" height="15" rx="2" fill="#fff"/><rect x="75" y="10" width="15" height="15" rx="2" fill="#fff"/><rect x="10" y="75" width="15" height="15" rx="2" fill="#fff"/><rect x="13" y="13" width="9" height="9" fill="#333"/><rect x="78" y="13" width="9" height="9" fill="#333"/><rect x="13" y="78" width="9" height="9" fill="#333"/><rect x="35" y="5" width="5" height="5" fill="#333"/><rect x="45" y="5" width="5" height="5" fill="#333"/><rect x="55" y="5" width="5" height="5" fill="#333"/><rect x="35" y="15" width="5" height="5" fill="#333"/><rect x="50" y="15" width="5" height="5" fill="#333"/><rect x="35" y="35" width="5" height="5" fill="#333"/><rect x="45" y="40" width="5" height="5" fill="#333"/><rect x="55" y="35" width="5" height="5" fill="#333"/><rect x="70" y="40" width="5" height="5" fill="#333"/><rect x="80" y="45" width="5" height="5" fill="#333"/><rect x="40" y="50" width="5" height="5" fill="#333"/><rect x="55" y="55" width="5" height="5" fill="#333"/><rect x="70" y="55" width="5" height="5" fill="#333"/><rect x="85" y="60" width="5" height="5" fill="#333"/><rect x="40" y="70" width="5" height="5" fill="#333"/><rect x="55" y="75" width="5" height="5" fill="#333"/><rect x="70" y="70" width="25" height="25" rx="3" fill="none" stroke="#333" stroke-width="2"/><rect x="77" y="77" width="11" height="11" rx="1" fill="#333"/></svg>
+              </div>
+            </div>
+            <div style="color:var(--muted);font-size:13px;">注：小程序250603.0.0及以上版本，扫码后可正常预览</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 活动编辑页 (Overlay) ================= -->
+      <div id="editActivityOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;z-index:50;background:var(--bg);min-height:100vh;">
+        <div style="padding:20px 24px 40px;">
+          <div class="breadcrumb" style="margin-bottom:10px;">
+            <a href="#" id="editBackBtn" style="color:var(--brand);text-decoration:none;">← 返回活动列表</a>
+            <span style="margin:0 8px;">›</span> 编辑活动
+          </div>
+          <h1 class="page-title" style="font-size:24px;margin-bottom:20px;">编辑活动：春季新品口味调研</h1>
+
+          <section class="card" style="margin-bottom:24px;">
+            <h2 class="section-title">基础信息</h2>
+            <div class="form-row">
+              <div class="label">活动名称:</div>
+              <div class="control"><input class="input large" value="春季新品口味调研" /></div>
+            </div>
+            <div class="form-row">
+              <div class="label">活动 ID:</div>
+              <div class="control"><span style="font-size:14px;color:var(--muted);padding-top:10px;display:inline-block;">SVY20260315001</span></div>
+            </div>
+            <div class="form-row">
+              <div class="label">活动时间:</div>
+              <div class="control"><span style="font-size:14px;padding-top:10px;display:inline-block;">2026-03-15 00:00 ~ 2026-04-15 23:59</span></div>
+            </div>
+            <div class="form-row">
+              <div class="label">问卷类型:</div>
+              <div class="control"><span class="type-badge type-normal" style="margin-top:8px;display:inline-block;">普通问卷</span></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title">小程序弹窗入口</h2>
+            <p style="color:var(--muted);font-size:13px;margin:-10px 0 18px;">以下为系统自动生成的弹窗广告数据，编辑时从弹窗广告模块拉取最新状态回显</p>
+            <div class="table-card">
+              <table>
+                <colgroup>
+                  <col style="width:22%" />
+                  <col style="width:20%" />
+                  <col style="width:16%" />
+                  <col style="width:16%" />
+                  <col style="width:10%" />
+                  <col style="width:16%" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>广告信息</th>
+                    <th>展示时间</th>
+                    <th>展示页面</th>
+                    <th>展示人群</th>
+                    <th>优先级</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="name-cell">春季新品问卷弹窗<span class="code">ID: POP20260315001</span></td>
+                    <td>2026-03-15 00:00<br/>2026-04-15 23:59</td>
+                    <td>首页、点单页</td>
+                    <td>全部用户</td>
+                    <td>9998</td>
+                    <td><span class="status-badge status-running">进行中</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="helper" style="margin-top:12px;">如果运营在弹窗广告模块独立修改了这条弹窗，此处回显最新数据（以弹窗广告模块为准）</div>
+          </section>
+
+          <div class="footer-bar" style="margin-top:24px;">
+            <button class="btn" id="editCancelBtn">取消</button>
+            <button class="btn btn-primary" onclick="showToast('活动已保存')">保存活动</button>
+          </div>
+        </div>
       </div>
 
       <!-- ================= Tab 3: 活动数据 ================= -->
@@ -2658,14 +2928,6 @@
       });
     });
 
-    // ================= Message notify radio =================
-    document.querySelectorAll('input[data-msgval]').forEach(r => {
-      r.addEventListener('change', () => {
-        const on = document.querySelector('input[name="msgNotify"]:checked').dataset.msgval === 'on';
-        document.getElementById('msgPreviewBox').classList.toggle('hidden', !on);
-      });
-    });
-
     // ================= Order stores nested =================
     document.querySelectorAll('input[data-storeval]').forEach(r => {
       r.addEventListener('change', () => {
@@ -2703,7 +2965,80 @@
         const isOrder = val === 'order';
         document.getElementById('orderSurveyFields').classList.toggle('hidden', !isOrder);
         document.getElementById('orderEntries').classList.toggle('hidden', !isOrder);
+        document.getElementById('normalSurveyEntries').classList.toggle('hidden', isOrder);
       });
+    });
+
+    // ================= 消息通知 开关 =================
+    document.querySelectorAll('input[data-msgval]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="msgNotify"]:checked').dataset.msgval;
+        document.getElementById('msgPreviewBox').classList.toggle('hidden', val !== 'on');
+      });
+    });
+
+    // ================= 小程序弹窗入口 开关 =================
+    document.querySelectorAll('input[data-popupval]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="popupEntry"]:checked').dataset.popupval;
+        document.getElementById('popupEntryBox').classList.toggle('hidden', val !== 'on');
+      });
+    });
+
+    // ================= 弹窗 展示页面 联动 活动门店 =================
+    function refreshPopupConditionalFields() {
+      const anyChecked = document.querySelectorAll('.popup-page-cb:checked').length > 0;
+      document.getElementById('popupStoreField').classList.toggle('hidden', !anyChecked);
+    }
+    document.querySelectorAll('.popup-page-cb').forEach(cb => {
+      cb.addEventListener('change', refreshPopupConditionalFields);
+    });
+
+    // ================= 弹窗入口 面向用户 联动子选项 =================
+    document.querySelectorAll('input[name="popupAudience"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="popupAudience"]:checked').value;
+        document.getElementById('popupAudienceVisibleBox').classList.toggle('hidden', val !== 'visible');
+        document.getElementById('popupAudienceInvisibleBox').classList.toggle('hidden', val !== 'invisible');
+      });
+    });
+
+    // ================= 推广弹窗 =================
+    document.querySelectorAll('.promote-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('promoteModal').style.display = 'flex';
+      });
+    });
+    document.querySelectorAll('.promote-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.promote-tab').forEach(t => { t.classList.remove('active'); t.style.color = '#5b6575'; t.style.fontWeight = '400'; });
+        tab.classList.add('active'); tab.style.color = 'var(--brand)'; tab.style.fontWeight = '600';
+        document.querySelectorAll('.promote-pane').forEach(p => p.style.display = 'none');
+        document.getElementById('promote-' + tab.dataset.ptab).style.display = 'block';
+      });
+    });
+    document.getElementById('promoteModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+    });
+
+    // ================= 活动编辑页 跳转 =================
+    document.querySelectorAll('.edit-activity-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('editActivityOverlay').style.display = 'block';
+        window.scrollTo(0, 0);
+      });
+    });
+    document.getElementById('editBackBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('editActivityOverlay').style.display = 'none';
+    });
+    document.getElementById('editCancelBtn').addEventListener('click', () => {
+      document.getElementById('editActivityOverlay').style.display = 'none';
+    });
+
+    // ================= 保存活动 =================
+    document.getElementById('saveActivityBtn').addEventListener('click', () => {
+      showToast('活动已保存');
     });
 
     // ================= Push settings 查看示例 =================
