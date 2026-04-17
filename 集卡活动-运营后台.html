@@ -1,0 +1,3702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>集卡活动 - 运营后台原型</title>
+  <style>
+    :root {
+      --brand: #c8191e;
+      --brand-soft: #fff3f2;
+      --bg: #f5f6f8;
+      --panel: #ffffff;
+      --line: #ebeef3;
+      --line-dark: #d8dde6;
+      --text: #1f2329;
+      --subtext: #4e5969;
+      --muted: #86909c;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    /* ================= Topbar ================= */
+    .topbar {
+      height: 68px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 28px; }
+    .brand {
+      color: var(--brand);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .system-nav { display: flex; align-items: stretch; gap: 10px; height: 68px; }
+    .system-item {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: #5b6575;
+      font-size: 16px;
+      position: relative;
+      white-space: nowrap;
+    }
+    .system-item.active {
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .system-item.active::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+      height: 3px;
+      background: var(--brand);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .search-box {
+      width: 250px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 16px;
+      background: #fafbfc;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ================= Layout ================= */
+    .layout {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      min-height: calc(100vh - 68px);
+    }
+
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 14px 0 24px;
+      overflow: auto;
+    }
+
+    .menu-item {
+      padding: 12px 28px;
+      font-size: 16px;
+      color: #2f3640;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .menu-item.group {
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .submenu { padding: 4px 0 6px 14px; }
+
+    .submenu-item {
+      padding: 12px 20px 12px 32px;
+      font-size: 15px;
+      color: #4c5563;
+      border-right: 3px solid transparent;
+      cursor: pointer;
+    }
+
+    .submenu-item.active {
+      color: var(--brand);
+      background: var(--brand-soft);
+      border-right-color: var(--brand);
+      font-weight: 600;
+    }
+
+    .page-wrap { padding: 20px 24px 40px; }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 30px;
+      font-weight: 700;
+      margin: 0 0 18px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ================= Top tabs ================= */
+    .main-tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .main-tab {
+      padding: 14px 20px;
+      font-size: 17px;
+      color: #5b6575;
+      cursor: pointer;
+      position: relative;
+    }
+    .main-tab.active {
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .main-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18px; right: 18px; bottom: -1px;
+      height: 3px; border-radius: 3px 3px 0 0;
+      background: var(--brand);
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ================= Card & Form ================= */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 28px 32px 32px;
+    }
+
+    .section + .section {
+      margin-top: 42px;
+      padding-top: 4px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 22px;
+      padding-left: 12px;
+      border-left: 4px solid var(--brand);
+      line-height: 1;
+    }
+
+    .subsection-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #2f3640;
+      margin: 20px 0 16px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .label {
+      width: 164px;
+      padding-top: 10px;
+      text-align: right;
+      color: var(--subtext);
+      font-size: 15px;
+      line-height: 24px;
+      white-space: nowrap;
+      flex: 0 0 164px;
+    }
+
+    .required::before {
+      content: "*";
+      color: var(--brand);
+      margin-right: 6px;
+    }
+
+    .control { flex: 1; min-width: 0; }
+
+    .input, .select, .textarea {
+      height: 40px;
+      border: 1px solid var(--line-dark);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 14px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+    }
+    .input:focus, .textarea:focus, .select:focus { border-color: var(--brand); }
+
+    .textarea {
+      padding: 10px 14px;
+      min-height: 72px;
+      resize: vertical;
+      width: 520px;
+      max-width: 100%;
+      line-height: 22px;
+    }
+
+    .input.large { width: 420px; }
+    .input.medium { width: 260px; }
+    .input.short { width: 110px; }
+    .input.tiny { width: 80px; }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+    }
+
+    .flex-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .radio, .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #2f3640;
+      font-size: 15px;
+      line-height: 24px;
+      cursor: pointer;
+    }
+
+    .radio input, .check input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--brand);
+    }
+
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 22px;
+      border-radius: 999px;
+      background: #cad1dd;
+      flex: 0 0 auto;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .switch::after {
+      content: "";
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+      transition: left .15s ease;
+    }
+    .switch.active { background: var(--brand); }
+    .switch.active::after { left: 22px; }
+
+    .text-link, .danger-link {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: var(--brand);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .helper {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .nested-box {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+
+    .q-add-btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 6px;
+      border: 1px dashed var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .q-add-btn:hover { background: #ffe9e7; }
+
+    .tag-select-box { display: flex; flex-direction: column; gap: 8px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; }
+    .tag-item {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 4px;
+      background: #f0f2f5; border: 1px solid #e2e6ec;
+      font-size: 13px; color: #36404d;
+    }
+    .tag-remove {
+      border: 0; background: transparent; cursor: pointer;
+      color: #86909c; font-size: 15px; padding: 0; line-height: 1;
+    }
+    .tag-remove:hover { color: var(--brand); }
+
+    /* ================= Footer / Bottom bar ================= */
+    .bottom-bar {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      padding: 14px 32px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      z-index: 15;
+      margin-top: 24px;
+    }
+
+    .footer-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 34px;
+      padding-left: 182px;
+    }
+
+    .btn {
+      min-width: 104px;
+      height: 40px;
+      border-radius: 6px;
+      border: 1px solid var(--line-dark);
+      background: #fff;
+      color: #36404d;
+      cursor: pointer;
+      font-size: 15px;
+      padding: 0 18px;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    /* ================= Table ================= */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px 22px;
+      margin-bottom: 16px;
+    }
+    .filter-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; color: #4e5969;
+    }
+    .filter-item .input, .filter-item .select { height: 36px; font-size: 13px; }
+    .filter-actions { display: flex; gap: 10px; margin-left: auto; }
+
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 14px 14px;
+      border-bottom: 1px solid #eff2f6;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+      color: #36404d;
+    }
+    th {
+      background: #fafbfd;
+      color: #5c6678;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .name-cell { line-height: 22px; }
+    .code {
+      display: block; margin-top: 2px;
+      color: var(--muted); font-size: 12px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-draft { background: #f0f2f5; color: #6b7180; }
+    .status-pending { background: #e8f0ff; color: #2563eb; }
+    .status-running { background: #e6f7ec; color: #16a34a; }
+    .status-ended { background: #f0f2f5; color: #6b7180; }
+    .status-void { background: #fdebec; color: var(--brand); }
+
+    .type-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .type-fixed { background: #e8f0ff; color: #2563eb; }
+    .type-random { background: #fff3e8; color: #f97316; }
+    .type-must { background: #e8f0ff; color: #2563eb; }
+    .type-ad { background: #fff3e8; color: #f97316; }
+    .type-wild { background: #f0e8ff; color: #7c3aed; }
+    .type-fallback { background: #f0f2f5; color: #6b7180; }
+
+    .row-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .row-actions button {
+      border: 0; background: transparent; cursor: pointer;
+      color: var(--brand); font-size: 13px; padding: 0;
+    }
+
+    /* ================= Activity data ================= */
+    .act-info-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .act-info-card .big-name {
+      font-size: 18px; font-weight: 700; color: #1f2329;
+    }
+    .act-info-card .meta {
+      color: var(--muted); font-size: 13px; margin-top: 4px;
+    }
+
+    .sub-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sub-tab {
+      padding: 12px 18px;
+      font-size: 15px;
+      color: #5b6575;
+      cursor: pointer;
+      position: relative;
+    }
+    .sub-tab.active { color: var(--brand); font-weight: 600; }
+    .sub-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 16px; right: 16px; bottom: -1px;
+      height: 2px; background: var(--brand);
+    }
+    .sub-pane { display: none; }
+    .sub-pane.active { display: block; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .metric-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex: 0 0 auto;
+      font-weight: 700;
+    }
+    .metric-val {
+      font-size: 26px; font-weight: 700; color: #1f2329;
+      line-height: 1.2;
+    }
+    .metric-label {
+      font-size: 13px; color: var(--muted); margin-top: 3px;
+    }
+
+    /* ================= Image uploader ================= */
+    .img-uploader {
+      width: 140px;
+      height: 88px;
+      border: 1.5px dashed #c3cad6;
+      border-radius: 8px;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .img-uploader:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .img-uploader .plus {
+      font-size: 32px;
+      color: #c3cad6;
+      font-weight: 300;
+      line-height: 1;
+    }
+    .img-uploader:hover .plus { color: var(--brand); }
+
+    .img-uploader-sm {
+      width: 80px;
+      height: 80px;
+      border: 1.5px dashed #c3cad6;
+      border-radius: 8px;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .img-uploader-sm:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .img-uploader-sm .plus {
+      font-size: 24px;
+      color: #c3cad6;
+      font-weight: 300;
+      line-height: 1;
+    }
+    .img-uploader-sm:hover .plus { color: var(--brand); }
+
+    /* ================= Coupon reward table ================= */
+    .coupon-add-btn {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      border: 1px dashed #52c41a;
+      background: #f6ffed;
+      color: #389e0d;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .coupon-add-btn:hover { background: #e6ffdb; border-color: #389e0d; }
+
+    .coupon-table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .coupon-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .coupon-table thead th {
+      background: #fafbfd;
+      color: #5c6678;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    .coupon-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eff2f6;
+      font-size: 14px;
+      color: #36404d;
+      vertical-align: middle;
+      height: 60px;
+    }
+    .coupon-table tbody tr:last-child td { border-bottom: 0; }
+    .coupon-tpl-name {
+      font-weight: 600;
+      color: #1f2329;
+      font-size: 14px;
+    }
+    .coupon-tpl-id {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .num-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line-dark);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      height: 32px;
+    }
+    .num-stepper button {
+      width: 28px;
+      height: 30px;
+      border: 0;
+      background: #fafbfd;
+      color: #5b6575;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .num-stepper button:hover { background: #f0f2f5; color: var(--brand); }
+    .num-stepper input {
+      width: 58px;
+      height: 30px;
+      border: 0;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: center;
+      outline: none;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+      -moz-appearance: textfield;
+    }
+    .num-stepper input::-webkit-outer-spin-button,
+    .num-stepper input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .coupon-del-btn {
+      border: 0;
+      background: transparent;
+      color: var(--brand);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    /* ================= Rich text editor toolbar ================= */
+    .rte-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 10px;
+      background: #fafbfd;
+      border: 1px solid var(--line-dark);
+      border-bottom: 0;
+      border-radius: 6px 6px 0 0;
+    }
+    .rte-toolbar button, .rte-toolbar select {
+      height: 28px;
+      min-width: 28px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      color: #4e5969;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rte-toolbar button:hover { background: #eee; }
+    .rte-toolbar .sep {
+      width: 1px;
+      height: 18px;
+      background: #d8dde6;
+      margin: 0 4px;
+    }
+    .rte-body {
+      min-height: 160px;
+      border: 1px solid var(--line-dark);
+      border-radius: 0 0 6px 6px;
+      padding: 14px;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      outline: none;
+    }
+
+    /* ================= Modal ================= */
+    .modal-mask {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 100;
+      background: rgba(0,0,0,.38);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-mask.show {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 640px;
+      max-height: 85vh;
+      overflow: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+      position: relative;
+    }
+    .modal-header {
+      padding: 20px 24px 16px;
+      font-size: 18px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-close {
+      border: 0;
+      background: transparent;
+      font-size: 24px;
+      cursor: pointer;
+      color: #86909c;
+      padding: 0;
+    }
+    .modal-body {
+      padding: 20px 24px;
+    }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .promo-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .promo-tab {
+      padding: 10px 14px;
+      font-size: 14px;
+      color: #5b6575;
+      cursor: pointer;
+      position: relative;
+    }
+    .promo-tab.active {
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .promo-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: -1px;
+      height: 3px;
+      background: var(--brand);
+      border-radius: 3px 3px 0 0;
+    }
+    .promo-pane { display: none; }
+    .promo-pane.active { display: block; }
+    .promo-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafbfc;
+      padding: 20px;
+    }
+    .promo-qr {
+      width: 180px;
+      height: 180px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f5f6f8 0%, #e9edf3 100%);
+      border: 1px dashed #c9d1dd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7180;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .promo-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .promo-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 22px;
+    }
+    .promo-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .promo-link-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .promo-link-box .input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ================= Card mini thumb ================= */
+    .card-mini {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .table-scroll {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .hidden { display: none !important; }
+
+    .toast {
+      position: fixed;
+      left: 50%; bottom: 30px;
+      transform: translateX(-50%);
+      background: rgba(17, 24, 39, 0.94);
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 200;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand">食亨</div>
+      <div class="system-nav">
+        <div class="system-item">经营中台</div>
+        <div class="system-item active">智慧门店</div>
+        <div class="system-item">供应链订货</div>
+        <div class="system-item">数据中心</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <input class="search-box" value="搜索页面/功能" />
+      <div style="font-size:14px;color:#5b6575;">蒋洋洋</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="menu-item">我的桌面</div>
+      <div class="menu-item">店铺</div>
+      <div class="menu-item">商品</div>
+      <div class="menu-item">订单中心</div>
+      <div class="menu-item group">营销中心</div>
+      <div class="submenu">
+        <div class="submenu-item">营销活动</div>
+        <div class="submenu-item">优惠券</div>
+        <div class="submenu-item">超值加购</div>
+        <div class="submenu-item">抽奖活动</div>
+        <div class="submenu-item">问卷调查</div>
+        <div class="submenu-item" data-nav="list" id="navList">集卡活动列表</div>
+        <div class="submenu-item active" data-nav="create" id="navCreate">新建集卡活动</div>
+        <div class="submenu-item">营销标签</div>
+        <div class="submenu-item">活动管控</div>
+      </div>
+      <div class="menu-item">卡券中心</div>
+      <div class="menu-item">会员</div>
+      <div class="menu-item">数据</div>
+    </aside>
+
+    <main class="page-wrap">
+      <!-- ================= VIEW: 新建集卡活动 ================= -->
+      <div id="view-create">
+        <div class="breadcrumb">营销中心 / 集卡活动 / 新建集卡活动</div>
+        <h1 class="page-title">新建集卡活动</h1>
+
+
+        <section class="card">
+          <!-- Section 1: 基础信息 -->
+          <div class="section">
+            <h2 class="section-title">基础信息</h2>
+
+            <div class="form-row">
+              <div class="label required">活动名称:</div>
+              <div class="control">
+                <input class="input large" maxlength="20" placeholder="请输入活动名称，限20字以内" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">活动时间:</div>
+              <div class="control inline">
+                <input class="input medium" placeholder="开始时间" />
+                <span style="color:#98a2b3;">至</span>
+                <input class="input medium" placeholder="结束时间" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">面向用户:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="audience" value="all" checked /> 全部用户</label>
+                  <label class="radio"><input type="radio" name="audience" value="member" /> 注册会员</label>
+                  <label class="radio"><input type="radio" name="audience" value="card" /> 指定权益卡会员</label>
+                  <label class="radio"><input type="radio" name="audience" value="level" /> 指定等级会员</label>
+                  <label class="radio"><input type="radio" name="audience" value="wecom" /> 企微好友用户</label>
+                </div>
+                <div class="nested-box hidden" id="audienceBox">
+                  <!-- 注册会员: 引导文案 only -->
+                  <div class="hidden" id="audienceMemberFields">
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">引导文案:</div>
+                      <div class="control">
+                        <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 指定权益卡会员: 选择权益卡(multi) → 非面向人群引导文案 → 引导购买权益卡(single) -->
+                  <div class="hidden" id="audienceCardFields">
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">选择权益卡:</div>
+                      <div class="control">
+                        <div class="tag-select-box">
+                          <div class="tag-list" id="cardTagList">
+                            <span class="tag-item">黄金会员卡（10001）<button class="tag-remove">&times;</button></span>
+                            <span class="tag-item">白金会员卡（10002）<button class="tag-remove">&times;</button></span>
+                          </div>
+                          <select class="select" style="width:320px;" onchange="if(this.value){var t=document.createElement('span');t.className='tag-item';t.innerHTML=this.options[this.selectedIndex].text+'<button class=tag-remove onclick=this.parentElement.remove()>&times;</button>';this.parentElement.querySelector('.tag-list').appendChild(t);this.value='';}">
+                            <option value="">请选择权益卡</option>
+                            <option value="10001">黄金会员卡（10001）</option>
+                            <option value="10002">白金会员卡（10002）</option>
+                            <option value="10003">钻石会员卡（10003）</option>
+                          </select>
+                        </div>
+                        <div class="helper">持有任意一张已选权益卡即满足身份</div>
+                      </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                      <div class="control">
+                        <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">引导购买权益卡:</div>
+                      <div class="control">
+                        <select class="select" style="width:320px;">
+                          <option value="">请选择引导购买的权益卡</option>
+                          <option value="10001">黄金会员卡（10001）</option>
+                          <option value="10002">白金会员卡（10002）</option>
+                          <option value="10003">钻石会员卡（10003）</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 指定等级会员: 选择会员等级(multi) → 非面向人群引导文案 -->
+                  <div class="hidden" id="audienceLevelFields">
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">选择会员等级:</div>
+                      <div class="control">
+                        <div class="tag-select-box">
+                          <div class="tag-list" id="levelTagList">
+                            <span class="tag-item">金牌会员<button class="tag-remove">&times;</button></span>
+                          </div>
+                          <select class="select" style="width:320px;" onchange="if(this.value){var t=document.createElement('span');t.className='tag-item';t.innerHTML=this.options[this.selectedIndex].text+'<button class=tag-remove onclick=this.parentElement.remove()>&times;</button>';this.parentElement.querySelector('.tag-list').appendChild(t);this.value='';}">
+                            <option value="">请选择会员等级</option>
+                            <option value="silver">银牌会员</option>
+                            <option value="gold">金牌会员</option>
+                            <option value="diamond">钻石会员</option>
+                            <option value="supreme">至尊会员</option>
+                          </select>
+                        </div>
+                        <div class="helper">达到任意一个所选等级即满足身份</div>
+                      </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                      <div class="control">
+                        <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 企微好友用户: 非面向人群引导文案 → 选择渠道引流活动(single) -->
+                  <div class="hidden" id="audienceWecomFields">
+                    <div class="form-row" style="margin-bottom:10px;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                      <div class="control">
+                        <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:0;">
+                      <div class="label" style="width:140px;flex:0 0 140px;">选择渠道引流活动:</div>
+                      <div class="control">
+                        <select class="select" style="width:320px;">
+                          <option value="">请选择渠道引流活动</option>
+                          <option value="20001">春季拉新活动（20001）</option>
+                          <option value="20002">老客回流活动（20002）</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: 卡片与获取 -->
+          <div class="section">
+            <h2 class="section-title">卡片与获取</h2>
+
+            <div class="form-row">
+              <div class="label required">模板:</div>
+              <div class="control">
+                <select class="select" style="width:260px;">
+                  <option>自定义</option>
+                  <option>系统预设模板</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">卡片设置:</div>
+              <div class="control">
+                <button class="q-add-btn" id="addCardBtn" style="margin-bottom:14px;">+ 新增卡片</button>
+              </div>
+            </div>
+
+            <div class="table-scroll" style="margin-bottom:14px;margin-left:182px;">
+              <table id="cardTable">
+                <thead>
+                  <tr>
+                    <th style="width:50px;">排序</th>
+                    <th style="width:150px;">卡信息</th>
+                    <th style="width:80px;">类型</th>
+                    <th style="width:70px;">兜底 <span title="任意类型卡片均可设为兜底，最多1张，设为兜底后仅保留卡片名称和卡片图片配置" style="cursor:help;color:var(--muted);font-weight:400;">&#9432;</span></th>
+                    <th style="width:90px;">抽中概率(%)</th>
+                    <th style="width:140px;">卡片投放时间</th>
+                    <th style="width:90px;">周期库存</th>
+                    <th style="width:80px;">活动库存</th>
+                    <th style="width:120px;">跳转路径</th>
+                    <th style="width:120px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><select class="select" style="width:60px;height:32px;font-size:13px;"><option selected>1</option><option>2</option><option>3</option></select></td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div class="card-mini" style="background:linear-gradient(135deg,#ff6b6b,#ee5a24);">招</div><span>招财卡</span></div></td>
+                    <td><span class="type-badge type-must">必集卡</span></td>
+                    <td><div style="width:18px;height:18px;border:1.5px solid #d0d5dd;border-radius:4px;"></div></td>
+                    <td>30</td>
+                    <td>同活动时间</td>
+                    <td>每天 / 500</td>
+                    <td>10000</td>
+                    <td>&mdash;</td>
+                    <td><div class="row-actions"><button>编辑</button><button>删除</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><select class="select" style="width:60px;height:32px;font-size:13px;"><option>1</option><option selected>2</option><option>3</option></select></td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div class="card-mini" style="background:linear-gradient(135deg,#48dbfb,#0abde3);">平</div><span>平安卡</span></div></td>
+                    <td><span class="type-badge type-must">必集卡</span></td>
+                    <td><div style="width:18px;height:18px;border:1.5px solid #d0d5dd;border-radius:4px;"></div></td>
+                    <td>25</td>
+                    <td>同活动时间</td>
+                    <td>每天 / 400</td>
+                    <td>8000</td>
+                    <td>&mdash;</td>
+                    <td><div class="row-actions"><button>编辑</button><button>删除</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><select class="select" style="width:60px;height:32px;font-size:13px;"><option>1</option><option>2</option><option selected>3</option></select></td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div class="card-mini" style="background:linear-gradient(135deg,#feca57,#ff9f43);">幸</div><span>幸福卡</span></div></td>
+                    <td><span class="type-badge type-must">必集卡</span></td>
+                    <td><div style="width:18px;height:18px;border:1.5px solid #d0d5dd;border-radius:4px;"></div></td>
+                    <td>20</td>
+                    <td>同活动时间</td>
+                    <td>每天 / 300</td>
+                    <td>6000</td>
+                    <td>&mdash;</td>
+                    <td><div class="row-actions"><button>编辑</button><button>删除</button></div></td>
+                  </tr>
+                  <tr>
+                    <td>&mdash;</td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div class="card-mini" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7);">福</div><span>福气卡</span></div></td>
+                    <td><span class="type-badge type-ad">广告卡</span></td>
+                    <td><div style="width:18px;height:18px;border:1.5px solid #d0d5dd;border-radius:4px;"></div></td>
+                    <td>15</td>
+                    <td>同活动时间</td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
+                    <td><span style="color:var(--muted);font-size:13px;">/pages/promo/index</span></td>
+                    <td><div class="row-actions"><button>编辑</button><button>删除</button></div></td>
+                  </tr>
+                  <tr style="background:#fafbfc;">
+                    <td>&mdash;</td>
+                    <td><div style="display:flex;align-items:center;gap:8px;"><div class="card-mini" style="background:linear-gradient(135deg,#f0e68c,#daa520);">万</div><span>万能卡</span></div></td>
+                    <td><span class="type-badge type-wild">万能卡</span></td>
+                    <td><div style="width:18px;height:18px;border-radius:4px;background:#16a34a;display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
+                    <td><div class="row-actions"><button>编辑</button><button>删除</button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="form-row" style="margin-top:24px;">
+              <div class="label required">任务设置:</div>
+              <div class="control" style="margin-bottom:-8px;">
+                <span style="color:var(--muted);font-size:13px;">配置用户获取抽卡机会的任务。用户完成任务后获得抽卡次数，再通过抽卡随机获得卡片。</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label"></div>
+              <div class="control">
+                <div class="inline">
+                  <label class="check"><input type="checkbox" data-task="free" checked /> 免费赠送</label>
+                  <label class="check"><input type="checkbox" data-task="profile" /> 完善资料</label>
+                  <label class="check"><input type="checkbox" data-task="invite" /> 邀请好友</label>
+                  <label class="check"><input type="checkbox" data-task="share" /> 分享好友</label>
+                  <label class="check"><input type="checkbox" data-task="order" /> 下单消费</label>
+                  <label class="check"><input type="checkbox" data-task="points" /> 积分兑换</label>
+                  <label class="check"><input type="checkbox" data-task="browse" /> 浏览页面</label>
+                  <label class="check"><input type="checkbox" data-task="wecom_friend" /> 添加企微好友</label>
+                  <label class="check"><input type="checkbox" data-task="wecom_group" /> 加入企微社群</label>
+                </div>
+
+                <!-- ===== 免费赠送 配置 ===== -->
+                <div class="task-panel" id="task-free" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">免费赠送</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="免费赠送" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="进入活动可领取免费抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">赠送周期:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="freeCycle" value="once" /> 赠送一次</label>
+                      <label class="radio"><input type="radio" name="freeCycle" value="daily" checked /> 每天赠送</label>
+                      <label class="radio"><input type="radio" name="freeCycle" value="weekly" /> 每周赠送</label>
+                      <label class="radio"><input type="radio" name="freeCycle" value="monthly" /> 每月赠送</label>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">赠送次数:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;" id="freeAccumulateRow">
+                    <div class="label" style="width:120px;flex:0 0 120px;">未使用次数跨周期累计:</div>
+                    <div class="control">
+                      <div class="inline">
+                        <label class="radio"><input type="radio" name="freeAccumulate" value="yes" /> 是</label>
+                        <label class="radio"><input type="radio" name="freeAccumulate" value="no" checked /> 否</label>
+                      </div>
+                      <div class="helper">若设置为"否"，则跨周期后，未使用的任务抽卡机会将自动清零</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 完善资料 配置 ===== -->
+                <div class="task-panel hidden" id="task-profile" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">完善资料</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="完善资料" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="完善个人资料后可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">完善资料赠送:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 邀请好友 配置 ===== -->
+                <div class="task-panel hidden" id="task-invite" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">邀请好友</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="邀请好友" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="邀请好友参与活动可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">每邀请一位获得:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次抽卡机会</span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">助力人群:</div>
+                    <div class="control">
+                      <select class="select" style="width:260px;" id="inviteAudienceSelect">
+                        <option value="all">全部</option>
+                        <option value="member">注册会员</option>
+                        <option value="new">新客</option>
+                        <option value="card">权益卡用户</option>
+                        <option value="level">指定会员等级</option>
+                        <option value="wecom">企微用户</option>
+                        <option value="group">社群用户</option>
+                      </select>
+                      <div id="inviteAudienceDetail" class="hidden" style="margin-top:10px;">
+                        <!-- 注册会员 -->
+                        <div id="inviteAudienceMemberBox" class="hidden nested-box">
+                          <div class="form-row" style="margin-bottom:0;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">提示文案:</div>
+                            <div class="control">
+                              <textarea class="textarea" maxlength="100" placeholder="请输入提示文案，不满足身份时展示"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 新客 -->
+                        <div id="inviteAudienceNewBox" class="hidden nested-box">
+                          <div class="form-row" style="margin-bottom:0;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">提示文案:</div>
+                            <div class="control">
+                              <textarea class="textarea" maxlength="100" placeholder="请输入提示文案，不满足身份时展示"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 权益卡用户 -->
+                        <div id="inviteAudienceCardBox" class="hidden nested-box">
+                          <div class="form-row" style="margin-bottom:10px;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">选择权益卡会员:</div>
+                            <div class="control">
+                              <div class="tag-select-box">
+                                <div class="tag-list" id="inviteCardTagList">
+                                  <span class="tag-item">黄金会员卡（10001）<button class="tag-remove" onclick="this.parentElement.remove()">&times;</button></span>
+                                </div>
+                                <select class="select" style="width:320px;" onchange="if(this.value){var t=document.createElement('span');t.className='tag-item';t.innerHTML=this.options[this.selectedIndex].text+'<button class=tag-remove onclick=this.parentElement.remove()>&times;</button>';this.parentElement.querySelector('.tag-list').appendChild(t);this.value='';}">
+                                  <option value="">请选择权益卡</option>
+                                  <option value="10001">黄金会员卡（10001）</option>
+                                  <option value="10002">白金会员卡（10002）</option>
+                                  <option value="10003">钻石会员卡（10003）</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-row" style="margin-bottom:10px;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                            <div class="control">
+                              <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                            </div>
+                          </div>
+                          <div class="form-row" style="margin-bottom:0;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">引导购买权益卡:</div>
+                            <div class="control">
+                              <select class="select" style="width:320px;">
+                                <option value="">请选择引导购买的权益卡</option>
+                                <option value="10001">黄金会员卡（10001）</option>
+                                <option value="10002">白金会员卡（10002）</option>
+                                <option value="10003">钻石会员卡（10003）</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 指定会员等级 -->
+                        <div id="inviteAudienceLevelBox" class="hidden nested-box">
+                          <div class="form-row" style="margin-bottom:10px;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">选择会员等级:</div>
+                            <div class="control">
+                              <div class="tag-select-box">
+                                <div class="tag-list" id="inviteLevelTagList">
+                                  <span class="tag-item">金牌会员<button class="tag-remove" onclick="this.parentElement.remove()">&times;</button></span>
+                                </div>
+                                <select class="select" style="width:320px;" onchange="if(this.value){var t=document.createElement('span');t.className='tag-item';t.innerHTML=this.options[this.selectedIndex].text+'<button class=tag-remove onclick=this.parentElement.remove()>&times;</button>';this.parentElement.querySelector('.tag-list').appendChild(t);this.value='';}">
+                                  <option value="">请选择会员等级</option>
+                                  <option value="silver">银牌会员</option>
+                                  <option value="gold">金牌会员</option>
+                                  <option value="diamond">钻石会员</option>
+                                  <option value="supreme">至尊会员</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-row" style="margin-bottom:0;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                            <div class="control">
+                              <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 企微用户 -->
+                        <div id="inviteAudienceWecomBox" class="hidden nested-box">
+                          <div class="form-row" style="margin-bottom:10px;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                            <div class="control">
+                              <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                            </div>
+                          </div>
+                          <div class="form-row" style="margin-bottom:0;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">选择渠道引流活动:</div>
+                            <div class="control">
+                              <select class="select" style="width:320px;">
+                                <option value="">请选择渠道引流活动</option>
+                                <option value="20001">春季拉新活动（20001）</option>
+                                <option value="20002">老客回流活动（20002）</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 社群用户 -->
+                        <div id="inviteAudienceGroupBox" class="hidden nested-box">
+                          <div class="form-row" style="margin-bottom:10px;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">非面向人群引导文案:</div>
+                            <div class="control">
+                              <textarea class="textarea" maxlength="100" placeholder="请输入引导文案，非目标人群看到此文案"></textarea>
+                            </div>
+                          </div>
+                          <div class="form-row" style="margin-bottom:10px;">
+                            <div class="label" style="width:140px;flex:0 0 140px;">引导添加社群:</div>
+                            <div class="control">
+                              <div class="inline" style="margin-bottom:8px;">
+                                <label class="radio"><input type="radio" name="inviteGroupGuide" value="code" checked /> 指定社群活码</label>
+                                <label class="radio"><input type="radio" name="inviteGroupGuide" value="lbs" /> 按用户LBS添加</label>
+                              </div>
+                              <div id="inviteGroupCodeBox">
+                                <select class="select" style="width:320px;">
+                                  <option value="">请选择社群活码</option>
+                                  <option value="codeA">社群活码A</option>
+                                  <option value="codeB">社群活码B</option>
+                                </select>
+                              </div>
+                              <div id="inviteGroupLbsBox" class="hidden">
+                                <select class="select" style="width:320px;">
+                                  <option value="">请选择渠道引流活动</option>
+                                  <option value="20001">春季拉新活动（20001）</option>
+                                  <option value="20002">老客回流活动（20002）</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">邀请次数限制:</div>
+                    <div class="control">
+                      <div class="inline">
+                        <label class="radio"><input type="radio" name="inviteLimit" value="daily" checked /> 每日</label>
+                        <input class="input tiny" type="number" min="1" value="1" id="inviteDailyInput" />
+                        <span style="color:#5b6575;font-size:14px;">次</span>
+                        <span style="color:#ccc;margin:0 4px;">/</span>
+                        <label class="radio"><input type="radio" name="inviteLimit" value="activity" /> 活动期间内</label>
+                        <input class="input tiny" type="number" min="1" placeholder="" id="inviteActivityInput" disabled />
+                        <span style="color:#5b6575;font-size:14px;">次</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label" style="width:120px;flex:0 0 120px;"></div>
+                    <div class="control">
+                      <div class="helper">系统固定规则：每人每天最多为他人助力3次；每天为同一好友只能助力1次</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 分享好友 配置 ===== -->
+                <div class="task-panel hidden" id="task-share" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">分享好友</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="分享好友" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="分享活动给好友可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">分享限制类型:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="shareLimit" value="daily" checked /> 每天限制</label>
+                      <label class="radio"><input type="radio" name="shareLimit" value="total" /> 活动期间限制</label>
+                      <label class="radio"><input type="radio" name="shareLimit" value="unlimited" /> 不限</label>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;" id="shareCountRow">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">分享次数:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 下单消费 配置 ===== -->
+                <div class="task-panel hidden" id="task-order" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">下单消费</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="下单消费" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="完成指定订单后可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">订单类型:</div>
+                    <div class="control">
+                      <div class="inline">
+                        <label class="check"><input type="checkbox" /> 储值订单</label>
+                        <label class="check"><input type="checkbox" id="taskOrderCouponPack" /> 券包订单</label>
+                        <label class="check"><input type="checkbox" id="taskOrderGiftCard" /> 礼品卡订单</label>
+                        <label class="check"><input type="checkbox" id="taskOrderVipCard" /> 付费权益卡订单</label>
+                        <label class="check"><input type="checkbox" class="task-order-store-type" data-store="1" data-product="1" /> 堂食订单</label>
+                        <label class="check"><input type="checkbox" class="task-order-store-type" data-store="1" data-product="1" /> 自提订单</label>
+                        <label class="check"><input type="checkbox" class="task-order-store-type" data-store="1" data-product="1" /> 自营外卖</label>
+                        <label class="check"><input type="checkbox" class="task-order-store-type" data-store="1" /> 买单订单</label>
+                      </div>
+                      <div id="taskOrderCouponPackBox" class="hidden" style="margin-top:10px;">
+                        <div class="form-row" style="margin-bottom:0;">
+                          <div class="label" style="width:100px;flex:0 0 100px;">购买券包:</div>
+                          <div class="control"><select class="select" style="width:260px;"><option value="">请选择券包</option><option>新年券包</option><option>春节券包</option></select></div>
+                        </div>
+                      </div>
+                      <div id="taskOrderGiftCardBox" class="hidden" style="margin-top:10px;">
+                        <div class="form-row" style="margin-bottom:0;">
+                          <div class="label" style="width:100px;flex:0 0 100px;">购买礼品卡:</div>
+                          <div class="control"><select class="select" style="width:260px;"><option value="">请选择礼品卡活动</option><option>新年礼品卡</option><option>生日礼品卡</option></select></div>
+                        </div>
+                      </div>
+                      <div id="taskOrderVipCardBox" class="hidden" style="margin-top:10px;">
+                        <div class="form-row" style="margin-bottom:0;">
+                          <div class="label" style="width:100px;flex:0 0 100px;">购买权益卡:</div>
+                          <div class="control"><select class="select" style="width:260px;"><option value="">请选择权益卡</option><option>黄金会员卡</option><option>白金会员卡</option></select></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">订单来源渠道:</div>
+                    <div class="control">
+                      <div class="inline">
+                        <label class="radio"><input type="radio" name="taskOrderChannel" value="unlimited" checked /> 不限</label>
+                        <label class="radio"><input type="radio" name="taskOrderChannel" value="limit" /> 限制</label>
+                      </div>
+                      <div class="hidden inline" id="taskOrderChannelBox" style="margin-top:10px;">
+                        <label class="check"><input type="checkbox" checked /> 微信小程序</label>
+                        <label class="check"><input type="checkbox" /> 支付宝小程序</label>
+                        <label class="check"><input type="checkbox" /> POS&APP</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">下单金额门槛:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderAmount" value="unlimited" checked /> 不限</label>
+                      <label class="radio"><input type="radio" name="taskOrderAmount" value="limit" /> 限制</label>
+                      <span class="hidden inline" id="taskOrderAmountBox">
+                        <span style="color:#5b6575;font-size:14px;">满</span>
+                        <input class="input short" placeholder="金额" />
+                        <span style="color:#5b6575;font-size:14px;">元</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="form-row" id="taskOrderStoreRow" style="margin-bottom:10px;display:none;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">下单门店:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderStore" value="all" checked /> 全部门店</label>
+                      <label class="radio"><input type="radio" name="taskOrderStore" value="include" /> 指定门店参与</label>
+                      <label class="radio"><input type="radio" name="taskOrderStore" value="exclude" /> 指定门店不参与</label>
+                      <span class="hidden inline" id="taskOrderStoreBox">
+                        <select class="select" style="width:260px;"><option value="">请选择门店</option><option>湖里万达广场店</option><option>思明SM广场店</option></select>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="form-row" id="taskOrderProductRow" style="margin-bottom:10px;display:none;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">下单商品:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderProduct" value="all" checked /> 全部商品</label>
+                      <label class="radio"><input type="radio" name="taskOrderProduct" value="include" /> 指定商品参与</label>
+                      <label class="radio"><input type="radio" name="taskOrderProduct" value="exclude" /> 指定商品不参与</label>
+                      <span class="hidden inline" id="taskOrderProductBox">
+                        <select class="select" style="width:260px;"><option value="">请选择商品</option></select>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">抽卡机会增加时点:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderDrawTime" value="pay" checked /> 支付成功后增加</label>
+                      <label class="radio"><input type="radio" name="taskOrderDrawTime" value="complete" /> 订单完成后增加</label>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">一笔订单获得次数:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">每日下单限制:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderDailyLimit" value="unlimited" checked /> 不限</label>
+                      <label class="radio"><input type="radio" name="taskOrderDailyLimit" value="limit" /> 限制</label>
+                      <span class="hidden inline" id="taskOrderDailyLimitBox">
+                        <input class="input tiny" type="number" min="1" placeholder="" />
+                        <span style="color:#5b6575;font-size:14px;">次</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">任务计算时点:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderCalcTime" value="start" checked /> 活动开始后计算</label>
+                      <label class="radio"><input type="radio" name="taskOrderCalcTime" value="enter" /> 进入活动后计算</label>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">退款是否回收次数:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="taskOrderRefund" value="yes" checked /> 回收</label>
+                      <label class="radio"><input type="radio" name="taskOrderRefund" value="no" /> 不回收</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 积分兑换 配置 ===== -->
+                <div class="task-panel hidden" id="task-points" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">积分兑换</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="积分兑换" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="消耗积分可兑换抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">积分兑换设置:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="100" />
+                      <span style="color:#5b6575;font-size:14px;">积分兑换1次抽卡机会</span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">每日兑换上限:</div>
+                    <div class="control inline">
+                      <label class="radio"><input type="radio" name="pointsDailyLimit" value="unlimited" checked /> 不限</label>
+                      <label class="radio"><input type="radio" name="pointsDailyLimit" value="limit" /> 限制</label>
+                      <span class="hidden inline" id="pointsDailyLimitBox">
+                        <input class="input tiny" type="number" min="1" placeholder="" />
+                        <span style="color:#5b6575;font-size:14px;">次</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 浏览页面 配置 ===== -->
+                <div class="task-panel hidden" id="task-browse" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">浏览页面</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="浏览页面" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="浏览指定页面后可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">浏览目标:</div>
+                    <div class="control">
+                      <div class="flex-column" style="gap:12px;">
+                        <div>
+                          <label class="check"><input type="checkbox" class="browse-target-cb" data-browse="dine" checked /> 浏览堂食点单</label>
+                          <div class="browse-target-detail" id="browseDetailDine" style="margin-top:6px;margin-left:24px;margin-bottom:10px;">
+                            <div class="inline" style="gap:8px;">
+                              <span style="color:var(--subtext);font-size:14px;">停留</span>
+                              <input class="input tiny" type="number" min="1" value="3" />
+                              <span style="color:var(--subtext);font-size:14px;">秒</span>
+                              <span style="color:var(--line-dark);margin:0 4px;">|</span>
+                              <span style="color:var(--subtext);font-size:14px;">活动期间获得</span>
+                              <input class="input tiny" type="number" min="1" value="1" />
+                              <span style="color:var(--subtext);font-size:14px;">次</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <label class="check"><input type="checkbox" class="browse-target-cb" data-browse="delivery" /> 浏览外卖点单</label>
+                          <div class="hidden browse-target-detail" id="browseDetailDelivery" style="margin-top:6px;margin-left:24px;margin-bottom:10px;">
+                            <div class="inline" style="gap:8px;">
+                              <span style="color:var(--subtext);font-size:14px;">停留</span>
+                              <input class="input tiny" type="number" min="1" value="3" />
+                              <span style="color:var(--subtext);font-size:14px;">秒</span>
+                              <span style="color:var(--line-dark);margin:0 4px;">|</span>
+                              <span style="color:var(--subtext);font-size:14px;">活动期间获得</span>
+                              <input class="input tiny" type="number" min="1" value="1" />
+                              <span style="color:var(--subtext);font-size:14px;">次</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <label class="check"><input type="checkbox" class="browse-target-cb" data-browse="points_mall" /> 浏览积分商城</label>
+                          <div class="hidden browse-target-detail" id="browseDetailPointsMall" style="margin-top:6px;margin-left:24px;margin-bottom:10px;">
+                            <div class="inline" style="gap:8px;">
+                              <span style="color:var(--subtext);font-size:14px;">停留</span>
+                              <input class="input tiny" type="number" min="1" value="3" />
+                              <span style="color:var(--subtext);font-size:14px;">秒</span>
+                              <span style="color:var(--line-dark);margin:0 4px;">|</span>
+                              <span style="color:var(--subtext);font-size:14px;">活动期间获得</span>
+                              <input class="input tiny" type="number" min="1" value="1" />
+                              <span style="color:var(--subtext);font-size:14px;">次</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <label class="check"><input type="checkbox" class="browse-target-cb" data-browse="coupon_list" /> 浏览优惠券列表</label>
+                          <div class="hidden browse-target-detail" id="browseDetailCouponList" style="margin-top:6px;margin-left:24px;margin-bottom:10px;">
+                            <div class="inline" style="gap:8px;">
+                              <span style="color:var(--subtext);font-size:14px;">停留</span>
+                              <input class="input tiny" type="number" min="1" value="3" />
+                              <span style="color:var(--subtext);font-size:14px;">秒</span>
+                              <span style="color:var(--line-dark);margin:0 4px;">|</span>
+                              <span style="color:var(--subtext);font-size:14px;">活动期间获得</span>
+                              <input class="input tiny" type="number" min="1" value="1" />
+                              <span style="color:var(--subtext);font-size:14px;">次</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 添加企微好友 配置 ===== -->
+                <div class="task-panel hidden" id="task-wecom_friend" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">添加企微好友</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="添加企微好友" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="添加企微好友后可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">添加后获得:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">渠道引流活动:</div>
+                    <div class="control">
+                      <select class="select" style="width:260px;">
+                        <option value="">请选择渠道引流活动</option>
+                        <option value="20001">春季拉新活动（20001）</option>
+                        <option value="20002">老客回流活动（20002）</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== 加入企微社群 配置 ===== -->
+                <div class="task-panel hidden" id="task-wecom_group" style="margin-top:12px;padding:18px 20px;background:#f9fafb;border-radius:8px;border-left:3px solid var(--brand);">
+                  <div style="font-size:15px;font-weight:600;color:#2f3640;margin-bottom:14px;">加入企微社群</div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务名称:</div>
+                    <div class="control"><input class="input large" placeholder="请输入任务名称" value="加入企微社群" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务描述:</div>
+                    <div class="control"><input class="input large" maxlength="30" placeholder="请输入任务描述，限30字" value="加入企微社群后可获得抽卡机会" /></div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label" style="width:120px;flex:0 0 120px;">任务图标:</div>
+                    <div class="control">
+                      <div style="width:60px;height:60px;border:1.5px dashed #c3cad6;border-radius:8px;background:#fafbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#86909c;gap:2px;"><span style="font-size:20px;color:#c3cad6;line-height:1;">+</span><span>上传图标</span></div>
+
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:10px;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">加入后获得:</div>
+                    <div class="control inline">
+                      <input class="input short" type="number" min="1" value="1" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label required" style="width:120px;flex:0 0 120px;">企微社群引导设置:</div>
+                    <div class="control">
+                      <div class="inline">
+                        <label class="radio"><input type="radio" name="wecomGroupGuide" value="qrcode" checked /> 指定社群活码</label>
+                        <label class="radio"><input type="radio" name="wecomGroupGuide" value="lbs" /> LBS引流入群</label>
+                      </div>
+                      <div id="wecomGroupGuideSelectBox" style="margin-top:10px;">
+                        <select class="select" style="width:260px;">
+                          <option value="">请选择社群活码</option>
+                          <option>社群活码A</option>
+                          <option>社群活码B</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-top:24px;">
+              <div class="label required">消费赠卡设置:</div>
+              <div class="control inline">
+                <span class="switch" id="consumeGiftSwitch"></span>
+                <span style="color:var(--muted);font-size:13px;">开启后用户消费满足条件可直接获得指定卡片</span>
+              </div>
+            </div>
+            <div id="consumeGiftBox" class="hidden" style="margin-left:182px;">
+              <div class="nested-box">
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">赠卡订单类型:</div>
+                  <div class="control">
+                    <div class="inline">
+                      <label class="check"><input type="checkbox" checked /> 储值订单</label>
+                      <label class="check"><input type="checkbox" id="consumeGiftCouponPack" /> 券包订单</label>
+                      <label class="check"><input type="checkbox" id="consumeGiftGiftCard" /> 礼品卡订单</label>
+                      <label class="check"><input type="checkbox" id="consumeGiftVipCard" /> 付费权益卡订单</label>
+                      <label class="check"><input type="checkbox" class="cg-order-type" data-store="1" data-product="1" checked /> 堂食订单</label>
+                      <label class="check"><input type="checkbox" class="cg-order-type" data-store="1" data-product="1" /> 自提订单</label>
+                      <label class="check"><input type="checkbox" class="cg-order-type" data-store="1" data-product="1" /> 自营外卖订单</label>
+                      <label class="check"><input type="checkbox" class="cg-order-type" data-store="1" /> 买单订单</label>
+                    </div>
+                    <div id="consumeGiftCouponPackBox" class="hidden" style="margin-top:10px;">
+                      <div class="form-row" style="margin-bottom:0;">
+                        <div class="label" style="width:120px;flex:0 0 120px;">购买券包:</div>
+                        <div class="control"><select class="select" style="width:260px;"><option value="">请选择券包</option><option>新年券包</option><option>春节券包</option></select></div>
+                      </div>
+                    </div>
+                    <div id="consumeGiftGiftCardBox" class="hidden" style="margin-top:10px;">
+                      <div class="form-row" style="margin-bottom:0;">
+                        <div class="label" style="width:120px;flex:0 0 120px;">购买礼品卡:</div>
+                        <div class="control"><select class="select" style="width:260px;"><option value="">请选择礼品卡活动</option><option>新年礼品卡</option><option>生日礼品卡</option></select></div>
+                      </div>
+                    </div>
+                    <div id="consumeGiftVipCardBox" class="hidden" style="margin-top:10px;">
+                      <div class="form-row" style="margin-bottom:0;">
+                        <div class="label" style="width:120px;flex:0 0 120px;">购买权益卡:</div>
+                        <div class="control"><select class="select" style="width:260px;"><option value="">请选择权益卡</option><option>黄金会员卡</option><option>白金会员卡</option></select></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">订单来源渠道:</div>
+                  <div class="control">
+                    <div class="inline">
+                      <label class="radio"><input type="radio" name="consumeChannel" value="unlimited" checked /> 不限</label>
+                      <label class="radio"><input type="radio" name="consumeChannel" value="limit" /> 限制</label>
+                    </div>
+                    <div class="hidden inline" id="consumeChannelBox" style="margin-top:10px;">
+                      <label class="check"><input type="checkbox" checked /> 微信小程序</label>
+                      <label class="check"><input type="checkbox" /> 支付宝小程序</label>
+                      <label class="check"><input type="checkbox" /> POS&APP</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">订单实付金额:</div>
+                  <div class="control inline">
+                    <label class="radio"><input type="radio" name="consumeAmount" value="unlimited" checked /> 不限</label>
+                    <label class="radio"><input type="radio" name="consumeAmount" value="limit" /> 限制</label>
+                    <span id="consumeAmountBox" class="hidden inline">
+                      <span style="color:#5b6575;font-size:14px;">满</span>
+                      <input class="input short" placeholder="金额" />
+                      <span style="color:#5b6575;font-size:14px;">元</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;" id="cgStoreRow">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">下单门店:</div>
+                  <div class="control inline">
+                    <label class="radio"><input type="radio" name="consumeStore" value="all" checked /> 全部门店</label>
+                    <label class="radio"><input type="radio" name="consumeStore" value="specify" /> 指定门店参与</label>
+                    <label class="radio"><input type="radio" name="consumeStore" value="exclude" /> 指定门店不参与</label>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;" id="cgProductRow">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">下单商品:</div>
+                  <div class="control inline">
+                    <label class="radio"><input type="radio" name="consumeProduct" value="all" checked /> 全部商品</label>
+                    <label class="radio"><input type="radio" name="consumeProduct" value="specify" /> 指定商品参与</label>
+                    <label class="radio"><input type="radio" name="consumeProduct" value="exclude" /> 指定商品不参与</label>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">卡片获得节点:</div>
+                  <div class="control">
+                    <div class="inline">
+                      <label class="radio"><input type="radio" name="consumeNode" checked /> 支付成功后获得</label>
+                      <label class="radio"><input type="radio" name="consumeNode" /> 订单完成后获得</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">赠送卡片设置:</div>
+                  <div class="control">
+                    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                      <label class="check" style="display:flex;flex-direction:column;align-items:center;width:100px;padding:0;border:2px solid var(--brand);border-radius:10px;background:#fff;cursor:pointer;overflow:hidden;position:relative;">
+                        <input type="checkbox" checked style="position:absolute;top:6px;right:6px;z-index:2;" />
+                        <div style="width:100%;height:80px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;">
+                          <span style="font-size:28px;color:#fff;font-weight:700;">招</span>
+                        </div>
+                        <span style="font-size:13px;padding:6px 4px;text-align:center;font-weight:600;color:#2f3640;">招财卡</span>
+                      </label>
+                      <label class="check" style="display:flex;flex-direction:column;align-items:center;width:100px;padding:0;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;overflow:hidden;position:relative;">
+                        <input type="checkbox" style="position:absolute;top:6px;right:6px;z-index:2;" />
+                        <div style="width:100%;height:80px;background:linear-gradient(135deg,#48dbfb,#0abde3);display:flex;align-items:center;justify-content:center;">
+                          <span style="font-size:28px;color:#fff;font-weight:700;">平</span>
+                        </div>
+                        <span style="font-size:13px;padding:6px 4px;text-align:center;font-weight:600;color:#2f3640;">平安卡</span>
+                      </label>
+                      <label class="check" style="display:flex;flex-direction:column;align-items:center;width:100px;padding:0;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;overflow:hidden;position:relative;">
+                        <input type="checkbox" style="position:absolute;top:6px;right:6px;z-index:2;" />
+                        <div style="width:100%;height:80px;background:linear-gradient(135deg,#feca57,#ff9f43);display:flex;align-items:center;justify-content:center;">
+                          <span style="font-size:28px;color:#fff;font-weight:700;">幸</span>
+                        </div>
+                        <span style="font-size:13px;padding:6px 4px;text-align:center;font-weight:600;color:#2f3640;">幸福卡</span>
+                      </label>
+                    </div>
+                    <div class="helper">仅可选择"必集卡"，可多选。勾选后的卡片将作为消费赠送的卡片，若设置多张，则用户完成指定订单类型时可额外获赠多张卡片</div>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">库存设置:</div>
+                  <div class="control">
+                    <div class="inline">
+                      <label class="radio"><input type="radio" name="consumeStock" value="unlimited" checked /> 不限</label>
+                      <label class="radio"><input type="radio" name="consumeStock" value="limit" /> 限制</label>
+                      <span class="hidden inline" id="consumeStockBox">
+                        <input class="input short" placeholder="数量" />
+                        <span style="color:#5b6575;font-size:14px;">份</span>
+                      </span>
+                    </div>
+                    <div class="helper">消费赠送卡片的库存数量，此处库存与抽卡中库存单独核算</div>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;">
+                  <div class="label" style="width:120px;flex:0 0 120px;">任务引导语:</div>
+                  <div class="control inline">
+                    <input class="input large" maxlength="30" placeholder="每完成以下任意一笔订单可获得N张卡片" />
+                    <button class="text-link">查看示例</button>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom:0;">
+                  <div class="label required" style="width:120px;flex:0 0 120px;">每人消费赠送限制:</div>
+                  <div class="control inline">
+                    <label class="radio"><input type="radio" name="consumePersonLimit" value="unlimited" checked /> 不限</label>
+                    <label class="radio"><input type="radio" name="consumePersonLimit" value="limit" /> 限制</label>
+                    <span class="hidden inline" id="consumePersonLimitBox">
+                      <input class="input short" placeholder="次数" />
+                      <span style="color:#5b6575;font-size:14px;">次</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-top:24px;">
+              <div class="label required">转赠设置:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="giftLimit" value="unlimited" checked /> 不限</label>
+                  <label class="radio"><input type="radio" name="giftLimit" value="none" /> 不可转赠</label>
+                  <label class="radio"><input type="radio" name="giftLimit" value="limit" /> 受赠人最多接受</label>
+                  <span id="giftLimitBox" class="hidden inline">
+                    <input class="input tiny" placeholder="数量" />
+                    <span style="color:#5b6575;font-size:14px;">张卡片</span>
+                  </span>
+                </div>
+                <div class="helper">防止不法分子利用规则漏洞，通过使用大量小号向大号转赠以获取更高收益。可对大号（受赠人）接收卡片的数量进行限制</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: 奖品设置 -->
+          <div class="section">
+            <h2 class="section-title">奖品设置</h2>
+
+            <div class="form-row">
+              <div class="label required">开奖方式:</div>
+              <div class="control inline">
+                <label class="radio"><input type="radio" name="drawMode" checked /> 集齐即开</label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">奖品发放方式:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="prizeMode" value="fixed" checked /> 固定奖品</label>
+                  <label class="radio"><input type="radio" name="prizeMode" value="random" /> 随机奖品</label>
+                </div>
+                <div class="helper">固定奖品：每次集齐开奖时活动的奖品都是一样的；随机奖品：每次集齐后开奖时在奖品中随机发放一个</div>
+              </div>
+            </div>
+
+            <!-- Fixed prize panel -->
+            <div id="fixedPrizePanel">
+              <div class="form-row">
+                <div class="label required">奖励类型:</div>
+                <div class="control">
+                  <div class="inline">
+                    <label class="check"><input type="checkbox" data-prize="coupon" /> 优惠券</label>
+                    <label class="check"><input type="checkbox" data-prize="points" checked /> 积分</label>
+                    <label class="check"><input type="checkbox" data-prize="thirdcode" /> 三方券码</label>
+                    <label class="check"><input type="checkbox" data-prize="physical" /> 实物商品</label>
+                  </div>
+                  <div class="helper">可多选，多选后一起发放</div>
+
+                  <div id="prizeConfigBox">
+                    <!-- Points config (visible by default) -->
+                    <div class="nested-box" id="prize-points">
+                      <div class="form-row" style="margin-bottom:0;">
+                        <div class="label required" style="width:92px;flex:0 0 92px;">积分数量:</div>
+                        <div class="control inline">
+                          <input class="input short" type="number" min="1" placeholder="请输入" value="100" />
+                          <span style="color:#5b6575;font-size:14px;">积分</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Coupon config (hidden by default) -->
+                    <div class="nested-box hidden" id="prize-coupon">
+                      <div class="form-row" style="margin-bottom:0;align-items:flex-start;">
+                        <div class="label" style="width:92px;flex:0 0 92px;padding-top:10px;">优惠券:</div>
+                        <div class="control" style="max-width:760px;">
+                          <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap;">
+                            <button type="button" class="coupon-add-btn" id="addFixedCouponBtn">+ 添加优惠券</button>
+                            <span style="font-size:12px;color:var(--muted);">支持添加多张优惠券，每张独立配置发放张数和库存</span>
+                          </div>
+                          <div class="coupon-table-wrap">
+                            <table class="coupon-table">
+                              <thead>
+                                <tr>
+                                  <th style="width:42%;">券模板</th>
+                                  <th style="width:20%;">发放张数</th>
+                                  <th style="width:24%;">优惠券库存</th>
+                                  <th style="width:14%;">操作</th>
+                                </tr>
+                              </thead>
+                              <tbody id="fixedCouponTbody">
+                                <tr><td colspan="4" style="text-align:center;color:var(--muted);font-size:13px;padding:28px 16px;">暂无优惠券，请点击上方「+ 添加优惠券」按钮添加</td></tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Third-party code config -->
+                    <div class="nested-box hidden" id="prize-thirdcode">
+                      <div class="form-row" style="margin-bottom:0;">
+                        <div class="label required" style="width:92px;flex:0 0 92px;">选择三方券码:</div>
+                        <div class="control">
+                          <select class="select" style="width:260px;">
+                            <option value="">请选择三方券码</option>
+                            <option>星巴克兑换码</option>
+                            <option>瑞幸咖啡兑换码</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Physical goods -->
+                    <div class="nested-box hidden" id="prize-physical">
+                      <div class="form-row" style="margin-bottom:0;">
+                        <div class="label required" style="width:92px;flex:0 0 92px;">选择实物商品:</div>
+                        <div class="control">
+                          <select class="select" style="width:260px;">
+                            <option value="">请选择实物商品</option>
+                            <option>定制马克杯</option>
+                            <option>品牌T恤</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Random prize panel -->
+            <div id="randomPrizePanel" class="hidden">
+              <div class="table-card" style="margin-left:182px;margin-bottom:14px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>奖项类型</th>
+                      <th>奖品信息</th>
+                      <th>引用奖品</th>
+                      <th>中奖概率(%)</th>
+                      <th>活动库存</th>
+                      <th>周期库存</th>
+                      <th>投放时间</th>
+                      <th>引导文案</th>
+                      <th>跳转路径</th>
+                      <th>优先级</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="type-badge type-fixed">普通奖项</span></td>
+                      <td><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="card-mini" style="background:#e8f0ff;color:#2563eb;font-size:12px;">券</div><span style="font-size:13px;">满减优惠券</span></div></td>
+                      <td>满30减5元券</td>
+                      <td>40</td>
+                      <td>5000</td>
+                      <td>每天 / 100</td>
+                      <td>同活动时间</td>
+                      <td>去使用</td>
+                      <td>&mdash;</td>
+                      <td><input class="input tiny" type="number" min="1" value="2" style="width:50px;height:30px;font-size:13px;text-align:center;" /></td>
+                      <td><div class="row-actions"><button>编辑</button><button>白名单</button><button>删除</button></div></td>
+                    </tr>
+                    <tr>
+                      <td><span class="type-badge type-fixed">普通奖项</span></td>
+                      <td><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="card-mini" style="background:#fff3e8;color:#f97316;font-size:12px;">分</div><span style="font-size:13px;">积分奖励</span></div></td>
+                      <td>50积分</td>
+                      <td>30</td>
+                      <td>10000</td>
+                      <td>每天 / 200</td>
+                      <td>同活动时间</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td><input class="input tiny" type="number" min="1" value="1" style="width:50px;height:30px;font-size:13px;text-align:center;" /></td>
+                      <td><div class="row-actions"><button>编辑</button><button>白名单</button><button>删除</button></div></td>
+                    </tr>
+                    <tr style="background:#fff8f8;">
+                      <td><span class="type-badge type-random">保底奖项</span></td>
+                      <td><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="card-mini" style="background:#fff3e8;color:#f97316;font-size:12px;">分</div><span style="font-size:13px;">保底积分</span></div></td>
+                      <td>10积分</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td>去查看</td>
+                      <td>&mdash;</td>
+                      <td><input class="input tiny" type="number" min="1" value="1" style="width:50px;height:30px;font-size:13px;text-align:center;" /></td>
+                      <td><div class="row-actions"><button>编辑</button><button>白名单</button><button>删除</button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-left:182px;margin-top:12px;">
+                <button class="q-add-btn" id="addRandomPrizeBtn" style="width:100%;text-align:center;">+ 添加奖项</button>
+              </div>
+
+            </div>
+
+            <div class="form-row" style="margin-top:24px;">
+              <div class="label">随机掉落奖品设置:</div>
+              <div class="control inline">
+                <span class="switch" id="extraPrizeSwitch"></span>
+                <span style="color:var(--muted);font-size:14px;">开启后用户在抽卡过程中会随机再抽取额外设置的奖品</span>
+              </div>
+            </div>
+            <div id="extraPrizeBox" class="hidden">
+              <div class="table-card" style="margin-left:182px;margin-bottom:14px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>奖项类型</th>
+                      <th>奖品信息</th>
+                      <th>引用奖品</th>
+                      <th>中奖概率(%)</th>
+                      <th>活动库存</th>
+                      <th>周期库存</th>
+                      <th>投放时间</th>
+                      <th>引导文案</th>
+                      <th>跳转路径</th>
+                      <th>优先级</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="type-badge type-fixed">普通奖项</span></td>
+                      <td><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="card-mini" style="background:#fff3e8;color:#f97316;font-size:12px;">分</div><span style="font-size:13px;">额外积分</span></div></td>
+                      <td>10积分</td>
+                      <td>100</td>
+                      <td>50000</td>
+                      <td>每天 / 500</td>
+                      <td>同活动时间</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td><input class="input tiny" type="number" min="1" value="1" style="width:50px;height:30px;font-size:13px;text-align:center;" /></td>
+                      <td><div class="row-actions"><button>编辑</button><button>白名单</button><button>删除</button></div></td>
+                    </tr>
+                    <tr style="background:#fff8f8;">
+                      <td><span class="type-badge type-random">保底奖项</span></td>
+                      <td><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="card-mini" style="background:#fff3e8;color:#f97316;font-size:12px;">分</div><span style="font-size:13px;">保底积分</span></div></td>
+                      <td>5积分</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td>&mdash;</td>
+                      <td>去查看</td>
+                      <td>&mdash;</td>
+                      <td><input class="input tiny" type="number" min="1" value="1" style="width:50px;height:30px;font-size:13px;text-align:center;" /></td>
+                      <td><div class="row-actions"><button>编辑</button><button>白名单</button><button>删除</button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-left:182px;margin-top:12px;">
+                <button class="q-add-btn" style="width:100%;text-align:center;" onclick="document.getElementById('prizeModal').classList.remove('hidden');">+ 添加奖项</button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">每人总参与限制:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="totalJoinLimit" value="unlimited" checked /> 不限</label>
+                  <label class="radio"><input type="radio" name="totalJoinLimit" value="limit" /> 限制</label>
+                  <span id="totalJoinLimitBox" class="hidden inline">
+                    <input class="input short" placeholder="次数" />
+                    <span style="color:#5b6575;font-size:14px;">次</span>
+                  </span>
+                </div>
+                <div class="helper">设置每个用户参与的开奖次数，达到次数后不可再开奖，可以继续抽卡，抽中的卡片可以赠送给好友</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: 活动设置 (replaces old Sections 5+6) -->
+          <div class="section">
+            <h2 class="section-title">样式设置</h2>
+
+            <div class="form-row">
+              <div class="label required">主题色:</div>
+              <div class="control inline">
+                <input class="input short" type="color" value="#FF4D4F" style="width:60px;height:40px;padding:4px;cursor:pointer;" />
+                <span style="color:var(--muted);font-size:14px;">#FF4D4F</span>
+                <span style="color:var(--muted);font-size:13px;margin-left:8px;">影响按钮背景、角标、进度条、高亮文字等全局强调色</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label required">背景图片:</div>
+              <div class="control">
+                <div class="img-uploader"><span class="plus">+</span></div>
+                <div class="helper">建议尺寸 750x1624px，不超过3MB，支持JPEG/JPG/GIF/PNG</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label required">背景颜色:</div>
+              <div class="control inline">
+                <input class="input short" type="color" value="#F5F5F5" style="width:60px;height:40px;padding:4px;cursor:pointer;" />
+                <span style="color:var(--muted);font-size:14px;">#F5F5F5</span>
+                <span style="color:var(--muted);font-size:13px;margin-left:8px;">活动页背景兜底色</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label">抽卡按钮背景图:</div>
+              <div class="control">
+                <div class="img-uploader"><span class="plus">+</span></div>
+                <div class="helper">支持PNG/JPG，不超过2MB。不上传则按钮使用主题色填充</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label">合成按钮背景图:</div>
+              <div class="control">
+                <div class="img-uploader"><span class="plus">+</span></div>
+                <div class="helper">支持PNG/JPG，不超过2MB。不上传则按钮使用主题色填充</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label required">分享设置:</div>
+              <div class="control">
+                <div class="inline">
+                  <label class="radio"><input type="radio" name="shareSet" value="on" checked onchange="document.getElementById('shareDetailBox').classList.remove('hidden');" /> 允许分享</label>
+                  <label class="radio"><input type="radio" name="shareSet" value="off" onchange="document.getElementById('shareDetailBox').classList.add('hidden');" /> 不允许分享</label>
+                </div>
+                <div id="shareDetailBox" style="margin-top:12px;padding:14px 16px;background:#f9fafb;border-radius:8px;border:1px solid var(--line);">
+                  <div class="form-row" style="margin-bottom:12px;">
+                    <div class="label" style="width:100px;flex:0 0 100px;">分享文案:</div>
+                    <div class="control">
+                      <input class="input large" maxlength="30" placeholder="请输入分享文案，限30字" value="快来一起集卡赢好礼！" />
+                    </div>
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <div class="label" style="width:100px;flex:0 0 100px;">分享封面图:</div>
+                    <div class="control">
+                      <div class="img-uploader"><span class="plus">+</span></div>
+                      <div class="helper">支持PNG/JPG，不超过2MB，建议5:4比例</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="label">活动说明:</div>
+              <div class="control" style="max-width:720px;">
+                <div class="rte-toolbar">
+                  <select style="height:28px;border:1px solid var(--line-dark);border-radius:4px;font-size:12px;padding:0 4px;">
+                    <option>正文</option>
+                    <option>H1</option>
+                    <option>H2</option>
+                    <option>H3</option>
+                  </select>
+                  <div class="sep"></div>
+                  <button><b>B</b></button>
+                  <button><u>U</u></button>
+                  <button><s>S</s></button>
+                  <div class="sep"></div>
+                  <button style="font-size:16px;">A</button>
+                  <button style="background:#ff4d4f;width:18px;height:18px;border-radius:3px;min-width:18px;"></button>
+                  <div class="sep"></div>
+                  <button>UL</button>
+                  <button>OL</button>
+                  <div class="sep"></div>
+                  <button>L</button>
+                  <button>C</button>
+                  <button>R</button>
+                  <div class="sep"></div>
+                  <button>IMG</button>
+                  <button>&lt;/&gt;</button>
+                  <div class="sep"></div>
+                  <button>&#8630;</button>
+                  <button>&#8631;</button>
+                </div>
+                <div class="rte-body" contenteditable="true">
+                  <p>1. 活动期间，完成指定任务即可获得抽卡机会</p>
+                  <p>2. 集齐所有必集卡即可兑换奖品</p>
+                  <p>3. 卡片可赠送给好友</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-bar">
+            <button class="btn">取消</button>
+            <button class="btn btn-primary" onclick="showToast('活动已保存')">保存</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= VIEW: 集卡活动列表 ================= -->
+      <div id="view-list" class="hidden">
+        <div class="breadcrumb">营销中心 / 集卡活动 / 活动列表</div>
+        <h1 class="page-title">集卡活动列表</h1>
+
+        <section class="card">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span>活动信息:</span>
+              <input class="input" style="width:200px;" placeholder="活动名称/ID" />
+            </div>
+            <div class="filter-item">
+              <span>活动时间:</span>
+              <input class="input" style="width:140px;" placeholder="开始" />
+              <span style="color:#98a2b3;">~</span>
+              <input class="input" style="width:140px;" placeholder="结束" />
+            </div>
+            <div class="filter-item">
+              <span>活动状态:</span>
+              <select class="select" style="width:140px;">
+                <option>全部</option>
+                <option>草稿</option>
+                <option>待开始</option>
+                <option>进行中</option>
+                <option>已结束</option>
+                <option>已作废</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary">查询</button>
+              <button class="btn">重置</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <button class="btn btn-primary" id="newFromList">+ 新建集卡活动</button>
+          </div>
+
+          <div class="table-card">
+            <table>
+              <colgroup>
+                <col style="width:18%" />
+                <col style="width:15%" />
+                <col style="width:10%" />
+                <col style="width:10%" />
+                <col style="width:10%" />
+                <col style="width:8%" />
+                <col style="width:29%" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>活动信息</th>
+                  <th>活动时间</th>
+                  <th>面向用户</th>
+                  <th>奖品发放方式</th>
+                  <th>每人总参与限制</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="name-cell">夏日集卡预热<span class="code">ID: JK20260701000</span></td>
+                  <td>2026-07-01 00:00<br/>2026-07-31 23:59</td>
+                  <td>全部用户</td>
+                  <td><span class="type-badge type-fixed">固定奖品</span></td>
+                  <td>不限</td>
+                  <td><span class="status-badge status-draft">草稿</span></td>
+                  <td><div class="row-actions">
+                    <button class="listEditBtn">编辑</button><button class="deleteBtn">删除</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">新年集福卡<span class="code">ID: JK20260415001</span></td>
+                  <td>2026-04-15 00:00<br/>2026-05-15 23:59</td>
+                  <td>全部用户</td>
+                  <td><span class="type-badge type-fixed">固定奖品</span></td>
+                  <td>不限</td>
+                  <td><span class="status-badge status-pending">待开始</span></td>
+                  <td><div class="row-actions">
+                    <button class="listEditBtn">编辑</button><button class="voidBtn">作废</button><button class="promoBtn">推广</button><button class="dataBtn">活动数据</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">春季集卡抽大奖<span class="code">ID: JK20260320002</span></td>
+                  <td>2026-03-20 00:00<br/>2026-04-20 23:59</td>
+                  <td>注册会员</td>
+                  <td><span class="type-badge type-random">随机奖品</span></td>
+                  <td>限制3次</td>
+                  <td><span class="status-badge status-running">进行中</span></td>
+                  <td><div class="row-actions">
+                    <button class="listEditBtn">编辑</button><button class="voidBtn">作废</button><button class="promoBtn">推广</button><button class="dataBtn">活动数据</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">元旦集卡送好礼<span class="code">ID: JK20260101003</span></td>
+                  <td>2026-01-01 00:00<br/>2026-01-31 23:59</td>
+                  <td>全部用户</td>
+                  <td><span class="type-badge type-fixed">固定奖品</span></td>
+                  <td>限制1次</td>
+                  <td><span class="status-badge status-ended">已结束</span></td>
+                  <td><div class="row-actions">
+                    <button class="readonlyEditBtn">编辑（只读）</button><button class="promoBtn">推广</button><button class="dataBtn">活动数据</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="name-cell">国庆集卡活动<span class="code">ID: JK20251001004</span></td>
+                  <td>2025-10-01 00:00<br/>2025-10-15 23:59</td>
+                  <td>指定等级会员</td>
+                  <td><span class="type-badge type-random">随机奖品</span></td>
+                  <td>限制2次</td>
+                  <td><span class="status-badge status-void">已作废</span></td>
+                  <td><div class="row-actions">
+                    <button class="readonlyEditBtn">编辑（只读）</button><button class="promoBtn">推广</button><button class="dataBtn">活动数据</button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= VIEW: 活动数据 ================= -->
+      <div id="view-data" class="hidden">
+        <div class="breadcrumb">
+          <a href="#" id="dataBackBtn" style="color:var(--brand);text-decoration:none;">&#8592; 返回活动列表</a>
+          <span style="margin:0 8px;">&#8250;</span> 活动数据
+        </div>
+
+        <div class="act-info-card">
+          <div style="flex:1;">
+            <div class="big-name" id="dataActName">春季集卡抽大奖</div>
+            <div class="meta" id="dataActMeta">活动ID: JK20260320002 &nbsp;&middot;&nbsp; 活动时间: 2026-03-20 00:00 ~ 2026-04-20 23:59</div>
+          </div>
+          <span class="status-badge status-running" id="dataActStatus">进行中</span>
+          <button class="btn">切换活动</button>
+        </div>
+
+        <div class="sub-tabs">
+          <div class="sub-tab active" data-sub="participate">参与记录</div>
+          <div class="sub-tab" data-sub="prize">中奖记录</div>
+          <div class="sub-tab" data-sub="task">任务明细</div>
+        </div>
+
+        <!-- Sub: 参与记录 -->
+        <div class="sub-pane active" id="sub-participate">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span>用户手机号:</span>
+              <input class="input" style="width:160px;" placeholder="请输入" />
+            </div>
+            <div class="filter-item">
+              <span>首次发起时间:</span>
+              <input class="input" style="width:140px;" placeholder="开始" />
+              <span style="color:#98a2b3;">~</span>
+              <input class="input" style="width:140px;" placeholder="结束" />
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary">查询</button>
+              <button class="btn">重置</button>
+              <button class="btn">导出</button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>用户信息</th>
+                  <th>首次发起时间</th>
+                  <th>已有卡片数</th>
+                  <th>赠送好友卡片数</th>
+                  <th>领取好友卡片数</th>
+                  <th>开奖次数</th>
+                  <th>集卡记录</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ffe2b8,#ef6f75);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>糖糖小姐</div><div style="color:var(--muted);font-size:12px;">138****2341</div></div>
+                    </div>
+                  </td>
+                  <td>2026-03-20 08:15:23</td>
+                  <td>7</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td><button class="text-link card-record-btn" data-record-key="tangtang">查看</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#b8e2ff,#6f93ef);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>阿Ken</div><div style="color:var(--muted);font-size:12px;">139****8812</div></div>
+                    </div>
+                  </td>
+                  <td>2026-03-20 10:32:45</td>
+                  <td>4</td>
+                  <td>0</td>
+                  <td>3</td>
+                  <td>0</td>
+                  <td><button class="text-link card-record-btn" data-record-key="aken">查看</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d4ffb8,#6fef95);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>米粒</div><div style="color:var(--muted);font-size:12px;">136****5520</div></div>
+                    </div>
+                  </td>
+                  <td>2026-03-21 14:22:10</td>
+                  <td>12</td>
+                  <td>5</td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td><button class="text-link card-record-btn" data-record-key="mili">查看</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sub: 中奖记录 -->
+        <div class="sub-pane" id="sub-prize">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span>用户手机号:</span>
+              <input class="input" style="width:160px;" placeholder="请输入" />
+            </div>
+            <div class="filter-item">
+              <span>中奖时间:</span>
+              <input class="input" style="width:140px;" placeholder="开始" />
+              <span style="color:#98a2b3;">~</span>
+              <input class="input" style="width:140px;" placeholder="结束" />
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary">查询</button>
+              <button class="btn">重置</button>
+              <button class="btn">导出</button>
+            </div>
+          </div>
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>用户信息</th>
+                  <th>奖励时间</th>
+                  <th>奖励明细</th>
+                  <th>获得方式</th>
+                  <th>收货地址</th>
+                  <th>领取状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d4ffb8,#6fef95);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>米粒</div><div style="color:var(--muted);font-size:12px;">136****5520</div></div>
+                    </div>
+                  </td>
+                  <td>2026-04-01 16:30:00</td>
+                  <td>100积分 + 满30减5元优惠券x1</td>
+                  <td>集齐开奖</td>
+                  <td>&mdash;</td>
+                  <td>&mdash;</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ffe2b8,#ef6f75);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>糖糖小姐</div><div style="color:var(--muted);font-size:12px;">138****2341</div></div>
+                    </div>
+                  </td>
+                  <td>2026-03-28 11:20:00</td>
+                  <td>飞天茅台酒500ml x1</td>
+                  <td>集齐开奖</td>
+                  <td>
+                    <div style="line-height:20px;"><div>糖糖小姐（138****2341）</div><div style="color:var(--muted);font-size:12px;">河南省濮阳市华龙区胜利路88号</div></div>
+                  </td>
+                  <td><span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;background:#e6f7e9;color:#15803d;">已领取</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#b8e2ff,#6f93ef);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>阿Ken</div><div style="color:var(--muted);font-size:12px;">139****8812</div></div>
+                    </div>
+                  </td>
+                  <td>2026-04-02 09:15:30</td>
+                  <td>限量版保温杯 x1</td>
+                  <td>额外掉落</td>
+                  <td>
+                    <div style="line-height:20px;"><div>阿Ken（139****8812）</div><div style="color:var(--muted);font-size:12px;">广东省深圳市南山区科技园南路12号</div></div>
+                  </td>
+                  <td><span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;background:#fff3e0;color:#c2730a;">待领取</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sub: 任务明细 -->
+        <div class="sub-pane" id="sub-task">
+          <div class="filter-bar">
+            <div class="filter-item">
+              <span>用户手机号:</span>
+              <input class="input" style="width:160px;" placeholder="请输入" />
+            </div>
+            <div class="filter-item">
+              <span>任务类型:</span>
+              <select class="select" style="width:140px;">
+                <option>全部</option>
+                <option>免费赠送</option>
+                <option>完善资料</option>
+                <option>邀请好友</option>
+                <option>下单消费</option>
+                <option>积分兑换</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <span>完成时间:</span>
+              <input class="input" style="width:140px;" placeholder="开始" />
+              <span style="color:#98a2b3;">~</span>
+              <input class="input" style="width:140px;" placeholder="结束" />
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary">查询</button>
+              <button class="btn">重置</button>
+              <button class="btn">导出</button>
+            </div>
+          </div>
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>用户信息</th>
+                  <th>任务类型</th>
+                  <th>完成时间</th>
+                  <th>抽卡次数</th>
+                  <th>任务详情</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ffe2b8,#ef6f75);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>糖糖小姐</div><div style="color:var(--muted);font-size:12px;">138****2341</div></div>
+                    </div>
+                  </td>
+                  <td>免费赠送</td>
+                  <td>2026-03-20 08:15:23</td>
+                  <td>1</td>
+                  <td>每日免费领取</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#b8e2ff,#6f93ef);flex:0 0 auto;"></div>
+                      <div style="line-height:18px;"><div>阿Ken</div><div style="color:var(--muted);font-size:12px;">139****8812</div></div>
+                    </div>
+                  </td>
+                  <td>下单消费</td>
+                  <td>2026-03-22 12:30:45</td>
+                  <td>2</td>
+                  <td>订单金额: 58.00元</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= Modal: 新增卡片 ================= -->
+  <div class="modal-mask" id="cardModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span>新增卡片</span>
+        <button class="modal-close" id="cardModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="label required" style="width:100px;flex:0 0 100px;">卡片类型:</div>
+          <div class="control inline">
+            <label class="radio"><input type="radio" name="modalCardType" value="must" checked /> 必集卡</label>
+            <label class="radio"><input type="radio" name="modalCardType" value="ad" /> 广告卡</label>
+            <label class="radio"><input type="radio" name="modalCardType" value="wild" /> 万能卡</label>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="label required" style="width:100px;flex:0 0 100px;">卡名称:</div>
+          <div class="control">
+            <input class="input medium" maxlength="5" placeholder="请输入卡名称，限5字" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="label required" style="width:100px;flex:0 0 100px;">卡图片:</div>
+          <div class="control">
+            <div class="img-uploader-sm"><span class="plus">+</span></div>
+            <div class="helper">PNG/JPG/JPEG/GIF, 不超过2MB</div>
+          </div>
+        </div>
+        <div id="modalProbabilityField">
+          <div class="form-row">
+            <div class="label required" style="width:100px;flex:0 0 100px;">抽中概率(%):</div>
+            <div class="control">
+              <input class="input short" type="number" min="0" max="100" step="0.01" placeholder="0.00" />
+            </div>
+          </div>
+        </div>
+        <div id="modalTimeFields">
+          <div class="form-row">
+            <div class="label" style="width:100px;flex:0 0 100px;">卡片投放时间:</div>
+            <div class="control inline">
+              <label class="radio"><input type="radio" name="modalCardLaunch" value="follow" checked /> 同活动时间</label>
+              <label class="radio"><input type="radio" name="modalCardLaunch" value="custom" /> 自定义</label>
+            </div>
+          </div>
+          <div class="form-row hidden" id="modalCustomTimeBox">
+            <div class="label" style="width:100px;flex:0 0 100px;"></div>
+            <div class="control inline">
+              <input class="input medium" placeholder="开始时间" />
+              <span style="color:#98a2b3;">至</span>
+              <input class="input medium" placeholder="结束时间" />
+            </div>
+          </div>
+        </div>
+        <div id="modalStockFields">
+          <div class="form-row">
+            <div class="label" style="width:100px;flex:0 0 100px;">周期库存:</div>
+            <div class="control inline">
+              <select class="select" style="width:120px;">
+                <option>每天</option>
+                <option>每周</option>
+                <option>每月</option>
+              </select>
+              <input class="input short" type="number" min="0" placeholder="数量" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="label" style="width:100px;flex:0 0 100px;">活动库存:</div>
+            <div class="control">
+              <input class="input short" type="number" min="0" placeholder="请输入" />
+            </div>
+          </div>
+        </div>
+        <div id="modalLinkField">
+          <div class="form-row">
+            <div class="label" style="width:100px;flex:0 0 100px;">跳转路径:</div>
+            <div class="control">
+              <input class="input large" maxlength="200" placeholder="请输入小程序页面路径" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="cardModalCancel">取消</button>
+        <button class="btn btn-primary" id="cardModalConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal: 添加奖项 ================= -->
+  <div class="modal-mask" id="prizeModal">
+    <div class="modal" style="width:680px;">
+      <div class="modal-header">
+        <span>添加奖项</span>
+        <button class="modal-close" id="prizeModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- 奖项类型 -->
+        <div class="form-row">
+          <div class="label required" style="width:120px;flex:0 0 120px;">奖项类型:</div>
+          <div class="control inline">
+            <label class="radio"><input type="radio" name="modalPrizeType" value="normal" checked /> 普通奖项</label>
+            <label class="radio"><input type="radio" name="modalPrizeType" value="guaranteed" /> 保底奖项</label>
+            <label class="radio"><input type="radio" name="modalPrizeType" value="none" /> 未中奖</label>
+          </div>
+        </div>
+        <!-- 奖品类型 (普通+保底) -->
+        <div id="pmFieldPrizeKind">
+          <div class="form-row">
+            <div class="label required" style="width:120px;flex:0 0 120px;">奖品类型:</div>
+            <div class="control inline">
+              <label class="radio"><input type="radio" name="modalPrizeKind" value="coupon" checked /> 优惠券</label>
+              <label class="radio"><input type="radio" name="modalPrizeKind" value="points" /> 积分</label>
+              <label class="radio"><input type="radio" name="modalPrizeKind" value="thirdcode" /> 三方券码</label>
+              <label class="radio"><input type="radio" name="modalPrizeKind" value="other" /> 其他</label>
+              <label class="radio"><input type="radio" name="modalPrizeKind" value="physical" /> 实物类型</label>
+            </div>
+          </div>
+        </div>
+        <!-- 优惠券选择 (奖品类型=优惠券时) -->
+        <div id="pmFieldCouponSelect">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">优惠券选择:</div>
+            <div class="control">
+              <button class="btn" style="font-size:13px;">选择优惠券</button>
+            </div>
+          </div>
+        </div>
+        <!-- 奖品名称 -->
+        <div class="form-row">
+          <div class="label required" style="width:120px;flex:0 0 120px;">奖品名称:</div>
+          <div class="control">
+            <input class="input medium" placeholder="请输入奖品名称" />
+          </div>
+        </div>
+        <!-- 奖品图片 -->
+        <div class="form-row">
+          <div class="label required" style="width:120px;flex:0 0 120px;">奖品图片:</div>
+          <div class="control">
+            <div class="img-uploader-sm"><span class="plus">+</span></div>
+            <div class="helper">建议尺寸：192*124px，大小2M以内，jpg、png、gif格式</div>
+          </div>
+        </div>
+        <!-- 中奖概率 (普通奖项) -->
+        <div id="pmFieldProbability">
+          <div class="form-row">
+            <div class="label required" style="width:120px;flex:0 0 120px;">中奖概率:</div>
+            <div class="control inline">
+              <input class="input short" type="number" min="0" max="100" step="0.01" placeholder="0" />
+              <span style="color:var(--subtext);font-size:14px;">%</span>
+            </div>
+          </div>
+          <div class="helper" style="margin-left:120px;margin-top:-6px;margin-bottom:10px;">当前中奖概率最大可设置为：95%</div>
+        </div>
+        <!-- 活动库存 (普通奖项) -->
+        <div id="pmFieldStock">
+          <div class="form-row">
+            <div class="label required" style="width:120px;flex:0 0 120px;">活动库存:</div>
+            <div class="control inline">
+              <input class="input short" type="number" min="0" placeholder="请输入" />
+              <span style="color:var(--subtext);font-size:14px;">份</span>
+            </div>
+          </div>
+        </div>
+        <!-- 周期库存 (普通奖项) -->
+        <div id="pmFieldCycleStock">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">周期库存:</div>
+            <div class="control inline">
+              <select class="select" style="width:100px;">
+                <option>每天</option>
+                <option>每周</option>
+                <option>每月</option>
+              </select>
+              <input class="input short" type="number" min="0" placeholder="数量" />
+              <span style="color:var(--subtext);font-size:14px;">份</span>
+            </div>
+          </div>
+          <div class="helper" style="margin-left:120px;margin-top:-6px;margin-bottom:10px;">同一周期内达到库存上限后，当前奖项不再参与概率计算。</div>
+        </div>
+        <!-- 库存延续 (普通奖项) -->
+        <div id="pmFieldStockCarry">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">库存延续:</div>
+            <div class="control inline">
+              <span class="switch"></span>
+              <span style="color:var(--subtext);font-size:14px;">上一周期未发完的库存，留在下一周期继续发放</span>
+            </div>
+          </div>
+        </div>
+        <!-- 奖品投放时间 (普通奖项) -->
+        <div id="pmFieldLaunchTime">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">奖品投放时间:</div>
+            <div class="control inline">
+              <label class="radio"><input type="radio" name="modalPrizeLaunch" value="follow" checked /> 同活动时间</label>
+              <label class="radio"><input type="radio" name="modalPrizeLaunch" value="custom" /> 自定义时间</label>
+            </div>
+          </div>
+          <div class="form-row hidden" id="pmCustomTimeBox">
+            <div class="label" style="width:120px;flex:0 0 120px;"></div>
+            <div class="control inline">
+              <input class="input medium" placeholder="开始时间" />
+              <span style="color:#98a2b3;">至</span>
+              <input class="input medium" placeholder="结束时间" />
+            </div>
+          </div>
+        </div>
+        <!-- 用户获奖上限 (普通奖项) -->
+        <div id="pmFieldWinLimit">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">用户获奖上限:</div>
+            <div class="control inline">
+              <label class="radio"><input type="radio" name="modalPrizeWinLimit" value="unlimited" checked /> 不限</label>
+              <label class="radio"><input type="radio" name="modalPrizeWinLimit" value="limited" /> 限制</label>
+              <input class="input tiny hidden" id="pmWinLimitNum" type="number" min="1" value="1" />
+              <span class="hidden" id="pmWinLimitUnit" style="color:var(--subtext);font-size:14px;">次</span>
+            </div>
+          </div>
+        </div>
+        <!-- 跳转设置 (普通+保底) -->
+        <div id="pmFieldJump">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">跳转设置:</div>
+            <div class="control inline" style="flex-wrap:wrap;gap:8px;">
+              <select class="select" style="width:180px;" id="pmJumpSelect">
+                <option value="default">默认跳转</option>
+                <option value="home">小程序首页</option>
+                <option value="order">点单页</option>
+                <option value="profile">个人中心</option>
+                <option value="custom">自定义路径</option>
+              </select>
+              <input class="input medium hidden" id="pmJumpPath" placeholder="请输入小程序页面路径" />
+            </div>
+          </div>
+          <div class="helper" style="margin-left:120px;margin-top:-6px;margin-bottom:10px;">默认跳转：优惠券→券包，积分→积分商城，实物→订单详情</div>
+        </div>
+        <!-- 引导文案 (普通+保底) -->
+        <div id="pmFieldGuideText">
+          <div class="form-row">
+            <div class="label" style="width:120px;flex:0 0 120px;">引导文案:</div>
+            <div class="control inline">
+              <input class="input medium" maxlength="5" placeholder="请输入引导文案" />
+              <span style="color:var(--muted);font-size:13px;">限5字符</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="prizeModalCancel">取消</button>
+        <button class="btn btn-primary" id="prizeModalConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="cardRecordModal">
+    <div class="modal" style="width:760px;">
+      <div class="modal-header">
+        <span id="cardRecordModalTitle">集卡记录</span>
+        <button class="modal-close" id="cardRecordModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="cardRecordModalSummary" style="margin-bottom:16px;color:var(--muted);font-size:13px;line-height:20px;"></div>
+        <div class="table-card" style="box-shadow:none;border:1px solid var(--line);">
+          <table>
+            <thead>
+              <tr>
+                <th>卡片名称</th>
+                <th>来源</th>
+                <th>获得时间</th>
+                <th>数量变动</th>
+              </tr>
+            </thead>
+            <tbody id="cardRecordModalBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="cardRecordModalConfirm">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="promoModal">
+    <div class="modal" style="width:760px;">
+      <div class="modal-header">
+        <span id="promoModalTitle">活动推广</span>
+        <button class="modal-close" id="promoModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="promo-tabs">
+          <div class="promo-tab active" data-promo-tab="qrcode">二维码</div>
+          <div class="promo-tab" data-promo-tab="link">活动地址</div>
+          <div class="promo-tab" data-promo-tab="preview">手机扫码预览</div>
+        </div>
+
+        <div class="promo-pane active" id="promoPane-qrcode">
+          <div class="promo-box">
+            <div class="promo-grid">
+              <div>
+                <div class="promo-qr">活动二维码</div>
+                <div class="promo-actions">
+                  <button class="btn">1280×1280</button>
+                  <button class="btn">860×860</button>
+                  <button class="btn">430×430</button>
+                </div>
+              </div>
+              <div class="promo-note">
+                用户扫码后直接跳转至小程序活动落地页。支持按不同尺寸下载，用于海报、物料或门店展示。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="promo-pane" id="promoPane-link">
+          <div class="promo-box">
+            <div class="promo-link-box" style="margin-bottom:12px;">
+              <input class="input" id="promoLinkInput" value="/pages/collect-cards/index?id=JK20260320002" readonly />
+              <button class="btn btn-primary" id="promoCopyBtn">复制地址</button>
+            </div>
+            <div class="promo-note">可用于弹窗广告、Banner 等其他模块的跳转目标配置。</div>
+          </div>
+        </div>
+
+        <div class="promo-pane" id="promoPane-preview">
+          <div class="promo-box">
+            <div class="promo-grid">
+              <div>
+                <div class="promo-qr">预览二维码</div>
+              </div>
+              <div class="promo-note">
+                品牌可通过微信扫码预览活动效果。该二维码仅用于预览，不可作为正式宣传物料使用。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="promoModalConfirm">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已保存</div>
+
+  <script>
+    // ================= Toast =================
+    const toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    // ================= Sidebar navigation =================
+    const viewCreate = document.getElementById('view-create');
+    const viewList = document.getElementById('view-list');
+    const viewData = document.getElementById('view-data');
+    const navCreate = document.getElementById('navCreate');
+    const navList = document.getElementById('navList');
+    const dataActName = document.getElementById('dataActName');
+    const dataActMeta = document.getElementById('dataActMeta');
+    const dataActStatus = document.getElementById('dataActStatus');
+    const promoModal = document.getElementById('promoModal');
+    const promoModalTitle = document.getElementById('promoModalTitle');
+    const promoLinkInput = document.getElementById('promoLinkInput');
+
+    function showView(view) {
+      viewCreate.classList.add('hidden');
+      viewList.classList.add('hidden');
+      viewData.classList.add('hidden');
+      navCreate.classList.remove('active');
+      navList.classList.remove('active');
+      if (view === 'create') {
+        viewCreate.classList.remove('hidden');
+        navCreate.classList.add('active');
+      } else if (view === 'list') {
+        viewList.classList.remove('hidden');
+        navList.classList.add('active');
+      } else if (view === 'data') {
+        viewData.classList.remove('hidden');
+        navList.classList.add('active');
+      }
+    }
+
+    navCreate.addEventListener('click', () => showView('create'));
+    navList.addEventListener('click', () => showView('list'));
+
+    document.getElementById('newFromList').addEventListener('click', () => showView('create'));
+    document.getElementById('dataBackBtn').addEventListener('click', (e) => { e.preventDefault(); showView('list'); });
+
+    // Activity data buttons
+    document.querySelectorAll('.dataBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('tr');
+        const name = row.querySelector('.name-cell').childNodes[0].textContent.trim();
+        const code = row.querySelector('.code').textContent.replace('ID: ', '').trim();
+        const times = row.children[1].innerHTML.replace('<br>', ' ~ ').replace('<br/>', ' ~ ').trim();
+        const statusText = row.querySelector('.status-badge').textContent.trim();
+        const statusClass = Array.from(row.querySelector('.status-badge').classList).find(cls => cls.startsWith('status-') && cls !== 'status-badge');
+        dataActName.textContent = name;
+        dataActMeta.innerHTML = '活动ID: ' + code + ' &nbsp;&middot;&nbsp; 活动时间: ' + times;
+        dataActStatus.textContent = statusText;
+        dataActStatus.className = 'status-badge ' + statusClass;
+        showView('data');
+      });
+    });
+
+    // List action buttons
+    document.querySelectorAll('.listEditBtn').forEach(btn => {
+      btn.addEventListener('click', () => showView('create'));
+    });
+    document.querySelectorAll('.readonlyEditBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showView('create');
+        showToast('当前状态仅支持查看配置');
+      });
+    });
+    document.querySelectorAll('.deleteBtn').forEach(btn => {
+      btn.addEventListener('click', () => showToast('已删除'));
+    });
+    document.querySelectorAll('.voidBtn').forEach(btn => {
+      btn.addEventListener('click', () => showToast('已作废'));
+    });
+
+    // Promotion modal
+    function openPromoModal(btn) {
+      const row = btn.closest('tr');
+      const name = row.querySelector('.name-cell').childNodes[0].textContent.trim();
+      const code = row.querySelector('.code').textContent.replace('ID: ', '').trim();
+      promoModalTitle.textContent = name + ' - 活动推广';
+      promoLinkInput.value = '/pages/collect-cards/index?id=' + code;
+      promoModal.classList.add('show');
+    }
+
+    document.querySelectorAll('.promoBtn').forEach(btn => {
+      btn.addEventListener('click', () => openPromoModal(btn));
+    });
+    document.getElementById('promoModalClose').addEventListener('click', () => promoModal.classList.remove('show'));
+    document.getElementById('promoModalConfirm').addEventListener('click', () => promoModal.classList.remove('show'));
+    promoModal.addEventListener('click', (e) => {
+      if (e.target === promoModal) promoModal.classList.remove('show');
+    });
+    document.getElementById('promoCopyBtn').addEventListener('click', () => showToast('活动地址已复制'));
+    document.querySelectorAll('.promo-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.promo-tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.promo-pane').forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('promoPane-' + tab.dataset.promoTab).classList.add('active');
+      });
+    });
+
+    // ================= Sub tab switch =================
+    document.querySelectorAll('.sub-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const sub = t.dataset.sub;
+        document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('sub-' + sub).classList.add('active');
+      });
+    });
+
+    // ================= Audience radio toggle =================
+    document.querySelectorAll('input[name="audience"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="audience"]:checked').value;
+        const box = document.getElementById('audienceBox');
+        box.classList.toggle('hidden', val === 'all');
+        document.getElementById('audienceMemberFields').classList.toggle('hidden', val !== 'member');
+        document.getElementById('audienceCardFields').classList.toggle('hidden', val !== 'card');
+        document.getElementById('audienceLevelFields').classList.toggle('hidden', val !== 'level');
+        document.getElementById('audienceWecomFields').classList.toggle('hidden', val !== 'wecom');
+      });
+    });
+
+    // ================= Prize mode toggle =================
+    document.querySelectorAll('input[name="prizeMode"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="prizeMode"]:checked').value;
+        document.getElementById('fixedPrizePanel').classList.toggle('hidden', val !== 'fixed');
+        document.getElementById('randomPrizePanel').classList.toggle('hidden', val !== 'random');
+      });
+    });
+
+    // ================= Fixed prize checkboxes =================
+    document.querySelectorAll('[data-prize]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const type = cb.dataset.prize;
+        const el = document.getElementById('prize-' + type);
+        if (el) el.classList.toggle('hidden', !cb.checked);
+      });
+    });
+
+    // ================= Task checkboxes =================
+    document.querySelectorAll('[data-task]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const type = cb.dataset.task;
+        const el = document.getElementById('task-' + type);
+        if (el) el.classList.toggle('hidden', !cb.checked);
+      });
+    });
+
+    // ================= Radio limit toggles =================
+    function setupRadioLimit(name, boxId) {
+      document.querySelectorAll('input[name="' + name + '"]').forEach(r => {
+        r.addEventListener('change', () => {
+          const val = document.querySelector('input[name="' + name + '"]:checked').value;
+          document.getElementById(boxId).classList.toggle('hidden', val !== 'limit');
+        });
+      });
+    }
+    setupRadioLimit('giftLimit', 'giftLimitBox');
+    setupRadioLimit('totalJoinLimit', 'totalJoinLimitBox');
+    setupRadioLimit('consumeAmount', 'consumeAmountBox');
+    setupRadioLimit('consumeStock', 'consumeStockBox');
+    setupRadioLimit('consumePersonLimit', 'consumePersonLimitBox');
+    setupRadioLimit('consumeChannel', 'consumeChannelBox');
+    setupRadioLimit('taskOrderChannel', 'taskOrderChannelBox');
+    setupRadioLimit('taskOrderAmount', 'taskOrderAmountBox');
+    setupRadioLimit('taskOrderDailyLimit', 'taskOrderDailyLimitBox');
+
+    // ================= Share limit radio toggle =================
+    document.querySelectorAll('input[name="shareLimit"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="shareLimit"]:checked').value;
+        var countRow = document.getElementById('shareCountRow');
+        if (countRow) countRow.style.display = (val === 'unlimited') ? 'none' : '';
+      });
+    });
+
+    // ================= Points daily limit radio toggle =================
+    setupRadioLimit('pointsDailyLimit', 'pointsDailyLimitBox');
+
+    // ================= Free cycle toggle (跨周期累计 visibility) =================
+    document.querySelectorAll('input[name="freeCycle"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="freeCycle"]:checked').value;
+        var accRow = document.getElementById('freeAccumulateRow');
+        if (accRow) accRow.style.display = (val === 'once') ? 'none' : '';
+      });
+    });
+
+    // ================= Share toggle =================
+    // (Share setting is now a simple radio without nested config box)
+
+    // ================= Switch toggles =================
+    document.getElementById('extraPrizeSwitch').addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.getElementById('extraPrizeBox').classList.toggle('hidden', !this.classList.contains('active'));
+    });
+
+    document.getElementById('consumeGiftSwitch').addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.getElementById('consumeGiftBox').classList.toggle('hidden', !this.classList.contains('active'));
+    });
+
+    // freeAccumulate is now radio buttons, no switch needed
+
+    // ================= Card modal =================
+    const cardModal = document.getElementById('cardModal');
+    document.getElementById('addCardBtn').addEventListener('click', () => {
+      cardModal.classList.add('show');
+    });
+    document.getElementById('cardModalClose').addEventListener('click', () => {
+      cardModal.classList.remove('show');
+    });
+    document.getElementById('cardModalCancel').addEventListener('click', () => {
+      cardModal.classList.remove('show');
+    });
+    document.getElementById('cardModalConfirm').addEventListener('click', () => {
+      cardModal.classList.remove('show');
+      showToast('卡片已添加');
+    });
+
+    // Modal card type toggle
+    // 必集卡: 卡名称/卡图片/抽中概率/投放时间/周期库存/活动库存
+    // 广告卡: 卡名称/卡图片/抽中概率/卡片投放时间/跳转路径 (不参与集齐判定)
+    // 万能卡: 卡名称/卡图片/抽中概率/投放时间/周期库存/活动库存
+    document.querySelectorAll('input[name="modalCardType"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="modalCardType"]:checked').value;
+        const isAd = val === 'ad';
+        document.getElementById('modalProbabilityField').classList.remove('hidden');
+        document.getElementById('modalTimeFields').classList.remove('hidden');
+        document.getElementById('modalStockFields').classList.toggle('hidden', isAd);
+        document.getElementById('modalLinkField').classList.toggle('hidden', !isAd);
+      });
+    });
+
+    // Modal custom time toggle
+    document.querySelectorAll('input[name="modalCardLaunch"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="modalCardLaunch"]:checked').value;
+        document.getElementById('modalCustomTimeBox').classList.toggle('hidden', val !== 'custom');
+      });
+    });
+
+    // Close modal on mask click
+    cardModal.addEventListener('click', (e) => {
+      if (e.target === cardModal) cardModal.classList.remove('show');
+    });
+
+    // ================= Participate detail modal =================
+    const cardRecordModal = document.getElementById('cardRecordModal');
+    const cardRecordModalTitle = document.getElementById('cardRecordModalTitle');
+    const cardRecordModalSummary = document.getElementById('cardRecordModalSummary');
+    const cardRecordModalBody = document.getElementById('cardRecordModalBody');
+    const cardRecordData = {
+      tangtang: {
+        title: '糖糖小姐（138****2341）- 集卡记录',
+        summary: '当前持卡总数 7 张，已赠送 2 张，已领取 1 张，成功开奖 1 次。',
+        rows: [
+          { name: '好运卡', source: '抽卡获得', time: '2026-03-20 08:15:23', quantity: 1 },
+          { name: '健康卡', source: '抽卡获得', time: '2026-03-20 08:16:01', quantity: 2 },
+          { name: '快乐卡', source: '好友转赠领取', time: '2026-03-20 12:08:44', quantity: 1 },
+          { name: '万能卡', source: '抽卡获得', time: '2026-03-21 09:42:18', quantity: 1 },
+          { name: '招财卡', source: '下单消费赠卡', time: '2026-03-22 19:32:50', quantity: 2 },
+          { name: '平安卡', source: '抽卡获得', time: '2026-03-23 10:10:06', quantity: 3 },
+          { name: '平安卡', source: '转赠好友', time: '2026-03-24 15:22:09', quantity: -1 },
+          { name: '招财卡', source: '转赠好友', time: '2026-03-24 15:24:31', quantity: -1 },
+          { name: '万能卡', source: '合成消耗', time: '2026-03-28 11:20:00', quantity: -1 }
+        ]
+      },
+      aken: {
+        title: '阿Ken（139****8812）- 集卡记录',
+        summary: '当前持卡总数 4 张，已赠送 0 张，已领取 3 张，成功开奖 0 次。',
+        rows: [
+          { name: '平安卡', source: '好友转赠领取', time: '2026-03-20 10:32:45', quantity: 1 },
+          { name: '快乐卡', source: '好友转赠领取', time: '2026-03-20 10:35:09', quantity: 1 },
+          { name: '健康卡', source: '抽卡获得', time: '2026-03-21 11:03:11', quantity: 1 },
+          { name: '招财卡', source: '下单消费赠卡', time: '2026-03-22 12:30:45', quantity: 1 }
+        ]
+      },
+      mili: {
+        title: '米粒（136****5520）- 集卡记录',
+        summary: '当前持卡总数 12 张，已赠送 5 张，已领取 2 张，成功开奖 2 次。',
+        rows: [
+          { name: '好运卡', source: '抽卡获得', time: '2026-03-21 14:22:10', quantity: 4 },
+          { name: '快乐卡', source: '抽卡获得', time: '2026-03-21 14:24:36', quantity: 2 },
+          { name: '平安卡', source: '好友转赠领取', time: '2026-03-21 18:06:52', quantity: 1 },
+          { name: '福气卡', source: '好友转赠领取', time: '2026-03-21 18:08:15', quantity: 1 },
+          { name: '招财卡', source: '下单消费赠卡', time: '2026-03-22 20:15:03', quantity: 4 },
+          { name: '万能卡', source: '抽卡获得', time: '2026-03-23 09:11:28', quantity: 2 },
+          { name: '健康卡', source: '抽卡获得', time: '2026-03-23 09:15:42', quantity: 5 },
+          { name: '好运卡', source: '转赠好友', time: '2026-03-24 08:32:18', quantity: -2 },
+          { name: '健康卡', source: '转赠好友', time: '2026-03-24 08:36:04', quantity: -3 },
+          { name: '万能卡', source: '合成消耗', time: '2026-03-28 10:02:15', quantity: -1 },
+          { name: '招财卡', source: '合成消耗', time: '2026-04-01 16:30:00', quantity: -1 }
+        ]
+      }
+    };
+
+    function openCardRecordModal(recordKey) {
+      const record = cardRecordData[recordKey];
+      if (!record) return;
+      cardRecordModalTitle.textContent = record.title;
+      cardRecordModalSummary.textContent = record.summary;
+      cardRecordModalBody.innerHTML = record.rows.map(row => (
+        (function() {
+          const quantityText = row.quantity > 0 ? '+' + row.quantity : String(row.quantity);
+          const quantityStyle = row.quantity < 0 ? 'color:#dc2626;font-weight:600;' : 'color:#111827;font-weight:600;';
+          return '' +
+        '<tr>' +
+          '<td>' + row.name + '</td>' +
+          '<td>' + row.source + '</td>' +
+          '<td>' + row.time + '</td>' +
+          '<td style="' + quantityStyle + '">' + quantityText + '</td>' +
+        '</tr>';
+        })()
+      )).join('');
+      cardRecordModal.classList.add('show');
+    }
+
+    function closeCardRecordModal() {
+      cardRecordModal.classList.remove('show');
+    }
+
+    document.querySelectorAll('.card-record-btn').forEach(btn => {
+      btn.addEventListener('click', () => openCardRecordModal(btn.dataset.recordKey));
+    });
+    document.getElementById('cardRecordModalClose').addEventListener('click', closeCardRecordModal);
+    document.getElementById('cardRecordModalConfirm').addEventListener('click', closeCardRecordModal);
+    cardRecordModal.addEventListener('click', (e) => {
+      if (e.target === cardRecordModal) closeCardRecordModal();
+    });
+
+    // ================= Invite limit radio toggle =================
+    document.querySelectorAll('input[name="inviteLimit"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="inviteLimit"]:checked').value;
+        var dailyInput = document.getElementById('inviteDailyInput');
+        var activityInput = document.getElementById('inviteActivityInput');
+        if (dailyInput) dailyInput.disabled = (val !== 'daily');
+        if (activityInput) activityInput.disabled = (val !== 'activity');
+      });
+    });
+
+    // ================= Invite audience select toggle =================
+    (function() {
+      var sel = document.getElementById('inviteAudienceSelect');
+      var detailBox = document.getElementById('inviteAudienceDetail');
+      var memberBox = document.getElementById('inviteAudienceMemberBox');
+      var newBox = document.getElementById('inviteAudienceNewBox');
+      var cardBox = document.getElementById('inviteAudienceCardBox');
+      var levelBox = document.getElementById('inviteAudienceLevelBox');
+      var wecomBox = document.getElementById('inviteAudienceWecomBox');
+      var groupBox = document.getElementById('inviteAudienceGroupBox');
+      function updateInviteAudience() {
+        var val = sel.value;
+        var hasDetail = (val !== 'all');
+        detailBox.classList.toggle('hidden', !hasDetail);
+        memberBox.classList.toggle('hidden', val !== 'member');
+        newBox.classList.toggle('hidden', val !== 'new');
+        cardBox.classList.toggle('hidden', val !== 'card');
+        levelBox.classList.toggle('hidden', val !== 'level');
+        wecomBox.classList.toggle('hidden', val !== 'wecom');
+        groupBox.classList.toggle('hidden', val !== 'group');
+      }
+      sel.addEventListener('change', updateInviteAudience);
+
+      // 社群用户 - 引导添加社群 radio toggle
+      document.querySelectorAll('input[name="inviteGroupGuide"]').forEach(function(r) {
+        r.addEventListener('change', function() {
+          var v = document.querySelector('input[name="inviteGroupGuide"]:checked').value;
+          document.getElementById('inviteGroupCodeBox').classList.toggle('hidden', v !== 'code');
+          document.getElementById('inviteGroupLbsBox').classList.toggle('hidden', v !== 'lbs');
+        });
+      });
+    })();
+
+    // ================= Consume gift order type conditional dropdowns =================
+    function setupCheckboxToggle(cbId, boxId) {
+      var cb = document.getElementById(cbId);
+      if (cb) {
+        cb.addEventListener('change', () => {
+          document.getElementById(boxId).classList.toggle('hidden', !cb.checked);
+        });
+      }
+    }
+    setupCheckboxToggle('consumeGiftCouponPack', 'consumeGiftCouponPackBox');
+    setupCheckboxToggle('consumeGiftGiftCard', 'consumeGiftGiftCardBox');
+    setupCheckboxToggle('consumeGiftVipCard', 'consumeGiftVipCardBox');
+    setupCheckboxToggle('taskOrderCouponPack', 'taskOrderCouponPackBox');
+    setupCheckboxToggle('taskOrderGiftCard', 'taskOrderGiftCardBox');
+    setupCheckboxToggle('taskOrderVipCard', 'taskOrderVipCardBox');
+
+    // ================= Task order: 订单类型 → 下单门店/下单商品 联动 =================
+    function updateTaskOrderStoreProductVisibility() {
+      var cbs = document.querySelectorAll('.task-order-store-type');
+      var anyStore = false, anyProduct = false;
+      cbs.forEach(function(cb) {
+        if (cb.checked && cb.dataset.store) anyStore = true;
+        if (cb.checked && cb.dataset.product) anyProduct = true;
+      });
+      document.getElementById('taskOrderStoreRow').style.display = anyStore ? '' : 'none';
+      document.getElementById('taskOrderProductRow').style.display = anyProduct ? '' : 'none';
+    }
+    document.querySelectorAll('.task-order-store-type').forEach(function(cb) {
+      cb.addEventListener('change', updateTaskOrderStoreProductVisibility);
+    });
+    updateTaskOrderStoreProductVisibility();
+
+    // ================= Task order: 下单门店/下单商品 radio → select toggle =================
+    document.querySelectorAll('input[name="taskOrderStore"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="taskOrderStore"]:checked').value;
+        document.getElementById('taskOrderStoreBox').classList.toggle('hidden', val === 'all');
+      });
+    });
+    document.querySelectorAll('input[name="taskOrderProduct"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="taskOrderProduct"]:checked').value;
+        document.getElementById('taskOrderProductBox').classList.toggle('hidden', val === 'all');
+      });
+    });
+
+    // ================= Browse target checkbox toggles =================
+    document.querySelectorAll('.browse-target-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const target = cb.dataset.browse;
+        const detailMap = {dine:'browseDetailDine', delivery:'browseDetailDelivery', points_mall:'browseDetailPointsMall', coupon_list:'browseDetailCouponList'};
+        const el = document.getElementById(detailMap[target]);
+        if (el) el.classList.toggle('hidden', !cb.checked);
+      });
+    });
+
+    // ================= Wecom group guide radio toggle =================
+    document.querySelectorAll('input[name="wecomGroupGuide"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="wecomGroupGuide"]:checked').value;
+        const box = document.getElementById('wecomGroupGuideSelectBox');
+        // Always show the select box but change the placeholder
+        var sel = box.querySelector('select');
+        if (val === 'qrcode') {
+          sel.innerHTML = '<option value="">请选择社群活码</option><option>社群活码A</option><option>社群活码B</option>';
+        } else {
+          sel.innerHTML = '<option value="">请选择LBS引流入群活动</option><option>LBS引流活动A</option><option>LBS引流活动B</option>';
+        }
+      });
+    });
+
+    // ================= Coupon add button =================
+    document.getElementById('addFixedCouponBtn').addEventListener('click', () => {
+      const tbody = document.getElementById('fixedCouponTbody');
+      tbody.innerHTML = '<tr>' +
+        '<td><div class="coupon-tpl-name">满30减5元券（湖里万达广场店）</div><div class="coupon-tpl-id">ID: 1248710112233445566</div></td>' +
+        '<td><div class="num-stepper"><button type="button">-</button><input type="number" min="1" value="1" /><button type="button">+</button></div></td>' +
+        '<td><input class="input" style="width:100px;height:32px;font-size:13px;" value="999999" /></td>' +
+        '<td><button class="coupon-del-btn">删除</button></td>' +
+        '</tr>';
+      showToast('优惠券已添加');
+    });
+
+    // ================= 消费赠卡: 订单类型 → 下单门店/下单商品 联动 =================
+    function updateCgStoreProductVisibility() {
+      var cbs = document.querySelectorAll('.cg-order-type');
+      var anyStore = false, anyProduct = false;
+      cbs.forEach(function(cb) {
+        if (cb.checked && cb.dataset.store) anyStore = true;
+        if (cb.checked && cb.dataset.product) anyProduct = true;
+      });
+      document.getElementById('cgStoreRow').style.display = anyStore ? '' : 'none';
+      document.getElementById('cgProductRow').style.display = anyProduct ? '' : 'none';
+    }
+    document.querySelectorAll('.cg-order-type').forEach(function(cb) {
+      cb.addEventListener('change', updateCgStoreProductVisibility);
+    });
+    updateCgStoreProductVisibility();
+
+    // ================= Prize modal =================
+    const prizeModal = document.getElementById('prizeModal');
+    document.getElementById('addRandomPrizeBtn').addEventListener('click', () => {
+      prizeModal.classList.add('show');
+    });
+    document.getElementById('prizeModalClose').addEventListener('click', () => {
+      prizeModal.classList.remove('show');
+    });
+    document.getElementById('prizeModalCancel').addEventListener('click', () => {
+      prizeModal.classList.remove('show');
+    });
+    document.getElementById('prizeModalConfirm').addEventListener('click', () => {
+      prizeModal.classList.remove('show');
+      showToast('奖项已添加');
+    });
+
+    // Toggle fields based on 奖项类型
+    function updatePrizeModalFields() {
+      const val = document.querySelector('input[name="modalPrizeType"]:checked').value;
+      const isNormal = val === 'normal';
+      const isGuaranteed = val === 'guaranteed';
+      const isNone = val === 'none';
+
+      // 普通+保底: 奖品类型, 跳转设置, 引导文案
+      document.getElementById('pmFieldPrizeKind').classList.toggle('hidden', isNone);
+      document.getElementById('pmFieldJump').classList.toggle('hidden', isNone);
+      document.getElementById('pmFieldGuideText').classList.toggle('hidden', isNone);
+
+      // 普通 only: 概率, 库存, 周期库存, 库存延续, 投放时间, 获奖上限
+      document.getElementById('pmFieldProbability').classList.toggle('hidden', !isNormal);
+      document.getElementById('pmFieldStock').classList.toggle('hidden', !isNormal);
+      document.getElementById('pmFieldCycleStock').classList.toggle('hidden', !isNormal);
+      document.getElementById('pmFieldStockCarry').classList.toggle('hidden', !isNormal);
+      document.getElementById('pmFieldLaunchTime').classList.toggle('hidden', !isNormal);
+      document.getElementById('pmFieldWinLimit').classList.toggle('hidden', !isNormal);
+
+      // 优惠券选择 visibility depends on both 奖项类型 and 奖品类型
+      updateCouponSelectVisibility();
+    }
+    document.querySelectorAll('input[name="modalPrizeType"]').forEach(r => {
+      r.addEventListener('change', updatePrizeModalFields);
+    });
+
+    // Toggle 优惠券选择 based on 奖品类型
+    function updateCouponSelectVisibility() {
+      const prizeType = document.querySelector('input[name="modalPrizeType"]:checked').value;
+      const kindEl = document.querySelector('input[name="modalPrizeKind"]:checked');
+      const isCoupon = kindEl && kindEl.value === 'coupon';
+      document.getElementById('pmFieldCouponSelect').classList.toggle('hidden', prizeType === 'none' || !isCoupon);
+    }
+    document.querySelectorAll('input[name="modalPrizeKind"]').forEach(r => {
+      r.addEventListener('change', updateCouponSelectVisibility);
+    });
+
+    // Toggle custom time for prize launch
+    document.querySelectorAll('input[name="modalPrizeLaunch"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="modalPrizeLaunch"]:checked').value;
+        document.getElementById('pmCustomTimeBox').classList.toggle('hidden', val !== 'custom');
+      });
+    });
+
+    // Toggle win limit number input
+    document.querySelectorAll('input[name="modalPrizeWinLimit"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const val = document.querySelector('input[name="modalPrizeWinLimit"]:checked').value;
+        document.getElementById('pmWinLimitNum').classList.toggle('hidden', val !== 'limited');
+        document.getElementById('pmWinLimitUnit').classList.toggle('hidden', val !== 'limited');
+      });
+    });
+
+    // Toggle custom path input for jump setting
+    document.getElementById('pmJumpSelect').addEventListener('change', function() {
+      document.getElementById('pmJumpPath').classList.toggle('hidden', this.value !== 'custom');
+    });
+
+    // ================= 赠送卡片设置: 选中/取消选中更新边框 =================
+    document.querySelectorAll('#consumeGiftBox .check input[type="checkbox"]').forEach(function(cb) {
+      if (cb.closest('.check[style*="border"]')) {
+        cb.addEventListener('change', function() {
+          var card = this.closest('.check');
+          if (card && card.style.borderColor !== undefined) {
+            card.style.borderColor = this.checked ? 'var(--brand)' : 'var(--line)';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
