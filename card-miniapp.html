@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>集卡活动 - 小程序端原型（绿色国风主题）</title>
+<style>
+  :root {
+    --green-dark: #2d5016;
+    --green-mid: #4a7c28;
+    --green-light: #6b9f3e;
+    --green-pale: #d4e8b8;
+    --green-bg: #eef5e0;
+    --gold: #c8a84e;
+    --gold-light: #f0e4b8;
+    --card-bg: #3d6b24;
+    --card-border: #c8a84e;
+    --text-primary: #262626;
+    --text-secondary: #8c8c8c;
+    --border: #e8e8e8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: #e9ebf0;
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .page-subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+  }
+
+  .mobile-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+
+  .phone-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .phone-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: 1px;
+    background: #fff;
+    padding: 4px 16px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    border-radius: 40px;
+    border: 8px solid #1a1a2e;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    position: relative;
+    z-index: 10;
+  }
+  .status-bar.dark-text { color: #262626; }
+  .status-time { font-weight: 700; font-size: 15px; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 12px; }
+  .status-icons span { display: inline-block; }
+  .battery { width: 22px; height: 11px; border: 1.5px solid currentColor; border-radius: 2px; position: relative; display: inline-block; vertical-align: middle; }
+  .battery::after { content: ''; position: absolute; right: -4px; top: 2px; width: 2px; height: 5px; background: currentColor; border-radius: 0 1px 1px 0; }
+  .battery::before { content: ''; position: absolute; left: 1.5px; top: 1.5px; width: 14px; height: 6px; background: currentColor; border-radius: 1px; }
+
+  /* Green themed background */
+  .green-bg {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #2d5016 0%, #3d6b24 20%, #4a7c28 40%, #5a8a35 60%, #6b9f3e 80%, #7db050 100%);
+  }
+
+  /* Mountain landscape */
+  .landscape {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .mountain-far {
+    position: absolute;
+    bottom: 35%;
+    left: -10%;
+    width: 120%;
+    height: 200px;
+    background: radial-gradient(ellipse 80% 100% at 30% 100%, rgba(35,70,20,0.6) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 100% at 70% 100%, rgba(40,80,25,0.5) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 100% at 50% 100%, rgba(30,60,18,0.4) 0%, transparent 70%);
+  }
+
+  .mountain-near {
+    position: absolute;
+    bottom: 20%;
+    left: -5%;
+    width: 110%;
+    height: 160px;
+    background: radial-gradient(ellipse 70% 100% at 20% 100%, rgba(50,90,30,0.5) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 100% at 75% 100%, rgba(45,85,28,0.4) 0%, transparent 60%);
+  }
+
+  /* Cherry blossoms */
+  .blossom {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50% 0 50% 50%;
+    background: rgba(255,183,197,0.7);
+    z-index: 1;
+  }
+  .blossom:nth-child(1) { top: 8%; left: 10%; width: 10px; height: 10px; background: rgba(255,183,197,0.8); transform: rotate(45deg); }
+  .blossom:nth-child(2) { top: 12%; left: 25%; width: 7px; height: 7px; background: rgba(255,200,210,0.6); transform: rotate(120deg); }
+  .blossom:nth-child(3) { top: 6%; right: 20%; width: 9px; height: 9px; background: rgba(255,180,195,0.7); transform: rotate(200deg); }
+  .blossom:nth-child(4) { top: 15%; right: 35%; width: 6px; height: 6px; background: rgba(255,190,205,0.5); transform: rotate(80deg); }
+  .blossom:nth-child(5) { top: 20%; left: 5%; width: 5px; height: 5px; background: rgba(255,210,220,0.5); transform: rotate(160deg); }
+  .blossom:nth-child(6) { top: 10%; left: 55%; width: 8px; height: 8px; background: rgba(255,175,190,0.6); transform: rotate(300deg); }
+  .blossom:nth-child(7) { top: 18%; right: 10%; width: 6px; height: 6px; background: rgba(255,195,208,0.5); transform: rotate(60deg); }
+  .blossom:nth-child(8) { top: 25%; left: 40%; width: 7px; height: 7px; background: rgba(255,188,200,0.4); transform: rotate(240deg); }
+
+  /* Blossom branch */
+  .branch {
+    position: absolute;
+    top: 0;
+    right: -10px;
+    width: 120px;
+    height: 180px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .branch-line {
+    position: absolute;
+    background: #5a3825;
+    border-radius: 20px;
+  }
+  .branch-line:nth-child(1) { top: 10px; right: 0; width: 80px; height: 3px; transform: rotate(-30deg); transform-origin: right; }
+  .branch-line:nth-child(2) { top: 30px; right: 10px; width: 50px; height: 2.5px; transform: rotate(-50deg); transform-origin: right; }
+  .branch-line:nth-child(3) { top: 5px; right: 15px; width: 60px; height: 2px; transform: rotate(-15deg); transform-origin: right; }
+  .branch-blossom {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffb7c5 30%, #ff94ab 70%, transparent 71%);
+  }
+  .branch-blossom:nth-child(4) { top: 0; right: 50px; }
+  .branch-blossom:nth-child(5) { top: 15px; right: 30px; width: 11px; height: 11px; }
+  .branch-blossom:nth-child(6) { top: 25px; right: 55px; width: 12px; height: 12px; }
+  .branch-blossom:nth-child(7) { top: 40px; right: 15px; width: 10px; height: 10px; }
+  .branch-blossom:nth-child(8) { top: 8px; right: 70px; width: 9px; height: 9px; }
+
+  /* Cloud / mist */
+  .mist {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent);
+  }
+  .mist-1 { top: 30%; }
+  .mist-2 { top: 55%; opacity: 0.5; }
+
+  /* Mini program header */
+  .mp-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 12px;
+    height: 32px;
+    position: relative;
+    z-index: 10;
+  }
+  .mp-capsule {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 14px;
+    color: #fff;
+  }
+  .mp-capsule-divider {
+    width: 1px;
+    height: 16px;
+    background: rgba(255,255,255,0.3);
+    margin: 0 8px;
+  }
+
+  /* Rule button */
+  .rule-btn {
+    position: absolute;
+    right: 16px;
+    top: 84px;
+    background: rgba(0,0,0,0.25);
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 12px;
+    border-radius: 12px;
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  /* Activity title */
+  .activity-title {
+    text-align: center;
+    position: relative;
+    z-index: 5;
+    margin-top: 16px;
+  }
+  .activity-title h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.3), 0 0 40px rgba(200,168,78,0.3);
+    letter-spacing: 12px;
+    font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+  }
+  .subtitle-banner {
+    display: inline-block;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(200,168,78,0.4);
+    padding: 4px 20px;
+    border-radius: 16px;
+    font-size: 13px;
+    color: var(--gold-light);
+    margin-top: 6px;
+    letter-spacing: 2px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Large Card */
+  .card-large-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0 16px;
+    position: relative;
+    z-index: 5;
+  }
+  .card-large {
+    width: 180px;
+    height: 240px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #4a7c28, #3d6b24);
+    border: 3px solid var(--gold);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 20px rgba(200,168,78,0.2);
+  }
+  .card-large::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1.5px solid rgba(200,168,78,0.5);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  .card-large::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    border: 1px solid rgba(200,168,78,0.25);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  /* Corner decorations for large card */
+  .card-corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    z-index: 2;
+  }
+  .card-corner::before, .card-corner::after {
+    content: '';
+    position: absolute;
+    background: var(--gold);
+  }
+  .card-corner.tl { top: 5px; left: 5px; }
+  .card-corner.tl::before { top: 0; left: 0; width: 12px; height: 2px; }
+  .card-corner.tl::after { top: 0; left: 0; width: 2px; height: 12px; }
+  .card-corner.tr { top: 5px; right: 5px; }
+  .card-corner.tr::before { top: 0; right: 0; width: 12px; height: 2px; }
+  .card-corner.tr::after { top: 0; right: 0; width: 2px; height: 12px; }
+  .card-corner.bl { bottom: 5px; left: 5px; }
+  .card-corner.bl::before { bottom: 0; left: 0; width: 12px; height: 2px; }
+  .card-corner.bl::after { bottom: 0; left: 0; width: 2px; height: 12px; }
+  .card-corner.br { bottom: 5px; right: 5px; }
+  .card-corner.br::before { bottom: 0; right: 0; width: 12px; height: 2px; }
+  .card-corner.br::after { bottom: 0; right: 0; width: 2px; height: 12px; }
+
+  .card-large-text {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--gold-light);
+    writing-mode: vertical-rl;
+    letter-spacing: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+  }
+
+  .card-large.glow {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 40px rgba(200,168,78,0.5), 0 0 80px rgba(200,168,78,0.2);
+  }
+
+  /* Card Album Row */
+  .card-album {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 5;
+    margin: 12px 0;
+  }
+  .card-album.dimmed { opacity: 0.5; }
+
+  .card-item {
+    width: 60px;
+    height: 82px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #4a7c28, #3d6b24);
+    border: 2px solid var(--gold);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-light);
+    font-weight: 700;
+    font-size: 13px;
+    font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .card-item::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(200,168,78,0.4);
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  .card-item .card-char {
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .card-item .card-sub {
+    font-size: 8px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+
+  .card-item.uncollected {
+    background: linear-gradient(180deg, #5a5a5a, #3d3d3d);
+    border-color: #666;
+    opacity: 0.7;
+    color: #999;
+  }
+  .card-item.uncollected::before { border-color: rgba(102,102,102,0.4); }
+  .card-item.uncollected .card-sub { color: #888; }
+
+  .card-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    font-family: -apple-system, sans-serif;
+  }
+
+  .card-x-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .card-x-overlay::after {
+    content: '\2715';
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+
+  /* Gift pill button under collected cards */
+  .card-gift-pill {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #d4a843, #b8912e);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+    z-index: 4;
+    font-family: -apple-system, sans-serif;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    letter-spacing: 0.5px;
+  }
+
+  /* Bottom action bar */
+  .bottom-action-bar {
+    position: relative;
+    z-index: 15;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 24px 16px;
+  }
+  .bottom-action-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 0;
+    border-radius: 24px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.88);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.08);
+    backdrop-filter: blur(8px);
+  }
+  .bottom-action-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .bottom-action-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-dark);
+    letter-spacing: 1px;
+  }
+
+  /* Action buttons */
+  .draw-btn {
+    display: block;
+    width: 240px;
+    margin: 16px auto 6px;
+    padding: 14px 0;
+    background: linear-gradient(180deg, #3d6b24, #2d5016);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 28px;
+    position: relative;
+    z-index: 5;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+    letter-spacing: 4px;
+    border: 2px solid rgba(200,168,78,0.4);
+  }
+  .draw-btn-sub {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    position: relative;
+    z-index: 5;
+  }
+
+  .draw-btn.gold {
+    background: linear-gradient(180deg, #d4a843, #b8912e);
+    color: #fff;
+    border-color: #e8c860;
+    box-shadow: 0 4px 20px rgba(200,168,78,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  .draw-btn.disabled {
+    background: linear-gradient(180deg, #888, #666);
+    border-color: #999;
+    opacity: 0.7;
+    box-shadow: none;
+  }
+
+  .bottom-links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 5;
+  }
+  .bottom-link {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.bottom-sheet {
+    align-items: flex-end;
+  }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 16px;
+    width: 300px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+  .modal-card-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .modal-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #4a7c28, #3d6b24);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    border: none;
+    letter-spacing: 2px;
+  }
+  .modal-cancel {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* Bottom sheet modal */
+  .bottom-sheet-box {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 80%;
+    padding: 20px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    overflow-y: auto;
+  }
+  .bottom-sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .bottom-sheet-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .bottom-sheet-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #999;
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .task-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--green-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .task-info {
+    flex: 1;
+    text-align: left;
+  }
+  .task-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .task-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .task-btn {
+    padding: 5px 14px;
+    background: var(--green-mid);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 14px;
+    white-space: nowrap;
+  }
+  .task-btn.done {
+    background: #e8e8e8;
+    color: #999;
+  }
+  .task-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 16px;
+    margin-bottom: 4px;
+    text-align: left;
+  }
+  .task-section-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: left;
+    margin-bottom: 10px;
+  }
+
+  /* Result text */
+  .result-text {
+    text-align: center;
+    color: var(--gold-light);
+    font-size: 18px;
+    font-weight: 700;
+    position: relative;
+    z-index: 5;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+    font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+    letter-spacing: 3px;
+  }
+
+  /* White pages */
+  .white-page {
+    width: 100%;
+    height: 100%;
+    background: #f7f8fa;
+    overflow-y: auto;
+  }
+  .nav-bar {
+    height: 44px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    border-bottom: 0.5px solid #eee;
+  }
+  .nav-back {
+    font-size: 20px;
+    margin-right: 12px;
+    color: var(--text-primary);
+    font-weight: 400;
+  }
+
+  .tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 0.5px solid #eee;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    position: relative;
+  }
+  .tab.active {
+    color: var(--green-mid);
+    font-weight: 700;
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    background: var(--green-mid);
+    border-radius: 2px;
+  }
+
+  .prize-card {
+    background: #fff;
+    margin: 12px 16px;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .prize-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .prize-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .prize-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--green-pale);
+    color: var(--green-mid);
+    font-weight: 600;
+  }
+  .prize-source {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .prize-time {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 4px;
+  }
+
+  /* Rules page */
+  .rules-content {
+    padding: 20px 16px;
+  }
+  .rules-content h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 16px 0 8px;
+  }
+  .rules-content h3:first-child { margin-top: 0; }
+  .rules-content p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 4px;
+  }
+  .rules-content ol {
+    padding-left: 20px;
+    font-size: 13px;
+    color: #666;
+    line-height: 2;
+  }
+
+  /* Synthesis / Prize redeem */
+  .synth-area {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    padding: 0 20px;
+  }
+  .synth-congrats {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--gold-light);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    margin-bottom: 8px;
+    font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+    letter-spacing: 4px;
+  }
+  .synth-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 16px;
+  }
+  .sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--gold), 0 0 16px rgba(200,168,78,0.5);
+  }
+  .sparkle:nth-child(1) { top: -10px; left: 30%; }
+  .sparkle:nth-child(2) { top: -5px; right: 25%; }
+  .sparkle:nth-child(3) { top: 20px; left: 15%; width: 4px; height: 4px; }
+  .sparkle:nth-child(4) { top: 15px; right: 15%; width: 5px; height: 5px; }
+  .sparkle:nth-child(5) { top: 40px; left: 25%; width: 3px; height: 3px; }
+  .sparkle:nth-child(6) { top: 50px; right: 30%; width: 4px; height: 4px; }
+
+  .prize-result-box {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 12px 0;
+    backdrop-filter: blur(4px);
+  }
+  .prize-result-text {
+    font-size: 16px;
+    color: var(--gold-light);
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .prize-result-value {
+    font-size: 28px;
+    color: #fff;
+    font-weight: 900;
+    margin-top: 8px;
+    text-shadow: 0 2px 8px rgba(200,168,78,0.5);
+  }
+
+  /* Mid card in modal */
+  .card-mid {
+    width: 100px;
+    height: 140px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #4a7c28, #3d6b24);
+    border: 2.5px solid var(--gold);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .card-mid::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 1px solid rgba(200,168,78,0.4);
+    border-radius: 7px;
+    pointer-events: none;
+  }
+  .card-mid-text {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold-light);
+    writing-mode: vertical-rl;
+    letter-spacing: 4px;
+    font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+  }
+  .card-mid .card-corner { }
+  .card-mid .card-corner.tl { top: 3px; left: 3px; }
+  .card-mid .card-corner.tl::before { width: 8px; height: 1.5px; }
+  .card-mid .card-corner.tl::after { width: 1.5px; height: 8px; }
+  .card-mid .card-corner.tr { top: 3px; right: 3px; }
+  .card-mid .card-corner.tr::before { width: 8px; height: 1.5px; }
+  .card-mid .card-corner.tr::after { width: 1.5px; height: 8px; }
+  .card-mid .card-corner.bl { bottom: 3px; left: 3px; }
+  .card-mid .card-corner.bl::before { width: 8px; height: 1.5px; }
+  .card-mid .card-corner.bl::after { width: 1.5px; height: 8px; }
+  .card-mid .card-corner.br { bottom: 3px; right: 3px; }
+  .card-mid .card-corner.br::before { width: 8px; height: 1.5px; }
+  .card-mid .card-corner.br::after { width: 1.5px; height: 8px; }
+
+  /* Uncollected text overlay */
+  .uncollected-text {
+    font-size: 9px;
+    color: #aaa;
+    position: absolute;
+    bottom: 6px;
+  }
+
+  /* Card flipping animation state */
+  .card-flipping {
+    transform: perspective(600px) rotateY(60deg);
+    filter: blur(2px);
+    transition: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 40px rgba(200,168,78,0.4), -20px 0 30px rgba(0,0,0,0.15);
+  }
+
+  /* Confetti */
+  .confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+    overflow: hidden;
+  }
+  .confetti {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    opacity: 0.85;
+  }
+
+  /* Light burst */
+  .light-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,200,0.6) 0%, rgba(200,168,78,0.3) 30%, transparent 70%);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  /* Modal close button (top-right X) */
+  .modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #999;
+    cursor: pointer;
+    z-index: 5;
+  }
+
+  /* Tab switcher for task sheet */
+  .sheet-tabs {
+    display: flex;
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 16px;
+  }
+  .sheet-tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .sheet-tab.active {
+    background: #fff;
+    color: var(--green-mid);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* Synthesis reward modal */
+  .synth-modal-box {
+    background: linear-gradient(180deg, #2d5016, #1a3a0a);
+    border-radius: 20px;
+    width: 300px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    border: 2px solid var(--gold);
+    position: relative;
+  }
+
+  /* Participation record styles */
+  .record-card {
+    background: #fff;
+    margin: 8px 16px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .record-type-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .record-type-badge.draw { background: #e8f5e9; color: #2e7d32; }
+  .record-type-badge.consume { background: #fff3e0; color: #e65100; }
+  .record-type-badge.gift { background: #fce4ec; color: #c62828; }
+  .record-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .record-desc {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .record-time {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 3px;
+  }
+
+  /* Task section divider for Screen 5 */
+  .task-section-divider {
+    height: 3px;
+    background: linear-gradient(90deg, var(--green-pale), #e8e8e8, var(--green-pale));
+    margin: 16px 0;
+    border-radius: 2px;
+  }
+  .task-section-header {
+    background: #edf7e1;
+    margin: 0 -20px;
+    padding: 10px 20px 6px;
+    border-top: 1px solid #d4e8b8;
+  }
+  .task-section-header .task-section-title {
+    margin-top: 0;
+    color: var(--green-dark);
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">集卡活动 - 小程序端</h1>
+<p class="page-subtitle">绿色国风春山主题 | 静态交互原型</p>
+
+<div class="mobile-container">
+
+<!-- ==================== Screen 1: 活动主页 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <span>●●●●</span>
+        <span>WiFi</span>
+        <span class="battery"></span>
+      </div>
+    </div>
+    <!-- MP header -->
+    <div class="mp-header">
+      <div class="mp-capsule">
+        <span>•••</span>
+        <span class="mp-capsule-divider"></span>
+        <span>&#9678;</span>
+      </div>
+    </div>
+    <!-- Landscape -->
+    <div class="landscape">
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="blossom"></div>
+      <div class="branch">
+        <div class="branch-line"></div>
+        <div class="branch-line"></div>
+        <div class="branch-line"></div>
+        <div class="branch-blossom"></div>
+        <div class="branch-blossom"></div>
+        <div class="branch-blossom"></div>
+        <div class="branch-blossom"></div>
+        <div class="branch-blossom"></div>
+      </div>
+      <div class="mountain-far"></div>
+      <div class="mountain-near"></div>
+      <div class="mist mist-1"></div>
+      <div class="mist mist-2"></div>
+    </div>
+    <!-- Rule button -->
+    <div class="rule-btn">规则</div>
+    <!-- Title -->
+    <div class="activity-title">
+      <h1>上春山</h1>
+      <div class="subtitle-banner">集卡片 领取超值好礼</div>
+    </div>
+    <!-- Main Card -->
+    <div class="card-large-wrap">
+      <div class="card-large">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <span class="card-large-text">好运卡</span>
+      </div>
+    </div>
+    <!-- Card album -->
+    <div class="card-album" style="margin-bottom: 28px;">
+      <div class="card-item" style="position:relative;">
+        <span class="card-badge">1</span>
+        <span class="card-char">好运</span>
+        <span class="card-sub">卡</span>
+        <span class="card-gift-pill">赠送</span>
+      </div>
+      <div class="card-item uncollected">
+        <span class="card-char">健康</span>
+        <span class="card-sub">卡</span>
+        <span class="uncollected-text">未获得</span>
+      </div>
+      <div class="card-item uncollected">
+        <span class="card-char">快乐</span>
+        <span class="card-sub">卡</span>
+        <span class="uncollected-text">未获得</span>
+      </div>
+      <div class="card-item uncollected">
+        <span class="card-char">平安</span>
+        <span class="card-sub">卡</span>
+        <span class="uncollected-text">未获得</span>
+      </div>
+      <div class="card-item uncollected">
+        <span class="card-char">招财</span>
+        <span class="card-sub">卡</span>
+        <span class="uncollected-text">未获得</span>
+      </div>
+    </div>
+    <!-- Draw button -->
+    <div class="draw-btn">立即抽卡</div>
+    <div class="draw-btn-sub">剩余0次</div>
+    <!-- Bottom action bar -->
+    <div class="bottom-action-bar">
+      <div class="bottom-action-item">
+        <div class="bottom-action-icon">&#127873;</div>
+        <span class="bottom-action-label">我的奖品</span>
+      </div>
+      <div class="bottom-action-item">
+        <div class="bottom-action-icon">&#128203;</div>
+        <span class="bottom-action-label">做任务</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 1: 活动主页</div>
+</div>
+
+<!-- ==================== Screen 3: 抽卡中 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="branch">
+        <div class="branch-line"></div><div class="branch-line"></div><div class="branch-line"></div>
+        <div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div>
+      </div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="rule-btn">规则</div>
+    <div class="activity-title">
+      <h1>上春山</h1>
+      <div class="subtitle-banner">集卡片 领取超值好礼</div>
+    </div>
+    <!-- Drawing state text -->
+    <div style="margin-top: 16px;">
+      <div class="result-text" style="font-size: 20px; letter-spacing: 6px;">抽卡中...</div>
+    </div>
+    <!-- Card flipping animation -->
+    <div class="card-large-wrap">
+      <div class="card-large card-flipping">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <span class="card-large-text" style="opacity:0.5; filter: blur(1px);">?</span>
+      </div>
+    </div>
+    <!-- Card album -->
+    <div class="card-album" style="margin-bottom: 28px;">
+      <div class="card-item"><span class="card-badge">1</span><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">健康</span><span class="card-sub">卡</span><span class="uncollected-text">未获得</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span><span class="uncollected-text">未获得</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span><span class="uncollected-text">未获得</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span><span class="uncollected-text">未获得</span></div>
+    </div>
+    <!-- Disabled draw button -->
+    <div class="draw-btn disabled">抽卡中</div>
+    <div class="draw-btn-sub">请稍候...</div>
+    <!-- FAB buttons -->
+    <div class="bottom-action-bar">
+      <div class="bottom-action-item">
+        <div class="bottom-action-icon">&#127873;</div>
+        <span class="bottom-action-label">我的奖品</span>
+      </div>
+      <div class="bottom-action-item">
+        <div class="bottom-action-icon">&#128203;</div>
+        <span class="bottom-action-label">做任务</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 3: 抽卡中</div>
+</div>
+
+<!-- ==================== Screen 4: 抽卡结果弹窗（普通卡） ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <div class="card-album dimmed" style="margin-top: 20px;">
+      <div class="card-item"><span class="card-badge">2</span><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <!-- Draw result popup -->
+    <div class="modal-overlay">
+      <div class="modal-box" style="position: relative; padding: 24px 24px 20px;">
+        <div class="modal-close-btn">&#10005;</div>
+        <div class="modal-title" style="margin-bottom: 12px;">恭喜获得</div>
+        <div class="modal-card-wrap">
+          <div class="card-mid" style="box-shadow: 0 4px 20px rgba(200,168,78,0.5);">
+            <div class="card-corner tl"></div>
+            <div class="card-corner tr"></div>
+            <div class="card-corner bl"></div>
+            <div class="card-corner br"></div>
+            <span class="card-mid-text">好运卡</span>
+          </div>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">好运卡</div>
+        <div style="font-size: 12px; color: #aaa; margin-bottom: 16px;">卡片已添加到您的卡册</div>
+        <div class="modal-btn">继续抽卡</div>
+        <div class="modal-cancel">返回活动</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 4: 抽卡结果（普通卡）</div>
+</div>
+
+<!-- ==================== Screen 4-ad: 抽卡结果弹窗（广告卡） ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <div class="card-album dimmed" style="margin-top: 20px;">
+      <div class="card-item"><span class="card-badge">2</span><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <!-- Draw result popup - ad card -->
+    <div class="modal-overlay">
+      <div class="modal-box" style="position: relative; padding: 24px 24px 20px;">
+        <div class="modal-close-btn">&#10005;</div>
+        <div class="modal-title" style="margin-bottom: 12px;">恭喜获得</div>
+        <div class="modal-card-wrap">
+          <div class="card-mid" style="box-shadow: 0 4px 20px rgba(200,168,78,0.5); background: linear-gradient(180deg, #c97b2a, #a86020);">
+            <div class="card-corner tl"></div>
+            <div class="card-corner tr"></div>
+            <div class="card-corner bl"></div>
+            <div class="card-corner br"></div>
+            <span class="card-mid-text" style="font-size: 16px; letter-spacing: 2px;">新品<br>尝鲜</span>
+          </div>
+        </div>
+        <div style="font-size: 15px; color: var(--text-primary); font-weight: 700; margin-bottom: 4px;">新品尝鲜卡</div>
+        <div style="font-size: 12px; color: #aaa; margin-bottom: 16px;">广告卡不计入集卡进度</div>
+        <!-- 跳转链接 -->
+        <div class="modal-btn">去看看 &#8250;</div>
+        <div class="modal-cancel">返回活动</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 4-ad: 抽卡结果（广告卡+跳转）</div>
+</div>
+
+<!-- ==================== Screen 4b: 集齐最后一张 → 引导合成 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="branch">
+        <div class="branch-line"></div><div class="branch-line"></div><div class="branch-line"></div>
+        <div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div>
+      </div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="rule-btn">规则</div>
+    <div class="activity-title">
+      <h1>上春山</h1>
+      <div class="subtitle-banner">集卡片 领取超值好礼</div>
+    </div>
+    <div style="margin-top: 30px;">
+      <div class="result-text">恭喜获得招财卡</div>
+    </div>
+    <div class="card-large-wrap">
+      <div class="card-large glow">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <span class="card-large-text">招财卡</span>
+      </div>
+    </div>
+    <div class="card-album" style="margin-bottom: 28px;">
+      <div class="card-item"><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item" style="box-shadow: 0 2px 12px rgba(200,168,78,0.5);"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <div class="draw-btn gold" style="font-size: 17px; letter-spacing: 4px; box-shadow: 0 4px 20px rgba(200,168,78,0.5), inset 0 1px 0 rgba(255,255,255,0.3);">去合成</div>
+    <div class="draw-btn" style="margin-top: 10px;">立即抽卡</div>
+    <div class="draw-btn-sub">剩余0次</div>
+    <div class="bottom-action-bar">
+      <div class="bottom-action-item">
+        <div class="bottom-action-icon">&#127873;</div>
+        <span class="bottom-action-label">我的奖品</span>
+      </div>
+      <div class="bottom-action-item">
+        <div class="bottom-action-icon">&#128203;</div>
+        <span class="bottom-action-label">做任务</span>
+      </div>
+    </div>
+    <!-- Toast: 集齐提醒（白底） -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 25; width: 280px; background: #fff; border-radius: 20px; padding: 28px 20px 20px; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.3);">
+      <div style="font-size: 28px; margin-bottom: 8px;">&#127881;</div>
+      <div style="font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; letter-spacing: 2px;">恭喜集齐所有卡片！</div>
+      <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">快去合成领取丰厚奖励吧</div>
+      <div class="modal-btn" style="background: linear-gradient(180deg, #d4a843, #b8912e); border: none; letter-spacing: 3px; font-size: 14px; padding: 10px;">去合成</div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 4b: 集齐最后一张 → 引导合成</div>
+</div>
+
+<!-- ==================== Screen 7a: 集齐提醒 & 引导合成（基于主页布局） ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="branch">
+        <div class="branch-line"></div><div class="branch-line"></div><div class="branch-line"></div>
+        <div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div><div class="branch-blossom"></div>
+      </div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="rule-btn">规则</div>
+    <div class="activity-title">
+      <h1>上春山</h1>
+      <div class="subtitle-banner">集卡片 领取超值好礼</div>
+    </div>
+    <!-- Celebration text -->
+    <div style="position: relative; z-index: 5; margin-top: 8px;">
+      <div class="result-text" style="font-size: 20px; letter-spacing: 4px;">&#10024; 集齐所有卡片 &#10024;</div>
+    </div>
+    <!-- Large card area -->
+    <div class="card-large-wrap">
+      <div class="card-large glow" style="width: 140px; height: 190px;">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <span class="card-large-text" style="font-size: 28px; letter-spacing: 6px;">集齐</span>
+      </div>
+    </div>
+    <!-- Card album with sparkles -->
+    <div style="position: relative; z-index: 5; margin: 4px 0;">
+      <div style="position: absolute; top: -8px; left: 22%; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold), 0 0 20px rgba(200,168,78,0.5);"></div>
+      <div style="position: absolute; top: -4px; right: 20%; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px var(--gold);"></div>
+      <div style="position: absolute; top: 30px; left: 12%; width: 5px; height: 5px; background: #fff; border-radius: 50%; box-shadow: 0 0 8px #fff;"></div>
+      <div style="position: absolute; top: 25px; right: 10%; width: 7px; height: 7px; background: var(--gold-light); border-radius: 50%; box-shadow: 0 0 10px var(--gold);"></div>
+      <div class="card-album" style="margin-bottom: 20px;">
+        <div class="card-item" style="box-shadow: 0 2px 12px rgba(200,168,78,0.5);"><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+        <div class="card-item" style="box-shadow: 0 2px 12px rgba(200,168,78,0.5);"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+        <div class="card-item" style="box-shadow: 0 2px 12px rgba(200,168,78,0.5);"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+        <div class="card-item" style="box-shadow: 0 2px 12px rgba(200,168,78,0.5);"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+        <div class="card-item" style="box-shadow: 0 2px 12px rgba(200,168,78,0.5);"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+      </div>
+    </div>
+    <div class="draw-btn gold" style="font-size: 19px; letter-spacing: 6px; box-shadow: 0 4px 24px rgba(200,168,78,0.6), inset 0 1px 0 rgba(255,255,255,0.3);">立即合成</div>
+    <div class="draw-btn-sub" style="color: rgba(255,255,255,0.7);">集齐5张卡片，合成领奖</div>
+  </div>
+</div>
+<div class="phone-label">Screen 7a: 集齐提醒 & 引导合成</div>
+</div>
+
+<!-- ==================== Screen 7b: 合成奖励弹窗 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <div class="card-album dimmed" style="margin-top: 20px;">
+      <div class="card-item"><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-box" style="position: relative; padding: 28px 24px 20px; overflow: hidden;">
+        <div class="modal-close-btn">&#10005;</div>
+        <!-- Confetti -->
+        <div style="position: absolute; top: 8px; left: 12%; width: 6px; height: 6px; background: #e74c3c; border-radius: 50%;"></div>
+        <div style="position: absolute; top: 16px; right: 15%; width: 8px; height: 5px; background: #f39c12; border-radius: 2px; transform: rotate(-20deg);"></div>
+        <div style="position: absolute; top: 6px; left: 38%; width: 5px; height: 8px; background: #3498db; border-radius: 2px; transform: rotate(45deg);"></div>
+        <div style="position: absolute; top: 22px; right: 32%; width: 6px; height: 6px; background: #2ecc71; border-radius: 50%;"></div>
+        <div style="position: absolute; top: 14px; left: 26%; width: 7px; height: 4px; background: #9b59b6; border-radius: 2px; transform: rotate(-35deg);"></div>
+        <div style="font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; letter-spacing: 2px;">&#127881; 合成成功 &#127881;</div>
+        <!-- Prize display (image + name like card style) -->
+        <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+          <div style="width: 100px; height: 136px; border-radius: 10px; background: linear-gradient(180deg, #f5a623, #e8913a); border: 2.5px solid #ffb74d; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(245,166,35,0.3);">
+            <span style="font-size: 20px; font-weight: 900; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.2); text-align: center; line-height: 1.3;">50元<br>优惠券</span>
+          </div>
+        </div>
+        <div style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">50元优惠券</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">奖品将以优惠券形式发放至您的账户</div>
+        <div class="modal-btn">好的，我知道了</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 7b: 合成奖励弹窗</div>
+</div>
+
+<!-- ==================== Screen 4c: 抽卡结果 + 随机奖励（合并展示） ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <div class="card-album dimmed" style="margin-top: 20px;">
+      <div class="card-item"><span class="card-badge">2</span><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <!-- Combined: card result + random reward -->
+    <div class="modal-overlay">
+      <div class="modal-box" style="position: relative; padding: 24px 24px 20px; overflow: hidden;">
+        <div class="modal-close-btn">&#10005;</div>
+        <!-- Confetti -->
+        <div style="position: absolute; top: 8px; left: 12%; width: 6px; height: 6px; background: #e74c3c; border-radius: 50%;"></div>
+        <div style="position: absolute; top: 16px; right: 15%; width: 7px; height: 4px; background: #f39c12; border-radius: 2px; transform: rotate(-25deg);"></div>
+        <div style="position: absolute; top: 6px; left: 35%; width: 4px; height: 7px; background: #3498db; border-radius: 2px; transform: rotate(40deg);"></div>
+        <div class="modal-title" style="margin-bottom: 16px;">恭喜获得</div>
+        <!-- Left-right layout: card + reward -->
+        <div style="display: flex; gap: 12px; align-items: stretch; margin-bottom: 16px;">
+          <!-- Left: card -->
+          <div style="flex: 1; background: #f8faf5; border-radius: 12px; padding: 14px 8px; text-align: center; border: 1px solid #e8e8e8;">
+            <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+              <div class="card-mid" style="box-shadow: 0 2px 12px rgba(200,168,78,0.4); width: 70px; height: 96px;">
+                <div class="card-corner tl"></div>
+                <div class="card-corner tr"></div>
+                <div class="card-corner bl"></div>
+                <div class="card-corner br"></div>
+                <span class="card-mid-text" style="font-size: 16px; letter-spacing: 2px;">好运卡</span>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #666;">卡片已入卡册</div>
+          </div>
+          <!-- Right: reward (same style as card) -->
+          <div style="flex: 1; background: #f8faf5; border-radius: 12px; padding: 14px 8px; text-align: center; border: 1px solid #e8e8e8;">
+            <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+              <div style="width: 70px; height: 96px; border-radius: 10px; background: linear-gradient(180deg, #f5a623, #e8913a); border: 2px solid #ffb74d; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 12px rgba(245,166,35,0.3);">
+                <span style="font-size: 28px; font-weight: 900; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.2);">&#165;5</span>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #666;">5元优惠券</div>
+          </div>
+        </div>
+        <div class="modal-btn">去查看</div>
+        <div class="modal-cancel">返回活动</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 4c: 抽卡结果 + 随机奖励</div>
+</div>
+
+<!-- ==================== Screen 6: 任务弹窗 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <!-- Bottom sheet modal -->
+    <div class="modal-overlay bottom-sheet">
+      <div class="bottom-sheet-box">
+        <div class="bottom-sheet-header">
+          <span class="bottom-sheet-title">获取卡片</span>
+          <span class="bottom-sheet-close">&#10005;</span>
+        </div>
+        <!-- Left/Right Tabs -->
+        <div class="sheet-tabs">
+          <div class="sheet-tab active">做任务拿机会</div>
+          <div class="sheet-tab">消费拿卡</div>
+        </div>
+        <!-- Tab 1: 做任务拿机会 (active) -->
+        <div class="task-row" style="opacity: 0.6;">
+          <div class="task-icon" style="background: #e8f5e9;">&#127873;</div>
+          <div class="task-info">
+            <div class="task-name">每日登录</div>
+            <div class="task-desc">每日登录获得1次抽卡机会</div>
+          </div>
+          <div class="task-btn done">&#10003; 已完成</div>
+        </div>
+        <div class="task-row" style="opacity: 0.6;">
+          <div class="task-icon" style="background: #e3f2fd;">&#128221;</div>
+          <div class="task-info">
+            <div class="task-name">完善资料</div>
+            <div class="task-desc">完善个人资料获得1次抽卡机会</div>
+          </div>
+          <div class="task-btn done">&#10003; 已完成</div>
+        </div>
+        <div class="task-row">
+          <div class="task-icon" style="background: #fce4ec;">&#128101;</div>
+          <div class="task-info">
+            <div class="task-name">邀请好友</div>
+            <div class="task-desc">邀请1位好友获得1次抽卡机会（0/1）</div>
+          </div>
+          <div class="task-btn">去完成</div>
+        </div>
+        <div class="task-row" style="border-bottom: none; padding-bottom: 0;">
+          <div class="task-icon" style="background: #fff3e0;">&#128722;</div>
+          <div class="task-info">
+            <div class="task-name">下单消费</div>
+            <div class="task-desc">每完成以下任意一笔订单可获得1次抽卡机会</div>
+          </div>
+        </div>
+        <!-- 下单消费 sub-tasks -->
+        <div style="margin-left: 16px; padding: 6px 0 4px; border-bottom: 1px solid #f0f0f0;">
+          <div class="task-row" style="padding: 10px 0;">
+            <div class="task-info">
+              <div class="task-name">完成1笔堂食就餐订单</div>
+              <div class="task-desc">消费满1元可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去下单</div>
+          </div>
+          <div class="task-row" style="padding: 10px 0;">
+            <div class="task-info">
+              <div class="task-name">完成1笔堂食打包订单</div>
+              <div class="task-desc">消费满1元可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去下单</div>
+          </div>
+          <div class="task-row" style="padding: 10px 0; border-bottom: none;">
+            <div class="task-info">
+              <div class="task-name">完成1笔外卖自提订单</div>
+              <div class="task-desc">消费满1元可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去下单</div>
+          </div>
+        </div>
+        <div class="task-row">
+          <div class="task-icon" style="background: #f3e5f5;">&#128228;</div>
+          <div class="task-info">
+            <div class="task-name">分享好友</div>
+            <div class="task-desc">分享活动给好友获得1次抽卡机会（0/1）</div>
+          </div>
+          <div class="task-btn">去完成</div>
+        </div>
+        <div class="task-row">
+          <div class="task-icon" style="background: #fffde7;">&#127942;</div>
+          <div class="task-info">
+            <div class="task-name">积分兑换</div>
+            <div class="task-desc">使用200积分兑换1次抽卡机会</div>
+          </div>
+          <div class="task-btn">去完成</div>
+        </div>
+        <div class="task-row" style="border-bottom: none; padding-bottom: 0;">
+          <div class="task-icon" style="background: #e0f2f1;">&#128196;</div>
+          <div class="task-info">
+            <div class="task-name">浏览页面</div>
+            <div class="task-desc">按浏览目标完成停留后可获取抽卡机会</div>
+          </div>
+        </div>
+        <!-- 浏览页面 sub-tasks -->
+        <div style="margin-left: 16px; padding: 6px 0 4px; border-bottom: 1px solid #f0f0f0;">
+          <div class="task-row" style="padding: 10px 0;">
+            <div class="task-info">
+              <div class="task-name">浏览堂食点单</div>
+              <div class="task-desc">停留3秒可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去浏览</div>
+          </div>
+          <div class="task-row" style="padding: 10px 0;">
+            <div class="task-info">
+              <div class="task-name">浏览外卖点单</div>
+              <div class="task-desc">停留3秒可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去浏览</div>
+          </div>
+          <div class="task-row" style="padding: 10px 0;">
+            <div class="task-info">
+              <div class="task-name">浏览积分商城</div>
+              <div class="task-desc">停留5秒可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去浏览</div>
+          </div>
+          <div class="task-row" style="padding: 10px 0; border-bottom: none;">
+            <div class="task-info">
+              <div class="task-name">浏览优惠券列表</div>
+              <div class="task-desc">停留5秒可获得1次，活动期间共可获得1次</div>
+            </div>
+            <div class="task-btn">去浏览</div>
+          </div>
+        </div>
+        <div class="task-row">
+          <div class="task-icon" style="background: #e8eaf6;">&#129309;</div>
+          <div class="task-info">
+            <div class="task-name">添加企微好友</div>
+            <div class="task-desc">添加企业微信好友获得1次抽卡机会</div>
+          </div>
+          <div class="task-btn">去完成</div>
+        </div>
+        <div class="task-row" style="border-bottom: none;">
+          <div class="task-icon" style="background: #efebe9;">&#127760;</div>
+          <div class="task-info">
+            <div class="task-name">加入企微社群</div>
+            <div class="task-desc">加入企业微信社群获得1次抽卡机会</div>
+          </div>
+          <div class="task-btn">去完成</div>
+        </div>
+        <div style="height: 12px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 6a: 做任务拿机会</div>
+</div>
+
+<!-- ==================== Screen 6b: 消费拿卡 tab ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <!-- Bottom sheet modal - 消费拿卡 tab -->
+    <div class="modal-overlay bottom-sheet">
+      <div class="bottom-sheet-box">
+        <div class="bottom-sheet-header">
+          <span class="bottom-sheet-title">获取卡片</span>
+          <span class="bottom-sheet-close">&#10005;</span>
+        </div>
+        <!-- Left/Right Tabs -->
+        <div class="sheet-tabs">
+          <div class="sheet-tab">做任务拿机会</div>
+          <div class="sheet-tab active">消费拿卡</div>
+        </div>
+        <!-- Tab 2: 消费拿卡 (active) -->
+        <div style="padding: 8px 0 4px; text-align: left;">
+          <div style="font-size: 13px; color: var(--text-secondary);">完成以下订单可直接获得卡片（非抽卡机会）</div>
+        </div>
+        <div class="task-row">
+          <div class="task-icon" style="background: #c8e6c9;">&#127860;</div>
+          <div class="task-info">
+            <div class="task-name">堂食就餐</div>
+            <div class="task-desc">每完成一笔堂食订单可获得1张卡片</div>
+          </div>
+          <div class="task-btn">去下单</div>
+        </div>
+        <div class="task-row" style="border-bottom: none;">
+          <div class="task-icon" style="background: #c8e6c9;">&#128666;</div>
+          <div class="task-info">
+            <div class="task-name">外卖配送</div>
+            <div class="task-desc">每完成一笔外卖订单可获得1张卡片</div>
+          </div>
+          <div class="task-btn">去下单</div>
+        </div>
+        <div style="height: 12px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 6b: 消费拿卡</div>
+</div>
+
+<!-- ==================== Screen 6c: 消费拿卡成功弹窗 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="activity-title" style="margin-top:10px;">
+      <h1 style="font-size:36px;">上春山</h1>
+    </div>
+    <div class="card-album dimmed" style="margin-top: 20px;">
+      <div class="card-item"><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <!-- 消费拿卡成功弹窗 -->
+    <div class="modal-overlay">
+      <div class="modal-box" style="position: relative; overflow: hidden;">
+        <div class="modal-close-btn">&#10005;</div>
+        <!-- Sparkle decorations -->
+        <div style="position: absolute; top: 10px; left: 18%; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px var(--gold);"></div>
+        <div style="position: absolute; top: 18px; right: 20%; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px var(--gold);"></div>
+        <div style="position: absolute; top: 8px; left: 42%; width: 4px; height: 4px; background: var(--gold-light); border-radius: 50%; box-shadow: 0 0 6px var(--gold);"></div>
+        <div style="font-size: 14px; color: #888; margin-bottom: 4px;">消费成功，获得卡片</div>
+        <div class="modal-title" style="margin-bottom: 16px;">&#127860; 堂食就餐赠卡</div>
+        <div class="modal-card-wrap">
+          <div class="card-mid" style="box-shadow: 0 4px 20px rgba(200,168,78,0.4);">
+            <div class="card-corner tl"></div>
+            <div class="card-corner tr"></div>
+            <div class="card-corner bl"></div>
+            <div class="card-corner br"></div>
+            <span class="card-mid-text">快乐卡</span>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #aaa; margin-bottom: 16px;">卡片已自动添加到您的卡册</div>
+        <div class="modal-btn">好的</div>
+        <div style="font-size: 11px; color: #bbb; margin-top: 10px;">继续消费可获得更多卡片哦～</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 6c: 消费拿卡成功弹窗</div>
+</div>
+
+<!-- ==================== Screen 5: 卡片领取弹窗 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="rule-btn">规则</div>
+    <div class="activity-title">
+      <h1>上春山</h1>
+      <div class="subtitle-banner">集卡片 领取超值好礼</div>
+    </div>
+    <div class="card-large-wrap" style="visibility:hidden;"><div class="card-large"><span class="card-large-text">好运卡</span></div></div>
+    <div class="card-album dimmed">
+      <div class="card-item"><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span><span class="uncollected-text">未获得</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-box" style="position:relative;">
+        <div class="modal-close-btn">&#10005;</div>
+        <div class="modal-title">卡片领取</div>
+        <div style="font-size:13px; color:#888; margin-bottom:16px;">好友赠送给你一张卡片</div>
+        <div class="modal-card-wrap">
+          <div class="card-mid">
+            <div class="card-corner tl"></div>
+            <div class="card-corner tr"></div>
+            <div class="card-corner bl"></div>
+            <div class="card-corner br"></div>
+            <span class="card-mid-text">好运卡</span>
+          </div>
+        </div>
+        <div class="modal-btn">确认领取</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 5: 卡片领取弹窗</div>
+</div>
+
+<!-- ==================== Screen 2: 卡片赠送弹窗 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="green-bg">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="mp-header">
+      <div class="mp-capsule"><span>•••</span><span class="mp-capsule-divider"></span><span>&#9678;</span></div>
+    </div>
+    <div class="landscape">
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="blossom"></div><div class="blossom"></div><div class="blossom"></div><div class="blossom"></div>
+      <div class="mountain-far"></div><div class="mountain-near"></div>
+      <div class="mist mist-1"></div><div class="mist mist-2"></div>
+    </div>
+    <div class="rule-btn">规则</div>
+    <div class="activity-title">
+      <h1>上春山</h1>
+      <div class="subtitle-banner">集卡片 领取超值好礼</div>
+    </div>
+    <div class="card-large-wrap" style="visibility:hidden;"><div class="card-large"><span class="card-large-text">好运卡</span></div></div>
+    <div class="card-album dimmed">
+      <div class="card-item"><span class="card-badge">1</span><span class="card-char">好运</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">健康</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">快乐</span><span class="card-sub">卡</span><span class="uncollected-text">未获得</span></div>
+      <div class="card-item uncollected"><span class="card-char">平安</span><span class="card-sub">卡</span></div>
+      <div class="card-item uncollected"><span class="card-char">招财</span><span class="card-sub">卡</span></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-box" style="position:relative;">
+        <div class="modal-close-btn">&#10005;</div>
+        <div class="modal-title">卡片赠送</div>
+        <div class="modal-card-wrap">
+          <div class="card-mid">
+            <div class="card-corner tl"></div>
+            <div class="card-corner tr"></div>
+            <div class="card-corner bl"></div>
+            <div class="card-corner br"></div>
+            <span class="card-mid-text">好运卡</span>
+          </div>
+        </div>
+        <div class="modal-btn">确认赠送</div>
+        <div class="modal-cancel">取消赠送</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 2: 卡片赠送弹窗</div>
+</div>
+
+<!-- ==================== Screen 8: 我的奖品 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="white-page">
+    <div class="status-bar dark-text">
+      <span class="status-time" style="color:#262626;">9:41</span>
+      <div class="status-icons" style="color:#262626;"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="nav-bar">
+      <span class="nav-back">&#8249;</span>
+      我的奖品
+    </div>
+    <div class="tabs">
+      <div class="tab active">我的奖品</div>
+      <div class="tab">合成记录</div>
+    </div>
+    <!-- Prize list -->
+    <div style="padding-top:4px;">
+      <div class="prize-card">
+        <div class="prize-row">
+          <span class="prize-name">50元优惠券</span>
+          <span class="prize-badge">已发放</span>
+        </div>
+        <div class="prize-source">获得方式：集齐开奖</div>
+        <div class="prize-time">2026-04-14 10:30</div>
+        <div style="margin-top: 10px; text-align: right;">
+          <span style="display: inline-block; padding: 5px 16px; background: var(--green-mid); color: #fff; font-size: 12px; font-weight: 600; border-radius: 14px; cursor: pointer;">去使用</span>
+        </div>
+      </div>
+      <div class="prize-card">
+        <div class="prize-row">
+          <span class="prize-name">5元优惠券</span>
+          <span class="prize-badge">已发放</span>
+        </div>
+        <div class="prize-source">获得方式：额外掉落</div>
+        <div class="prize-time">2026-04-13 15:20</div>
+        <div style="margin-top: 10px; text-align: right;">
+          <span style="display: inline-block; padding: 5px 16px; background: var(--green-mid); color: #fff; font-size: 12px; font-weight: 600; border-radius: 14px; cursor: pointer;">去使用</span>
+        </div>
+      </div>
+      <div class="prize-card">
+        <div class="prize-row">
+          <span class="prize-name">100积分</span>
+          <span class="prize-badge">已发放</span>
+        </div>
+        <div class="prize-source">获得方式：额外掉落</div>
+        <div class="prize-time">2026-04-12 09:15</div>
+        <div style="margin-top: 10px; text-align: right;">
+          <span style="display: inline-block; padding: 5px 16px; background: var(--green-mid); color: #fff; font-size: 12px; font-weight: 600; border-radius: 14px; cursor: pointer;">去查看</span>
+        </div>
+      </div>
+    </div>
+    <!-- Fill remaining space -->
+    <div style="height: 100px;"></div>
+  </div>
+</div>
+<div class="phone-label">Screen 8: 我的奖品</div>
+</div>
+
+<!-- ==================== Screen 9: 合成记录 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="white-page">
+    <div class="status-bar dark-text">
+      <span class="status-time" style="color:#262626;">9:41</span>
+      <div class="status-icons" style="color:#262626;"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="nav-bar">
+      <span class="nav-back">&#8249;</span>
+      我的奖品
+    </div>
+    <div class="tabs">
+      <div class="tab">我的奖品</div>
+      <div class="tab active">合成记录</div>
+    </div>
+    <!-- Record list: card synthesis & reward records -->
+    <div style="padding-top:4px;">
+      <!-- 固定奖品：多个奖品组合 -->
+      <div class="record-card" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="record-type-badge" style="background: #fff8e1; color: #f57f17;">合成领奖</div>
+            <div class="record-info" style="margin:0;">
+              <div class="record-desc">集齐卡片合成</div>
+              <div class="record-time">2026-04-14 10:30</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fafafa;border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#666;">5元优惠券</span><span style="font-weight:600;color:#e65100;">×2</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#666;">积分</span><span style="font-weight:600;color:#e65100;">+100</span></div>
+        </div>
+      </div>
+      <!-- 随机奖品：单个奖品 -->
+      <div class="record-card" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="record-type-badge" style="background: #fff8e1; color: #f57f17;">合成领奖</div>
+            <div class="record-info" style="margin:0;">
+              <div class="record-desc">集齐卡片合成</div>
+              <div class="record-time">2026-04-10 16:45</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fafafa;border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#666;">20元优惠券</span><span style="font-weight:600;color:#e65100;">×1</span></div>
+        </div>
+      </div>
+      <!-- 固定奖品：多个奖品组合 -->
+      <div class="record-card" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="record-type-badge" style="background: #fff8e1; color: #f57f17;">合成领奖</div>
+            <div class="record-info" style="margin:0;">
+              <div class="record-desc">集齐卡片合成</div>
+              <div class="record-time">2026-04-06 09:20</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fafafa;border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#666;">10元优惠券</span><span style="font-weight:600;color:#e65100;">×1</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#666;">积分</span><span style="font-weight:600;color:#e65100;">+200</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#666;">三方券码</span><span style="font-weight:600;color:#e65100;">×1</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Fill remaining space -->
+    <div style="height: 100px;"></div>
+  </div>
+</div>
+<div class="phone-label">Screen 9: 合成记录</div>
+</div>
+
+<!-- ==================== Screen 10: 活动规则 ==================== -->
+<div class="phone-wrapper">
+<div class="phone-frame">
+  <div class="white-page">
+    <div class="status-bar dark-text">
+      <span class="status-time" style="color:#262626;">9:41</span>
+      <div class="status-icons" style="color:#262626;"><span>●●●●</span><span>WiFi</span><span class="battery"></span></div>
+    </div>
+    <div class="nav-bar">
+      <span class="nav-back">&#8249;</span>
+      活动规则
+    </div>
+    <div class="rules-content">
+      <h3>活动时间</h3>
+      <p>2026-04-15 00:00 ~ 2026-05-15 23:59</p>
+
+      <h3>活动规则</h3>
+      <ol>
+        <li>活动期间，用户通过完成任务获得抽卡机会，每次抽卡随机获得一张卡片。</li>
+        <li>卡片共5种：好运卡、健康卡、快乐卡、平安卡、招财卡。集齐5种卡片即可参与开奖。</li>
+        <li>每位用户每日可通过登录、完善资料、邀请好友、下单消费、分享好友等方式获得抽卡机会。</li>
+        <li>用户可将已拥有的多余卡片赠送给好友，每人每天最多赠送3次。</li>
+        <li>好友赠送的卡片需在24小时内领取，过期将自动退回。</li>
+        <li>集齐所有卡片后，可点击"立即开奖"参与抽奖，奖品将以优惠券或积分形式发放至账户。</li>
+      </ol>
+
+      <h3>奖品说明</h3>
+      <p>集齐开奖奖品：50元优惠券、20元优惠券、10元优惠券、200积分（随机发放）</p>
+      <p>额外掉落奖品：抽卡过程中有概率获得额外奖品（5元优惠券、100积分等）</p>
+
+      <h3>其他说明</h3>
+      <p>1. 活动奖品将在活动结束后7个工作日内发放。</p>
+      <p>2. 如发现作弊行为，主办方有权取消获奖资格。</p>
+      <p>3. 本活动最终解释权归平台所有。</p>
+    </div>
+  </div>
+</div>
+<div class="phone-label">Screen 10: 活动规则</div>
+</div>
+
+</div><!-- end mobile-container -->
+
+</body>
+</html>
