@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小程序商品活动手动切换 - 小程序端原型</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --phone-bg: #f6f6f6;
+      --card: #ffffff;
+      --line: #ececec;
+      --text: #1f2329;
+      --sub: #6b7280;
+      --muted: #9ca3af;
+      --brand: #ff8a2a;
+      --brand-soft: #fff4ea;
+      --purple: #9f8ac9;
+      --green: #26b36a;
+      --red: #ef4444;
+      --shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #fff7f0 0%, #f5f6f8 18%, #f5f6f8 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 24px 40px;
+    }
+
+    .intro {
+      margin-bottom: 24px;
+      padding: 18px 20px;
+      border: 1px solid #ffe4cf;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 30px rgba(255, 138, 42, 0.08);
+    }
+
+    .intro h1 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .intro p {
+      margin: 0;
+      color: var(--sub);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .screens {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(320px, 420px));
+      gap: 28px;
+      justify-content: center;
+      align-items: start;
+    }
+
+    .phone {
+      width: 100%;
+      min-height: 820px;
+      background: var(--phone-bg);
+      border: 10px solid #111827;
+      border-radius: 38px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .statusbar {
+      height: 36px;
+      background: #fff;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 16px 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .view {
+      padding: 12px 14px 20px;
+      transition: transform 0.24s ease;
+    }
+
+    .view.sheet-open {
+      transform: translateY(-128px);
+    }
+
+    .order-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .chip {
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      color: #30343a;
+    }
+
+    .search {
+      flex: 1 1 auto;
+      height: 32px;
+      border-radius: 18px;
+      background: #f1f2f4;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .store-meta {
+      margin-bottom: 12px;
+    }
+
+    .store-name {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .store-sub {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--sub);
+      font-size: 12px;
+    }
+
+    .full-reduction {
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #fff1e4 0%, #fff8f2 100%);
+      color: #ad5d00;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .full-reduction .icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 12px;
+    }
+
+    .category-list {
+      background: #fff;
+      border-radius: 16px;
+      padding: 6px 0;
+      border: 1px solid var(--line);
+    }
+
+    .category {
+      padding: 11px 10px;
+      font-size: 12px;
+      color: #4b5563;
+      text-align: center;
+      border-left: 3px solid transparent;
+    }
+
+    .category.active {
+      color: var(--brand);
+      font-weight: 700;
+      border-left-color: var(--brand);
+      background: #fff8f3;
+    }
+
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .product {
+      display: grid;
+      grid-template-columns: 68px minmax(0, 1fr) 54px;
+      gap: 8px;
+      padding: 9px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .thumb {
+      width: 68px;
+      height: 68px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffe6cc 0%, #ffd9b0 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumb.pink {
+      background: linear-gradient(180deg, #ffe1ef 0%, #ffd0e6 100%);
+    }
+
+    .thumb::after {
+      content: "";
+      position: absolute;
+      inset: 12px 18px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.82);
+    }
+
+    .product-info {
+      min-width: 0;
+    }
+
+    .product-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow: hidden;
+      gap: 3px;
+      margin-bottom: 5px;
+    }
+
+    .tag {
+      padding: 1px 5px;
+      border-radius: 999px;
+      font-size: 9px;
+      line-height: 1.4;
+      border: 1px solid #ffd3b0;
+      background: #fff6ef;
+      color: #ff6b00;
+      white-space: nowrap;
+    }
+
+    .tag.green {
+      border-color: #cdeccd;
+      background: #eefcf0;
+      color: #33a65c;
+    }
+
+    .desc {
+      color: #9aa0a6;
+      font-size: 11px;
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .price .now {
+      font-size: 18px;
+    }
+
+    .price .old {
+      color: #c0c4cc;
+      font-size: 12px;
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+
+    .action-btn {
+      align-self: end;
+      margin-bottom: 2px;
+      width: 52px;
+      height: 30px;
+      padding: 0;
+      border: none;
+      border-radius: 18px;
+      background: #111827;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .bottom-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 78px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .cart-total {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .settle-btn {
+      min-width: 112px;
+      height: 44px;
+      border: none;
+      border-radius: 22px;
+      background: var(--brand);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .checkout-head {
+      margin: -12px -14px 0;
+      padding: 14px 14px 20px;
+      background: linear-gradient(180deg, #ff9b42 0%, #ff912f 100%);
+      color: #fff;
+    }
+
+    .checkout-head .store-name {
+      margin-top: 6px;
+      color: #fff;
+    }
+
+    .checkout-head .store-sub {
+      color: rgba(255,255,255,0.86);
+    }
+
+    .pickup-card,
+    .order-card,
+    .pay-card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #f0f1f3;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .pickup-card {
+      position: relative;
+      z-index: 1;
+      margin: 10px 2px 0;
+      box-shadow: none;
+    }
+
+    .pickup-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .pickup-tab {
+      border: 1px solid var(--line-dark);
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .pickup-tab.active {
+      border-color: var(--brand);
+      color: var(--brand);
+      box-shadow: inset 0 0 0 2px rgba(255, 138, 42, 0.12);
+    }
+
+    .pickup-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 16px 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .order-item {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .order-item-main {
+      min-width: 0;
+    }
+
+    .mini-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ffe6cc 0%, #ffd9b0 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 9px 14px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.82);
+    }
+
+    .order-item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .order-title-wrap {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .order-item-name {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .order-item-meta {
+      color: var(--sub);
+      font-size: 12px;
+      line-height: 1.45;
+      margin-bottom: 4px;
+    }
+
+    .order-item-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: nowrap;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .order-item-count {
+      color: #111827;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .order-price {
+      text-align: right;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+      min-width: 36px;
+      align-self: center;
+    }
+
+    .order-price .old {
+      display: inline-block;
+      margin-right: 4px;
+      color: #c0c4cc;
+      font-size: 11px;
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 14px;
+      font-size: 15px;
+    }
+
+    .section-divider {
+      height: 1px;
+      margin: 2px 14px 0;
+      background: var(--line);
+    }
+
+    .row-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .row-value {
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .row-value.muted {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .activity-entry {
+      cursor: pointer;
+      margin: 10px 12px 4px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #fff7ef 0%, #fffdf9 100%);
+      box-shadow: inset 0 0 0 1px #f6e4d3;
+    }
+
+    .activity-entry-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #7a4b16;
+    }
+
+    .activity-entry-side {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #7b6a58;
+      font-size: 12px;
+    }
+
+    .activity-entry-arrow {
+      color: #c9a27b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .activity-summary {
+      flex: 1;
+      min-width: 0;
+      text-align: right;
+      color: #8a5f35;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .discount-total {
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+      padding: 0 14px 12px;
+    }
+
+    .pay-method {
+      padding: 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .pay-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .pay-footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 82px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .pay-price {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .pay-price .amount {
+      font-size: 28px;
+      margin-left: 2px;
+    }
+
+    .pay-price small {
+      color: var(--red);
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    .pay-btn {
+      min-width: 112px;
+      height: 44px;
+      border: none;
+      border-radius: 22px;
+      background: var(--purple);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .sheet-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.28);
+      display: none;
+    }
+
+    .sheet-mask.show {
+      display: block;
+    }
+
+    .sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -18px 38px rgba(15, 23, 42, 0.16);
+      padding: 12px 0 18px;
+      transform: translateY(100%);
+      transition: transform 0.24s ease;
+    }
+
+    .sheet-mask.show .sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 48px;
+      height: 5px;
+      border-radius: 999px;
+      background: #d1d5db;
+      margin: 0 auto 12px;
+    }
+
+    .sheet-head {
+      padding: 0 18px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .sheet-head-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .sheet-clear {
+      color: var(--brand);
+      cursor: pointer;
+    }
+
+    .sheet-sub {
+      padding: 0 18px 12px;
+      color: var(--sub);
+      font-size: 12px;
+    }
+
+    .option {
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .option.disabled {
+      opacity: 0.44;
+      cursor: not-allowed;
+    }
+
+    .option-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #d1d5db;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .radio::after {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: transparent;
+    }
+
+    .option.active .radio {
+      border-color: var(--brand);
+    }
+
+    .option.active .radio::after {
+      background: var(--brand);
+    }
+
+    .check {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid #d1d5db;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      color: transparent;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .option.active .check {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .option-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .option-title-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .option-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .option-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #fff5eb;
+      border: 1px solid #ffd8b6;
+      color: #ff6b00;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .option-products {
+      color: var(--sub);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .option-hint {
+      margin-top: 6px;
+      color: #b7791f;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 10px;
+      padding: 16px 18px 0;
+    }
+
+    .sheet-btn {
+      height: 42px;
+      border-radius: 21px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .sheet-btn.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    @media (max-width: 980px) {
+      .screens {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="intro">
+      <h1>小程序商品活动手动切换</h1>
+      <p>本原型表达 3 个点：点单页商品卡支持一行多个活动标签；门店信息下方增加 1 条订单满减提示；结算页新增订单维度的商品活动切换入口，切换后实时重算商品金额、订单满减和应付金额。</p>
+    </div>
+
+    <div class="screens">
+      <div class="phone">
+        <div class="statusbar">
+          <span>23:33</span>
+          <span>◉ ◉ ◉</span>
+        </div>
+        <div class="view" style="padding-bottom:90px;">
+          <div class="order-top">
+            <div class="chip">一起拼</div>
+            <div class="search">搜索商品</div>
+            <div class="chip">···</div>
+          </div>
+
+          <div class="store-meta">
+            <div class="store-name">总部测试店(请勿下单)</div>
+            <div class="store-sub">
+              <span>上海市上海市虹口区广粤支路1号</span>
+              <span>距离约439m</span>
+            </div>
+          </div>
+
+          <div class="full-reduction">
+            <span class="icon">减</span>
+            <span>满50立减10，满100立减25</span>
+          </div>
+
+          <div class="content">
+            <div class="category-list">
+              <div class="category active">新品上市</div>
+              <div class="category">真鲜果茶</div>
+              <div class="category">爆款香柠</div>
+              <div class="category">满分牛乳茶</div>
+              <div class="category">现磨咖啡</div>
+            </div>
+
+            <div class="product-list">
+              <div class="product">
+                <div class="thumb pink"></div>
+                <div class="product-info">
+                  <div class="product-name">黑桑莓莓吨吨桶</div>
+                  <div class="tags">
+                    <span class="tag">立减1元</span>
+                    <span class="tag">第二份半价</span>
+                    <span class="tag">特价5元</span>
+                  </div>
+                  <div class="desc">黑莓果粒、脆啵啵、酸甜口感，适合多人拼单。</div>
+                  <div class="price">
+                    <span class="now">¥9.9</span>
+                    <span class="old">¥10.9</span>
+                  </div>
+                </div>
+                <button class="action-btn">选规格</button>
+              </div>
+
+              <div class="product">
+                <div class="thumb"></div>
+                <div class="product-info">
+                  <div class="product-name">手打柠檬红茶</div>
+                  <div class="tags">
+                    <span class="tag">立减1元</span>
+                    <span class="tag">特价5元</span>
+                  </div>
+                  <div class="desc">入口先是柠檬的鲜爽，随后茶底回甘，适合搭配汉堡。</div>
+                  <div class="price">
+                    <span class="now">¥7</span>
+                    <span class="old">¥8</span>
+                  </div>
+                </div>
+                <button class="action-btn">选规格</button>
+              </div>
+
+              <div class="product">
+                <div class="thumb"></div>
+                <div class="product-info">
+                  <div class="product-name">手打柠檬茶</div>
+                  <div class="tags">
+                    <span class="tag">第二份半价</span>
+                    <span class="tag">特价5元</span>
+                  </div>
+                  <div class="desc">大单品搭配第二件商品可参与组合活动。</div>
+                  <div class="price">
+                    <span class="now">¥7</span>
+                    <span class="old">¥8</span>
+                  </div>
+                </div>
+                <button class="action-btn">选规格</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="cart-total">🛍 ¥58.00</div>
+          <button class="settle-btn">去结算</button>
+        </div>
+      </div>
+
+      <div class="phone" id="checkoutPhone">
+        <div class="statusbar">
+          <span>23:33</span>
+          <span>◉ ◉ ◉</span>
+        </div>
+
+        <div class="view" id="checkoutView" style="padding-bottom:94px;">
+          <div class="checkout-head">
+            <div class="order-top" style="margin-bottom:6px;">
+              <div class="chip" style="background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.24);color:#fff;">←</div>
+              <div style="flex:1;"></div>
+              <div class="chip" style="background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.24);color:#fff;">···</div>
+            </div>
+            <div class="store-name">总部测试店(请勿下单)</div>
+            <div class="store-sub">
+              <span>上海市上海市虹口区广粤支路1号</span>
+              <span>距离约439m</span>
+            </div>
+          </div>
+
+          <div class="pickup-card">
+            <div class="pickup-tabs">
+              <div class="pickup-tab active">堂食<br /><span style="font-size:12px;color:#9ca3af;">店内就餐</span></div>
+              <div class="pickup-tab">自取<br /><span style="font-size:12px;color:#9ca3af;">打包带走</span></div>
+            </div>
+            <div class="pickup-row">
+              <span>取餐时间</span>
+              <span>立即取餐</span>
+            </div>
+          </div>
+
+          <div class="order-card">
+            <div class="order-item">
+              <div class="mini-thumb"></div>
+              <div class="order-item-main">
+                <div class="order-item-head">
+                  <div class="order-title-wrap">
+                    <div class="order-item-name">手打柠檬红茶（大杯）</div>
+                    <div class="order-item-tags" id="teaOrderTags"></div>
+                  </div>
+                </div>
+                <div class="order-item-meta">正常冰，标准糖，脆波波（限冷饮）</div>
+                <div class="order-item-count">1份</div>
+              </div>
+              <div class="order-price">
+                <span class="old" id="teaPriceOld">¥10</span>
+                <span id="teaPriceNow">¥8</span>
+              </div>
+            </div>
+            <div class="order-item">
+              <div class="mini-thumb" style="background:linear-gradient(180deg,#ffe1ef 0%, #ffd0e6 100%);"></div>
+              <div class="order-item-main">
+                <div class="order-item-head">
+                  <div class="order-title-wrap">
+                    <div class="order-item-name">爆汁鸡腿堡</div>
+                    <div class="order-item-tags" id="burgerOrderTags"></div>
+                  </div>
+                </div>
+                <div class="order-item-meta">标准口味，番茄酱</div>
+                <div class="order-item-count">1份</div>
+              </div>
+              <div class="order-price">
+                <span class="old" id="burgerPriceOld"></span>
+                <span id="burgerPriceNow">¥45</span>
+              </div>
+            </div>
+            <div class="section-divider"></div>
+            <div class="activity-entry" id="activityEntry">
+              <div class="activity-entry-title">商品活动</div>
+              <div class="activity-entry-side">
+                <div class="activity-summary" id="activitySummary"></div>
+                <div class="activity-entry-arrow">›</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-label">商品金额</div>
+              <div class="row-value" id="goodsAmount">¥58</div>
+            </div>
+            <div class="row">
+              <div class="row-label">订单满减</div>
+              <div class="row-value" id="orderDiscount">-¥10</div>
+            </div>
+            <div class="row">
+              <div class="row-label">优惠券</div>
+              <div class="row-value muted">暂无可用优惠券</div>
+            </div>
+            <div class="row">
+              <div class="row-label">备注</div>
+              <div class="row-value muted">口味、包装等要求 ›</div>
+            </div>
+            <div class="section-divider"></div>
+            <div class="discount-total" id="discountTotal">共优惠¥15</div>
+          </div>
+
+          <div class="pay-card">
+            <div class="pay-method">
+              <span>微信支付</span>
+              <span class="pay-check">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pay-footer">
+          <div class="pay-price">
+            需支付：<span class="amount" id="payAmount">¥43</span><small id="payMeta">共优惠¥15</small>
+          </div>
+          <button class="pay-btn">去支付</button>
+        </div>
+
+        <div class="sheet-mask" id="sheetMask">
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head">
+              <span>选择商品活动</span>
+              <div class="sheet-head-right">
+                <span class="sheet-clear" id="clearActivities">一键不参与</span>
+                <span id="closeSheet" style="color:#9ca3af;cursor:pointer;">✕</span>
+              </div>
+            </div>
+            <div class="sheet-sub">以下为当前订单可参与的商品活动，切换后将重新计算订单优惠。</div>
+            <div id="optionList"></div>
+            <div class="sheet-actions">
+              <button class="sheet-btn" id="cancelSheet">取消</button>
+              <button class="sheet-btn primary" id="confirmSheet">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const optionList = document.getElementById("optionList");
+    const sheetMask = document.getElementById("sheetMask");
+    const activityEntry = document.getElementById("activityEntry");
+    const checkoutView = document.getElementById("checkoutView");
+    const closeSheet = document.getElementById("closeSheet");
+    const clearActivities = document.getElementById("clearActivities");
+    const cancelSheet = document.getElementById("cancelSheet");
+    const confirmSheet = document.getElementById("confirmSheet");
+
+    const activitySummary = document.getElementById("activitySummary");
+    const goodsAmount = document.getElementById("goodsAmount");
+    const orderDiscount = document.getElementById("orderDiscount");
+    const discountTotal = document.getElementById("discountTotal");
+    const payAmount = document.getElementById("payAmount");
+    const payMeta = document.getElementById("payMeta");
+    const teaOrderTags = document.getElementById("teaOrderTags");
+    const burgerOrderTags = document.getElementById("burgerOrderTags");
+    const teaPriceNow = document.getElementById("teaPriceNow");
+    const teaPriceOld = document.getElementById("teaPriceOld");
+    const burgerPriceNow = document.getElementById("burgerPriceNow");
+    const burgerPriceOld = document.getElementById("burgerPriceOld");
+
+    const options = [
+      { key: "burger", title: "汉堡限时折扣", tag: "立减5元", products: "订单中适用商品：爆汁鸡腿堡", conflicts: [] },
+      { key: "drinkcombo", title: "饮品第二份减3元", tag: "第二份减3元", products: "订单中适用商品：手打柠檬红茶（大杯）", conflicts: ["member", "fresh"] },
+      { key: "member", title: "会员饮品立减", tag: "立减2元", products: "订单中适用商品：手打柠檬红茶（大杯）", conflicts: ["drinkcombo", "fresh"] },
+      { key: "fresh", title: "新品优惠", tag: "立减5元", products: "订单中适用商品：手打柠檬红茶（大杯）", conflicts: ["drinkcombo", "member"] }
+    ];
+
+    const pricingMap = {
+      "burger|member": {
+        goodsAmount: 51, orderDiscount: 10, totalDiscount: 17, payable: 41,
+        items: {
+          tea: { price: "¥8", old: "¥10", tags: ["立减2元"] },
+          burger: { price: "¥43", old: "¥48", tags: ["立减5元"] }
+        }
+      },
+      "burger": {
+        goodsAmount: 53, orderDiscount: 10, totalDiscount: 15, payable: 43,
+        items: {
+          tea: { price: "¥10", old: "", tags: [] },
+          burger: { price: "¥43", old: "¥48", tags: ["立减5元"] }
+        }
+      },
+      "burger|fresh": {
+        goodsAmount: 48, orderDiscount: 0, totalDiscount: 20, payable: 48,
+        items: {
+          tea: { price: "¥5", old: "¥10", tags: ["立减5元"] },
+          burger: { price: "¥43", old: "¥48", tags: ["立减5元"] }
+        }
+      },
+      "burger|drinkcombo": {
+        goodsAmount: 50, orderDiscount: 10, totalDiscount: 18, payable: 40,
+        items: {
+          tea: { price: "¥7", old: "¥10", tags: ["第二份减3元"] },
+          burger: { price: "¥43", old: "¥48", tags: ["立减5元"] }
+        }
+      },
+      "drinkcombo": {
+        goodsAmount: 55, orderDiscount: 10, totalDiscount: 13, payable: 45,
+        items: {
+          tea: { price: "¥7", old: "¥10", tags: ["第二份减3元"] },
+          burger: { price: "¥48", old: "", tags: [] }
+        }
+      },
+      "member": {
+        goodsAmount: 56, orderDiscount: 10, totalDiscount: 12, payable: 46,
+        items: {
+          tea: { price: "¥8", old: "¥10", tags: ["立减2元"] },
+          burger: { price: "¥48", old: "", tags: [] }
+        }
+      },
+      "fresh": {
+        goodsAmount: 53, orderDiscount: 10, totalDiscount: 15, payable: 43,
+        items: {
+          tea: { price: "¥5", old: "¥10", tags: ["立减5元"] },
+          burger: { price: "¥48", old: "", tags: [] }
+        }
+      },
+      "": {
+        goodsAmount: 58, orderDiscount: 10, totalDiscount: 10, payable: 48,
+        items: {
+          tea: { price: "¥10", old: "", tags: [] },
+          burger: { price: "¥48", old: "", tags: [] }
+        }
+      }
+    };
+
+    let selectedActivities = ["burger", "member"];
+    let draftActivities = selectedActivities.slice();
+
+    function getSelectionKey(keys) {
+      return keys.slice().sort().join("|");
+    }
+
+    function isDisabled(item) {
+      return draftActivities.some((selectedKey) => {
+        if (selectedKey === item.key) return false;
+        const selected = options.find((option) => option.key === selectedKey);
+        return selected && selected.conflicts.includes(item.key);
+      });
+    }
+
+    function renderOptions() {
+      optionList.innerHTML = "";
+      options.forEach((item) => {
+        const active = draftActivities.includes(item.key);
+        const disabled = !active && isDisabled(item);
+        const row = document.createElement("div");
+        row.className = `option${active ? " active" : ""}${disabled ? " disabled" : ""}`;
+        row.dataset.key = item.key;
+        const conflictHint = disabled ? `<div class="option-hint">与已选活动互斥，不可同时参与<\/div>` : "";
+        row.innerHTML = `
+          <div class="option-main">
+            <span class="check">✓<\/span>
+            <div class="option-text">
+              <div class="option-title-line">
+                <div class="option-title">${item.title}<\/div>
+                <div class="option-tag">${item.tag}<\/div>
+              <\/div>
+              <div class="option-products">${item.products}<\/div>
+              ${conflictHint}
+            <\/div>
+          <\/div>
+        `;
+        row.addEventListener("click", () => {
+          if (disabled) return;
+          if (active) {
+            draftActivities = draftActivities.filter((key) => key !== item.key);
+          } else {
+            draftActivities = draftActivities.concat(item.key);
+          }
+          renderOptions();
+        });
+        optionList.appendChild(row);
+      });
+    }
+
+    function renderActivityTags(container, tags) {
+      container.innerHTML = "";
+      tags.forEach((text) => {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = text;
+        container.appendChild(tag);
+      });
+    }
+
+    function applySelection() {
+      const current = pricingMap[getSelectionKey(selectedActivities)] || pricingMap[""];
+      activitySummary.textContent = "";
+      if (!selectedActivities.length) {
+        activitySummary.textContent = "未参与";
+      } else {
+        const titles = selectedActivities.map((key) => {
+          const item = options.find((option) => option.key === key);
+          return item ? item.title : "";
+        }).filter(Boolean);
+        activitySummary.textContent = titles.join("、");
+      }
+      goodsAmount.textContent = `¥${current.goodsAmount}`;
+      orderDiscount.textContent = current.orderDiscount > 0 ? `-¥${current.orderDiscount}` : "未满足门槛";
+      discountTotal.textContent = `共优惠¥${current.totalDiscount}`;
+      payAmount.textContent = `¥${current.payable}`;
+      payMeta.textContent = `共优惠¥${current.totalDiscount}`;
+      teaPriceNow.textContent = current.items.tea.price;
+      teaPriceOld.textContent = current.items.tea.old;
+      burgerPriceNow.textContent = current.items.burger.price;
+      burgerPriceOld.textContent = current.items.burger.old;
+      renderActivityTags(teaOrderTags, current.items.tea.tags);
+      renderActivityTags(burgerOrderTags, current.items.burger.tags);
+    }
+
+    function openSheet() {
+      draftActivities = selectedActivities.slice();
+      renderOptions();
+      checkoutView.classList.add("sheet-open");
+      sheetMask.classList.add("show");
+    }
+
+    function closeSheetPanel() {
+      checkoutView.classList.remove("sheet-open");
+      sheetMask.classList.remove("show");
+    }
+
+    activityEntry.addEventListener("click", openSheet);
+    closeSheet.addEventListener("click", closeSheetPanel);
+    cancelSheet.addEventListener("click", closeSheetPanel);
+    clearActivities.addEventListener("click", () => {
+      draftActivities = [];
+      renderOptions();
+    });
+    sheetMask.addEventListener("click", (event) => {
+      if (event.target === sheetMask) {
+        closeSheetPanel();
+      }
+    });
+
+    confirmSheet.addEventListener("click", () => {
+      selectedActivities = draftActivities.slice();
+      applySelection();
+      closeSheetPanel();
+    });
+
+    renderOptions();
+    applySelection();
+  </script>
+</body>
+</html>
