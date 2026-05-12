@@ -1,0 +1,5005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APP端设置营销活动一期 - APP端</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #eef0f4;
+      color: #25282d;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .board {
+      width: min(100%, 1280px);
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .screen-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      align-items: stretch;
+    }
+
+    .screen-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      color: #22262c;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .phone-frame {
+      width: min(390px, 100%);
+      margin: 0 auto 28px;
+      overflow: hidden;
+      border: 1px solid #dfe3e8;
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 14px 32px rgba(20, 24, 35, 0.10);
+    }
+
+    .phone {
+      height: 760px;
+      display: flex;
+      flex-direction: column;
+      background: #f6f7f9;
+      overflow: hidden;
+    }
+
+    .phone.with-bottom-cta {
+      height: 760px;
+      min-height: 760px;
+      overflow: hidden;
+    }
+
+    .phone.with-bottom-cta .content {
+      min-height: 0;
+      overflow-y: auto;
+      padding-bottom: 12px;
+    }
+
+    .statusbar {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: #fff;
+      color: #20242a;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .topbar {
+      height: 48px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #edf0f3;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .back {
+      position: absolute;
+      left: 16px;
+      top: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      color: #25282d;
+      font-size: 28px;
+      font-weight: 300;
+    }
+
+    .top-action {
+      position: absolute;
+      right: 16px;
+      color: #be1e2d;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 12px 12px 76px;
+    }
+
+    .tabbar {
+      height: 62px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid #e8ebef;
+      background: #fff;
+    }
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: #68707a;
+      font-size: 12px;
+    }
+
+    .tab.active {
+      color: #be1e2d;
+      font-weight: 700;
+    }
+
+    .tab-icon {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border: 2px solid currentColor;
+      border-radius: 6px;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .module {
+      margin-bottom: 10px;
+      padding: 14px 10px;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .module-title {
+      margin: 0 0 14px;
+      padding: 0 2px;
+      color: #25282d;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      row-gap: 18px;
+    }
+
+    .work-item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #25282d;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .work-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #26313a;
+      border-radius: 12px;
+      background: #fff;
+      color: #be1e2d;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .work-item.new .work-icon {
+      border-color: #be1e2d;
+      background: #fff6f6;
+    }
+
+    .type-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .type-card,
+    .activity-card,
+    .form-card,
+    .record-card,
+    .data-card {
+      border: 1px solid #edf0f3;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .type-card {
+      min-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(31, 35, 42, 0.05);
+    }
+
+    .type-card::after {
+      content: "";
+      position: absolute;
+      right: -18px;
+      bottom: -24px;
+      width: 98px;
+      height: 98px;
+      border-radius: 32px;
+      background: var(--soft);
+      transform: rotate(18deg);
+    }
+
+    .type-main {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .type-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--main);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px var(--shadow);
+    }
+
+    .type-card.discount {
+      --main: #be1e2d;
+      --soft: rgba(190, 30, 45, 0.10);
+      --shadow: rgba(190, 30, 45, 0.20);
+    }
+
+    .type-card.piece {
+      --main: #e36b2c;
+      --soft: rgba(227, 107, 44, 0.12);
+      --shadow: rgba(227, 107, 44, 0.18);
+    }
+
+    .type-card.addon {
+      --main: #178568;
+      --soft: rgba(23, 133, 104, 0.12);
+      --shadow: rgba(23, 133, 104, 0.18);
+    }
+
+    .type-card.full {
+      --main: #4267c6;
+      --soft: rgba(66, 103, 198, 0.12);
+      --shadow: rgba(66, 103, 198, 0.18);
+    }
+
+    .type-card.recommend {
+      --main: #7a4bc2;
+      --soft: rgba(122, 75, 194, 0.12);
+      --shadow: rgba(122, 75, 194, 0.18);
+    }
+
+    .type-name {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .arrow {
+      position: relative;
+      z-index: 1;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #f7f8fa;
+      color: #b6bbc2;
+      font-size: 20px;
+    }
+
+    .search-card {
+      padding: 10px;
+      border: 1px solid #edf0f3;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(31, 35, 42, 0.04);
+    }
+
+    .search-input {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-radius: 19px;
+      background: #f2f3f5;
+      color: #a0a6ae;
+      font-size: 13px;
+    }
+
+    .mobile-filter {
+      display: grid;
+      gap: 8px;
+    }
+
+    .search-compact {
+      display: grid;
+      grid-template-columns: 1fr 64px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search-pill {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      border-radius: 20px;
+      background: #f5f6f8;
+      color: #a0a6ae;
+      font-size: 13px;
+    }
+
+    .filter-button {
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #f1c7cc;
+      border-radius: 20px;
+      background: #fff7f7;
+      color: #be1e2d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .filter-button.active {
+      background: #be1e2d;
+      color: #fff;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .filter-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .filter-field.store {
+      grid-column: 1 / -1;
+    }
+
+    .filter-toggle {
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 10px;
+      border: 1px solid #e1e4e8;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .filter-toggle-label {
+      color: #333841;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .filter-label {
+      color: #6b737e;
+      font-size: 12px;
+    }
+
+    .filter-value {
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 10px;
+      border: 1px solid #e1e4e8;
+      border-radius: 10px;
+      background: #fff;
+      color: #333841;
+      font-size: 13px;
+    }
+
+    .filter-value.placeholder {
+      color: #a0a6ae;
+    }
+
+    .selector-card {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid #e1e4e8;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .selector-main {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .selector-title {
+      color: #333841;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+    }
+
+    .selector-desc {
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .chevron {
+      color: #a0a6ae;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .org-picker,
+    .store-scope-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f6f7f9;
+    }
+
+    .org-path {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #6b737e;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .org-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .org-item {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      border: 1px solid #e1e4e8;
+      border-radius: 10px;
+      background: #fff;
+      color: #333841;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .org-item.active {
+      border-color: #be1e2d;
+      background: #fff7f7;
+      color: #be1e2d;
+    }
+
+    .org-item.leaf {
+      justify-content: space-between;
+    }
+
+    .filter-tip {
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .filter-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .more-filter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      color: #be1e2d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar,
+    .status-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid #e2e5ea;
+      border-radius: 15px;
+      background: #fff;
+      color: #4b525c;
+      font-size: 13px;
+    }
+
+    .status-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .status-tab {
+      flex: 0 0 auto;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 13px;
+      border-radius: 16px;
+      background: #fff;
+      color: #555d67;
+      font-size: 13px;
+    }
+
+    .status-tab.active {
+      background: #be1e2d;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .activity-card {
+      margin-bottom: 10px;
+      padding: 14px;
+    }
+
+    .activity-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .activity-title {
+      color: #25282d;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 22px;
+    }
+
+    .activity-id {
+      margin-top: 3px;
+      color: #9aa0a8;
+      font-size: 12px;
+    }
+
+    .status {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #2f9a42;
+      font-size: 12px;
+    }
+
+    .green-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #36aa48;
+    }
+
+    .grey-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #999;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px 12px;
+      margin-top: 12px;
+    }
+
+    .info-item {
+      min-width: 0;
+    }
+
+    .info-label {
+      margin-bottom: 3px;
+      color: #8f969f;
+      font-size: 12px;
+    }
+
+    .info-value {
+      color: #333841;
+      font-size: 13px;
+      line-height: 19px;
+    }
+
+    .info-sub {
+      margin-top: 2px;
+      color: #8f969f;
+      font-size: 11px;
+      line-height: 16px;
+    }
+
+    .red {
+      color: #be1e2d;
+    }
+
+    .record-link {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #be1e2d;
+      font: inherit;
+      font-weight: 600;
+    }
+
+    .muted {
+      color: #9aa0a8;
+      font-weight: 400;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .action-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .action {
+      flex: 0 0 auto;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 11px;
+      border: 1px solid #f1c7cc;
+      border-radius: 15px;
+      color: #be1e2d;
+      background: #fff7f7;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .float-btn {
+      width: 100%;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      background: #be1e2d;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(190, 30, 45, 0.24);
+    }
+
+    .bottom-cta {
+      flex: 0 0 auto;
+      padding: 10px 20px 16px;
+      border-top: 1px solid rgba(232, 235, 239, 0.82);
+      background: linear-gradient(180deg, rgba(246, 247, 249, 0.72), #fff 36%);
+    }
+
+    .form-card {
+      margin-bottom: 12px;
+      padding: 2px 16px;
+    }
+
+    .form-title {
+      padding: 12px 0 6px;
+      color: #9aa0a8;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* iOS Settings 风格：左 label / 右 value + chevron，子面板自动落到下一行 */
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      padding: 14px 0;
+      border-top: 1px solid #f1f2f4;
+      min-height: 24px;
+    }
+
+    .field-row:first-of-type {
+      border-top: 0;
+    }
+
+    .label {
+      flex: 0 0 auto;
+      color: #25282d;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .label.required::before {
+      content: "*";
+      margin-right: 3px;
+      color: #be1e2d;
+    }
+
+    .input,
+    .select {
+      flex: 1;
+      min-width: 0;
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: #a2a8b0;
+      font-size: 15px;
+      text-align: right;
+    }
+
+    /* 选择类字段右侧 chevron（纯输入 .input 默认无；需要时加 .is-picker） */
+    .select::after,
+    .input.is-picker::after {
+      content: '›';
+      margin-left: 6px;
+      color: #c7ccd1;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    /* row-head 行：让其在 .field-row 内占满整行，确保 value-row 真正靠右；同时让子面板内的 row-head 也右对齐 */
+    .field-row > .row-head,
+    .sub-panel .row-head,
+    .audience-panel .row-head {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    /* chip 组同行右对齐（iOS Settings 风格）—— 给 field-row 加 .inline-choice 类启用 */
+    .field-row.inline-choice > .choice-row {
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    /* inline-input 内 .input/.select 弱化样式：横排紧凑、无 chevron、数字浅底 */
+    .inline-input > .input,
+    .inline-input > .select {
+      flex: 0 0 auto;
+      min-height: 32px;
+      padding: 6px 10px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      color: #303640;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .inline-input > .input::after,
+    .inline-input > .select::after {
+      display: none;
+    }
+
+    /* inline-input 内显式 .is-picker 类的 chip 显示 chevron（如颜色选择） */
+    .inline-input > .input.is-picker::after {
+      display: inline;
+      content: '›';
+      margin-left: 6px;
+      color: #b0b5bd;
+      font-size: 16px;
+    }
+
+    .inline-input {
+      flex: 0 0 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* inline-input 内 .label-text 类作为纯文字（不带背景） */
+    .inline-input > .label-text {
+      padding: 0 2px;
+      color: #303640;
+      font-size: 14px;
+    }
+
+    /* picker-filter 内 .select chip 样式更轻：去掉 chevron、浅底 */
+    .picker-filter > .select {
+      min-height: 36px;
+      padding: 6px 10px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      color: #303640;
+      font-size: 13px;
+      justify-content: space-between;
+    }
+
+    .picker-filter > .select::after {
+      font-size: 14px;
+      color: #b0b5bd;
+    }
+
+    .textarea {
+      flex: 0 0 100%;
+      min-height: 60px;
+      display: flex;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border: 1px solid #ebedef;
+      border-radius: 8px;
+      background: #fafbfc;
+      color: #a2a8b0;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* 子面板和复杂控件占满整行（在 label 下方自动换行） */
+    .choice-row,
+    .sub-panel,
+    .week-grid,
+    .month-grid,
+    .link-row {
+      flex: 0 0 100%;
+    }
+
+    /* 开关行：与 label 同行右对齐（iOS Settings 风格） */
+    .field-row > .switch-line {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* .field-row 含 .switch-line 时，.input::after 的 chevron 不显示（防止 chevron 跟开关一起出现） */
+    .field-row > .switch-line ~ .input::after {
+      display: none;
+    }
+
+    /* 商品优惠 field-row：含多张商品卡片时改为列布局，label 独占顶行 */
+    .field-row[data-product-benefit-panel] {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .field-row[data-product-benefit-panel] > .label {
+      align-self: flex-start;
+    }
+
+    .field-row[data-product-benefit-panel] > .product-benefit-card,
+    .field-row[data-product-benefit-panel] > .batch-actions {
+      width: 100%;
+    }
+
+    .choice-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .choice {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border: 1px solid #e1e4e8;
+      border-radius: 18px;
+      background: #fff;
+      color: #333841;
+      font-size: 14px;
+    }
+
+    /* === 移动 H5 单行选择器（方向 B） === */
+    .row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      gap: 12px;
+    }
+
+    .row-head .label {
+      flex: 0 0 auto;
+    }
+
+    .value-row {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      min-height: 44px;
+      color: #303640;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .value-row .selected-text {
+      color: #303640;
+      text-align: right;
+      flex: 1;
+    }
+
+    .value-row.placeholder .selected-text {
+      color: #a2a8b0;
+    }
+
+    .value-row .chevron {
+      color: #c8c9cc;
+      font-size: 16px;
+    }
+
+    .choice.wide {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .choice.active {
+      border-color: #be1e2d;
+      color: #be1e2d;
+      background: #fff7f7;
+      font-weight: 700;
+    }
+
+    .check {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #d2d6dc;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .choice.active .check {
+      border-color: #be1e2d;
+      background: #be1e2d;
+      position: relative;
+    }
+
+    .choice.active .check::after,
+    .check.active::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .check.active {
+      border-color: #be1e2d;
+      background: #be1e2d;
+      position: relative;
+    }
+
+    .switch {
+      width: 48px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 3px;
+      border-radius: 13px;
+      background: #c3c7cc;
+      cursor: pointer;
+    }
+
+    .switch.on {
+      justify-content: flex-end;
+      background: #be1e2d;
+    }
+
+    .switch::before {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+    }
+
+    .sub-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 2px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f7f8fa;
+    }
+
+    .sub-panel.hidden,
+    .hidden {
+      display: none;
+    }
+
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .day-cell {
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      background: #fff;
+      color: #333841;
+      font-size: 12px;
+    }
+
+    .day-cell.active {
+      border-color: #be1e2d;
+      background: #fff7f7;
+      color: #be1e2d;
+      font-weight: 700;
+    }
+
+    .time-slot {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      border: 1px solid #e1e4e8;
+      border-radius: 10px;
+      background: #fff;
+      color: #333841;
+      font-size: 13px;
+    }
+
+    .link-row {
+      color: #be1e2d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hint-text {
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .switch-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .inline-input {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .store-tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .store-tool {
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e1e4e8;
+      border-radius: 10px;
+      background: #fff;
+      color: #333841;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .store-tool.active {
+      border-color: #be1e2d;
+      background: #fff7f7;
+      color: #be1e2d;
+    }
+
+    .store-scope-card .org-list {
+      grid-template-columns: 1fr;
+    }
+
+    .selected-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mini-tag {
+      min-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 13px;
+      background: #fff;
+      color: #555d67;
+      font-size: 12px;
+    }
+
+    .audience-panel {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f7f8fa;
+    }
+
+    .audience-panel.hidden {
+      display: none;
+    }
+
+    .benefit-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* 商品优惠卡片内的 select/input 改为浅底 chip 样式，弱化 chevron 视觉 */
+    .benefit-row > .select,
+    .benefit-row > .input {
+      min-height: 36px;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      color: #303640;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .benefit-row > .select::after,
+    .benefit-row > .input::after {
+      font-size: 14px;
+      color: #b0b5bd;
+      margin-left: auto;
+    }
+
+    /* 占位文本（未填值）保留灰色 */
+    .benefit-row > .input:not(.has-value) {
+      color: #a2a8b0;
+    }
+
+    .product-benefit-card {
+      display: grid;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #edf0f3;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .product-benefit-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #303640;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .product-benefit-meta {
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .product-card-actions {
+      display: flex;
+      justify-content: flex-end;
+      color: #be1e2d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .batch-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .batch-btn {
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      padding: 0 8px;
+      border: 1px solid #dfe2e7;
+      border-radius: 10px;
+      background: #fff;
+      color: #555d67;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .batch-btn.active {
+      border-color: #f1c7cc;
+      background: #fff7f7;
+      color: #be1e2d;
+    }
+
+    .product-picker,
+    .store-picker {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 12px 12px;
+      background: rgba(12, 16, 22, 0.38);
+    }
+
+    .product-picker.hidden,
+    .store-picker.hidden {
+      display: none;
+    }
+
+    .picker-sheet {
+      width: min(390px, 100%);
+      max-height: 86vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 24px;
+      background: #f6f7f9;
+      box-shadow: 0 20px 48px rgba(20, 24, 35, 0.22);
+    }
+
+    .picker-head {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid #edf0f3;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .picker-close {
+      color: #8f969f;
+      font-size: 24px;
+      font-weight: 400;
+    }
+
+    .picker-body {
+      flex: 1;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    .picker-filter {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .picker-filter .search-pill {
+      grid-column: 1 / -1;
+      background: #fff;
+      border: 1px solid #e1e4e8;
+    }
+
+    .product-option {
+      display: grid;
+      grid-template-columns: 26px 44px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 10px;
+      border: 1px solid #edf0f3;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .product-option.selected {
+      border-color: #f1c7cc;
+      background: #fffafa;
+    }
+
+    .product-cover {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #f1f2f4;
+      color: #b0b5bd;
+      font-size: 12px;
+    }
+
+    .product-cover.red-cover {
+      background: #fff0e8;
+      color: #be1e2d;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    /* === 商品选择浮层 - SKU/SPU 维度切换 === */
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .product-picker[data-product-picker-mode="sku"] .spu-meta,
+    .product-picker[data-product-picker-mode="spu"] .sku-meta {
+      display: none;
+    }
+
+    .product-picker[data-product-picker-mode="spu"] .picker-filter .sku-only {
+      display: none;
+    }
+
+    /* === 门店选择浮层 - 树形结构 === */
+    .store-tree-list {
+      display: flex;
+      flex-direction: column;
+      max-height: 360px;
+      overflow-y: auto;
+      border: 1px solid #ebedef;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 12px;
+      border-bottom: 1px solid #f4f5f7;
+      font-size: 14px;
+      color: #25282d;
+    }
+
+    .tree-node:last-child {
+      border-bottom: 0;
+    }
+
+    .tree-node.level-1 {
+      padding-left: 28px;
+    }
+
+    .tree-node.level-2 {
+      padding-left: 48px;
+    }
+
+    .tree-arrow {
+      width: 12px;
+      color: #9aa0a8;
+      font-size: 11px;
+    }
+
+    .tree-node.leaf .tree-arrow {
+      display: none;
+    }
+
+    .tree-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .product-name {
+      color: #25282d;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 20px;
+    }
+
+    .product-meta {
+      margin-top: 4px;
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .picker-footer {
+      display: grid;
+      grid-template-columns: 1fr 88px 88px;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px 14px;
+      border-top: 1px solid #edf0f3;
+      background: #fff;
+    }
+
+    .selected-count {
+      color: #555d67;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .sheet-section {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .sheet-title {
+      color: #25282d;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .store-tree {
+      display: grid;
+      gap: 8px;
+    }
+
+    .store-node,
+    .store-row {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 12px;
+      border: 1px solid #edf0f3;
+      border-radius: 12px;
+      background: #fff;
+      color: #333841;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .store-node.active {
+      border-color: #f1c7cc;
+      background: #fff7f7;
+      color: #be1e2d;
+    }
+
+    .store-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .store-row.selected {
+      border-color: #f1c7cc;
+      background: #fffafa;
+      color: #be1e2d;
+    }
+
+    .store-row {
+      justify-content: flex-start;
+    }
+
+    .store-row span:last-child {
+      flex: 1;
+    }
+
+    .store-summary {
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .record-detail {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 12px 18px;
+      background: rgba(22, 26, 32, 0.42);
+    }
+
+    .record-detail.hidden {
+      display: none;
+    }
+
+    .record-sheet {
+      width: min(390px, 100%);
+      max-height: 78vh;
+      overflow: hidden;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 -14px 36px rgba(20, 24, 35, 0.18);
+    }
+
+    .record-detail-body {
+      display: grid;
+      gap: 10px;
+      max-height: calc(78vh - 58px);
+      overflow-y: auto;
+      padding: 12px;
+      background: #f6f7f9;
+    }
+
+    .change-card {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .change-title {
+      color: #25282d;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .change-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 8px;
+      color: #555d67;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .change-row span:first-child {
+      color: #8f969f;
+    }
+
+    .bottom-actions {
+      position: sticky;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 10px;
+      padding: 10px 12px 14px;
+      border-top: 1px solid #e8ebef;
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .btn {
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #dfe2e7;
+      border-radius: 21px;
+      background: #fff;
+      color: #333841;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .btn.primary {
+      border-color: #be1e2d;
+      background: #be1e2d;
+      color: #fff;
+    }
+
+    .modal-wrap {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.38);
+    }
+
+    .modal {
+      width: 100%;
+      padding: 22px 18px 16px;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .modal-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 22px;
+      color: #25282d;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+
+    .warn {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 2px solid #f0a100;
+      border-radius: 50%;
+      color: #f0a100;
+      font-weight: 800;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .record-card {
+      margin-bottom: 10px;
+      padding: 14px;
+    }
+
+    .record-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .record-user {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 22px;
+    }
+
+    .record-time {
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+      text-align: right;
+    }
+
+    .record-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f2f4;
+      color: #555d67;
+      font-size: 13px;
+    }
+
+    .data-filter {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .metric {
+      min-height: 82px;
+      padding: 12px;
+      border: 1px solid #edf0f3;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .metric.active {
+      border-color: #be1e2d;
+      background: #fff7f7;
+    }
+
+    .metric-label {
+      color: #68707a;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .metric-value {
+      margin-top: 10px;
+      color: #25282d;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .chart-card {
+      height: 180px;
+      position: relative;
+      margin-bottom: 10px;
+      border: 1px solid #edf0f3;
+      border-radius: 14px;
+      background:
+        linear-gradient(to bottom, transparent 24%, #e7edf5 25%, transparent 25%),
+        linear-gradient(to bottom, transparent 49%, #e7edf5 50%, transparent 50%),
+        linear-gradient(to bottom, transparent 74%, #e7edf5 75%, transparent 75%),
+        #fff;
+    }
+
+    .chart-line {
+      position: absolute;
+      left: 36px;
+      right: 36px;
+      bottom: 36px;
+      height: 2px;
+      background: #76b82a;
+    }
+
+    .chart-dot {
+      position: absolute;
+      bottom: 32px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #76b82a;
+    }
+
+    .d1 { left: 52px; }
+    .d2 { left: 92px; }
+    .d3 { left: 134px; }
+    .d4 { left: 176px; }
+    .d5 { left: 220px; }
+    .d6 { left: 264px; }
+
+    .empty-card {
+      height: 120px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #edf0f3;
+      border-radius: 14px;
+      background: #fff;
+      color: #aab0b8;
+      font-size: 13px;
+    }
+
+    /* ========== 视角切换面板 ========== */
+    .perspective-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: -24px -24px 20px;
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: saturate(140%) blur(8px);
+      border-bottom: 1px solid #e6e9ee;
+      box-shadow: 0 8px 22px rgba(20, 24, 35, 0.06);
+    }
+
+    .perspective-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #25282d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .perspective-title::before {
+      content: "👤";
+      font-size: 14px;
+    }
+
+    .perspective-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .perspective-chip {
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid #dfe2e7;
+      border-radius: 15px;
+      background: #fff;
+      color: #4b525c;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .perspective-chip.active {
+      border-color: #be1e2d;
+      background: #be1e2d;
+      color: #fff;
+    }
+
+    .perspective-meta {
+      margin-left: auto;
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    /* 视角驱动差异化展示：默认（总部视角）显示全部 */
+    /* 门店视角下，部分活动类型入口隐藏（PRD §3.3.1） */
+    body[data-perspective="store-single"] .type-card[data-store-only="false"],
+    body[data-perspective="store-multi"] .type-card[data-store-only="false"] {
+      opacity: 0.4;
+      pointer-events: none;
+      position: relative;
+    }
+
+    body[data-perspective="store-single"] .type-card[data-store-only="false"]::before,
+    body[data-perspective="store-multi"] .type-card[data-store-only="false"]::before {
+      content: "未开放";
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      z-index: 2;
+      padding: 2px 8px;
+      border-radius: 8px;
+      background: #f1f2f4;
+      color: #8f969f;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ========== 卡片来源 / 范围标签 ========== */
+    .activity-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .tag-pill.tag-me {
+      background: #fdf1d6;
+      color: #b78018;
+    }
+
+    .tag-pill.tag-store-built {
+      background: #f0eaf9;
+      color: #7a4bc2;
+    }
+
+    /* 视角驱动 tag 显隐：任意视角"我创建"亮；仅总部视角"门店建"亮；mine=true 时互斥优先「我创建」 */
+    .tag-pill.tag-me { display: none; }
+    .tag-pill.tag-store-built { display: none; }
+
+    /* 任意视角下，自己创建的活动显示「我创建」 */
+    .activity-card[data-mine="true"] .tag-pill.tag-me {
+      display: inline-flex;
+    }
+
+    /* 总部视角下，门店创建的活动显示「门店建」 */
+    body[data-perspective="hq"] .activity-card[data-creator="store"] .tag-pill.tag-store-built {
+      display: inline-flex;
+    }
+
+    /* 互斥规则：mine=true 时优先「我创建」，隐藏「门店建」 */
+    .activity-card[data-mine="true"] .tag-pill.tag-store-built {
+      display: none !important;
+    }
+
+    /* 来源筛选驱动隐藏 */
+    .activity-list[data-filter="hq-built"] .activity-card:not([data-creator="hq"]),
+    .activity-list[data-filter="store-built"] .activity-card:not([data-creator="store"]) {
+      display: none;
+    }
+
+    /* 卡片创建人次行字段 */
+    .creator-line {
+      margin-top: 6px;
+      color: #8f969f;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .creator-line .creator-name {
+      color: #555d67;
+      font-weight: 600;
+    }
+
+    /* Toast 无权限提示 */
+    .perm-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 110px;
+      z-index: 60;
+      max-width: 320px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: rgba(20, 24, 35, 0.88);
+      color: #fff;
+      font-size: 13px;
+      line-height: 19px;
+      text-align: center;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .perm-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* 来源筛选 tabs（位于 status-tabs 之上） */
+    .source-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 10px 0 0;
+    }
+
+    .source-tab {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      border: 1px solid #e2e5ea;
+      border-radius: 16px;
+      background: #fff;
+      color: #4b525c;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .source-tab.active {
+      border-color: #be1e2d;
+      background: #fff7f7;
+      color: #be1e2d;
+    }
+
+    /* ========== 主次操作分级（更多按钮） ========== */
+    .action.primary-action {
+      background: #be1e2d;
+      color: #fff;
+      border-color: #be1e2d;
+    }
+
+    .action.more-action {
+      background: #fff;
+      color: #4b525c;
+      border-color: #dfe2e7;
+    }
+
+    .action-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 12px 18px;
+      background: rgba(12, 16, 22, 0.38);
+    }
+
+    .action-sheet.hidden {
+      display: none;
+    }
+
+    .action-sheet-card {
+      width: min(390px, 100%);
+      overflow: hidden;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 20px 48px rgba(20, 24, 35, 0.22);
+    }
+
+    .action-sheet-row {
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-top: 1px solid #f1f2f4;
+      color: #25282d;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .action-sheet-row:first-child {
+      border-top: 0;
+    }
+
+    .action-sheet-row .chevron {
+      color: #b8bdc4;
+    }
+
+    .action-sheet-cancel {
+      margin-top: 8px;
+      min-height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: #fff;
+      color: #4b525c;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* ========== 表单顶部锚点 segment ========== */
+    .form-anchor {
+      position: sticky;
+      top: 48px;
+      z-index: 4;
+      display: flex;
+      gap: 6px;
+      margin: 0 -12px 10px;
+      padding: 8px 12px;
+      background: rgba(246, 247, 249, 0.96);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #edf0f3;
+    }
+
+    .form-anchor-item {
+      flex: 1;
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: #fff;
+      color: #4b525c;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .form-anchor-item.active {
+      background: #be1e2d;
+      color: #fff;
+    }
+
+    /* 操作记录类型 tag */
+    .record-type {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 11px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .record-type.add {
+      background: #e3f5e8;
+      color: #2f9a42;
+    }
+
+    .record-type.edit {
+      background: #eef3ff;
+      color: #4267c6;
+    }
+
+    .record-type.invalid {
+      background: #fbe8eb;
+      color: #be1e2d;
+    }
+
+    .record-type.publish {
+      background: #fdf1d6;
+      color: #b78018;
+    }
+
+    .record-type.copy {
+      background: #f0eaf9;
+      color: #7a4bc2;
+    }
+
+    /* 数据图表 X 轴 + Y 轴标尺 */
+    .chart-card {
+      padding-bottom: 22px;
+    }
+
+    .chart-axis {
+      position: absolute;
+      left: 36px;
+      right: 12px;
+      bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      color: #9aa0a8;
+      font-size: 10px;
+    }
+
+    .chart-y-axis {
+      position: absolute;
+      left: 8px;
+      top: 18px;
+      bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #9aa0a8;
+      font-size: 10px;
+    }
+
+    /* 门店选择器：已选回看 */
+    .store-selected-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff7f7;
+      border: 1px solid #f1c7cc;
+      color: #be1e2d;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .store-selected-strip .selected-tags {
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .store-selected-strip .mini-tag {
+      background: #fff;
+      border: 1px solid #f1c7cc;
+      color: #be1e2d;
+    }
+
+    .store-selected-strip .clear-link {
+      color: #8f969f;
+      font-weight: 600;
+    }
+
+    /* 列表卡片 head 改造支持 tags */
+    .activity-card .activity-head {
+      align-items: flex-start;
+    }
+
+    .activity-card .activity-head > div:first-child {
+      min-width: 0;
+      flex: 1;
+    }
+
+    @media (max-width: 520px) {
+      .board {
+        padding: 12px;
+      }
+
+      .screen-grid {
+        display: block;
+      }
+
+      .section-title {
+        margin-left: 2px;
+      }
+
+      .phone-frame {
+        width: 100%;
+        border-radius: 18px;
+      }
+
+      .phone {
+        min-height: 720px;
+      }
+
+      .perspective-bar {
+        margin: -12px -12px 16px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <div class="perspective-bar" data-perspective-bar>
+      <span class="perspective-title">视角切换</span>
+      <div class="perspective-options" data-perspective-options>
+        <span class="perspective-chip active" data-perspective="hq">总部角色</span>
+        <span class="perspective-chip" data-perspective="store-multi">门店角色 · 多店</span>
+        <span class="perspective-chip" data-perspective="store-single">门店角色 · 单店</span>
+      </div>
+      <span class="perspective-meta" data-perspective-meta>总部视角｜管辖全部门店；活动适用门店 ⊆ 管辖范围 → 全功能可维护；部分管辖 → 仅可查看</span>
+    </div>
+    <div class="screen-grid">
+      <div class="screen-row">
+      <section>
+        <h2 class="section-title">APP 工作台</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar">工作台</div>
+            <div class="content">
+              <div class="module">
+                <div class="module-title">工作台</div>
+                <div class="work-grid">
+                  <div class="work-item"><div class="work-icon">菜</div><span>菜单管理</span></div>
+                  <div class="work-item"><div class="work-icon">券</div><span>优惠券管理</span></div>
+                  <div class="work-item"><div class="work-icon">料</div><span>配料及包材</span></div>
+                  <div class="work-item"><div class="work-icon">印</div><span>打印设置</span></div>
+                  <div class="work-item"><div class="work-icon">点</div><span>代客点单</span></div>
+                  <div class="work-item"><div class="work-icon">号</div><span>叫号取餐</span></div>
+                  <div class="work-item"><div class="work-icon">店</div><span>门店信息</span></div>
+                  <div class="work-item"><div class="work-icon">＋</div><span>添加常用</span></div>
+                </div>
+              </div>
+
+              <div class="module">
+                <div class="module-title">门店经营</div>
+                <div class="work-grid">
+                  <div class="work-item"><div class="work-icon">菜</div><span>菜单管理</span></div>
+                  <div class="work-item"><div class="work-icon">屏</div><span>智慧屏</span></div>
+                  <div class="work-item"><div class="work-icon">发</div><span>发货备列表</span></div>
+                  <div class="work-item"><div class="work-icon">外</div><span>外卖单服务</span></div>
+                  <div class="work-item new"><div class="work-icon">营</div><span>营销活动</span></div>
+                  <div class="work-item"><div class="work-icon">券</div><span>优惠券管理</span></div>
+                  <div class="work-item"><div class="work-icon">核</div><span>门店自检</span></div>
+                  <div class="work-item"><div class="work-icon">配</div><span>配送设置</span></div>
+                </div>
+              </div>
+
+              <div class="module">
+                <div class="module-title">仓库管理</div>
+                <div class="work-grid">
+                  <div class="work-item"><div class="work-icon">销</div><span>销售管理</span></div>
+                  <div class="work-item"><div class="work-icon">货</div><span>配货管理</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="tabbar">
+              <div class="tab"><span class="tab-icon"></span><span>首页</span></div>
+              <div class="tab"><span class="tab-icon"></span><span>订单</span></div>
+              <div class="tab active"><span class="tab-icon"></span><span>工作台</span></div>
+              <div class="tab"><span class="tab-icon"></span><span>我的</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">营销活动首页</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>营销活动</div>
+            <div class="content">
+              <div class="type-list">
+                <div class="type-card discount" data-store-only="true"><div class="type-main"><span class="type-icon">折</span><span class="type-name">限时折扣</span></div><span class="arrow">›</span></div>
+                <div class="type-card piece" data-store-only="true"><div class="type-main"><span class="type-icon">N</span><span class="type-name">购N件享折扣</span></div><span class="arrow">›</span></div>
+                <div class="type-card addon" data-store-only="true"><div class="type-main"><span class="type-icon">加</span><span class="type-name">超值加购</span></div><span class="arrow">›</span></div>
+                <div class="type-card full" data-store-only="false"><div class="type-main"><span class="type-icon">满</span><span class="type-name">订单满减</span></div><span class="arrow">›</span></div>
+                <div class="type-card recommend" data-store-only="true"><div class="type-main"><span class="type-icon">荐</span><span class="type-name">商品推荐</span></div><span class="arrow">›</span></div>
+              </div>
+            </div>
+            <div class="tabbar">
+              <div class="tab"><span class="tab-icon"></span><span>首页</span></div>
+              <div class="tab"><span class="tab-icon"></span><span>订单</span></div>
+              <div class="tab active"><span class="tab-icon"></span><span>工作台</span></div>
+              <div class="tab"><span class="tab-icon"></span><span>我的</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+
+      <div class="screen-row">
+      <section>
+        <h2 class="section-title">限时折扣列表</h2>
+        <div class="phone-frame">
+          <div class="phone with-bottom-cta">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>限时折扣</div>
+            <div class="content">
+              <div class="search-card">
+                <div class="mobile-filter">
+                  <div class="search-compact">
+                    <div class="search-pill">请输入活动名称或ID</div>
+                    <div class="filter-button" data-toggle-filters>筛选</div>
+                  </div>
+                  <div class="filter-grid hidden" data-more-filters>
+                    <div class="filter-field">
+                      <div class="filter-label">活动时间</div>
+                      <div class="filter-value">开始 - 结束</div>
+                    </div>
+                    <div class="filter-field">
+                      <div class="filter-label">活动商品</div>
+                      <div class="filter-value placeholder">商品名称</div>
+                    </div>
+                    <div class="filter-field store">
+                      <div class="filter-label">活动门店</div>
+                      <div class="filter-value" data-open-store-picker>
+                        <span data-store-filter-text>全部门店</span>
+                        <span>›</span>
+                      </div>
+                    </div>
+                    <div class="filter-field full">
+                      <div class="filter-label">创建人</div>
+                      <div class="filter-toggle">
+                        <span class="filter-toggle-label">仅看自己创建</span>
+                        <span class="switch" data-list-toggle="mine"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="filter-actions hidden" data-more-filters>
+                    <div class="btn primary">查询</div>
+                    <div class="btn">重置</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="status-tabs">
+                <span class="status-tab">全部</span>
+                <span class="status-tab active">进行中</span>
+                <span class="status-tab">未开始</span>
+                <span class="status-tab">待发布</span>
+                <span class="status-tab">已结束</span>
+                <span class="status-tab">已作废</span>
+              </div>
+
+              <div class="activity-list" data-activity-list data-filter="all">
+
+                <div class="activity-card" data-creator="hq" data-mine="false" data-scope="partial">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">限时折扣-权益卡</div>
+                      <div class="activity-id">41784</div>
+                      <div class="creator-line">创建人：<span class="creator-name">张三</span> · 运营后台 · 2026-04-01 14:23:45</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">3件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">活动内容</div><div class="info-value">折扣/5折</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-01<br>至：2026-05-26</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">3家参与</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">全部</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">99</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action" data-action="edit">编辑</span>
+                    <span class="action" data-action="invalid">作废</span>
+                    <span class="action" data-action="data">数据</span>
+                    <span class="action more-action" data-action="more">···</span>
+                  </div>
+                </div>
+
+                <div class="activity-card" data-creator="store" data-mine="true" data-scope="full">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">区域联动周末特惠</div>
+                      <div class="activity-id">40773</div>
+                      <div class="creator-line">创建人：<span class="creator-name">王芳</span> · APP · 2026-03-02 09:15:30</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">2件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">活动内容</div><div class="info-value">折扣/5折</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-03-02<br>至：2031-04-05</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">2家参与</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">全部</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">80</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action" data-action="edit">编辑</span>
+                    <span class="action" data-action="invalid">作废</span>
+                    <span class="action" data-action="data">数据</span>
+                    <span class="action more-action" data-action="more">···</span>
+                  </div>
+                </div>
+
+                <div class="activity-card" data-creator="store" data-mine="true" data-scope="full">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">五一限时折扣</div>
+                      <div class="activity-id">40892</div>
+                      <div class="creator-line">创建人：<span class="creator-name">王芳</span> · APP · 2026-04-21 17:42:08</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="grey-dot"></span>待发布</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">5件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">活动内容</div><div class="info-value">折扣/8.8折</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-05-01<br>至：2026-05-05</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">1家参与</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">注册用户</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">70</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action" data-action="edit">编辑</span>
+                    <span class="action" data-action="publish">发布</span>
+                    <span class="action" data-action="data">数据</span>
+                    <span class="action more-action" data-action="more">···</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="bottom-cta">
+              <div class="float-btn">新建活动</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">限时折扣新建/编辑活动</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>新增活动</div>
+            <div class="content">
+              <div class="form-card" id="anchor-basic">
+                <div class="form-title">基础信息</div>
+                <div class="field-row">
+                  <div class="label required">活动名称</div>
+                  <div class="input">请输入活动名称，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动日期</div>
+                  <div class="input is-picker">开始日期　→　结束日期</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动周期</div>
+                  <div class="choice-row" data-choice-group="period">
+                    <span class="choice" data-period="day">每天</span>
+                    <span class="choice" data-period="week">每周</span>
+                    <span class="choice active" data-period="month">每月</span>
+                  </div>
+                  <div class="sub-panel hidden" data-period-panel="week">
+                    <div class="week-grid">
+                      <span class="choice active wide">周一</span>
+                      <span class="choice active wide">周二</span>
+                      <span class="choice wide">周三</span>
+                      <span class="choice wide">周四</span>
+                      <span class="choice active wide">周五</span>
+                      <span class="choice wide">周六</span>
+                      <span class="choice wide">周日</span>
+                    </div>
+                  </div>
+                  <div class="sub-panel" data-period-panel="month">
+                    <div class="month-grid">
+                      <span class="day-cell active">1</span><span class="day-cell">2</span><span class="day-cell">3</span><span class="day-cell">4</span><span class="day-cell">5</span><span class="day-cell">6</span><span class="day-cell">7</span>
+                      <span class="day-cell">8</span><span class="day-cell">9</span><span class="day-cell">10</span><span class="day-cell">11</span><span class="day-cell">12</span><span class="day-cell">13</span><span class="day-cell">14</span>
+                      <span class="day-cell active">15</span><span class="day-cell">16</span><span class="day-cell">17</span><span class="day-cell">18</span><span class="day-cell">19</span><span class="day-cell">20</span><span class="day-cell">21</span>
+                      <span class="day-cell">22</span><span class="day-cell">23</span><span class="day-cell">24</span><span class="day-cell">25</span><span class="day-cell">26</span><span class="day-cell">27</span><span class="day-cell">28</span>
+                      <span class="day-cell">29</span><span class="day-cell active">30</span><span class="day-cell">31</span>
+                    </div>
+                    <div class="hint-text">自然月无所选日期时，不触发活动</div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动时段</div>
+                  <div class="choice-row" data-choice-group="time">
+                    <span class="choice" data-time="all">全天</span>
+                    <span class="choice active" data-time="range">指定时间段</span>
+                  </div>
+                  <div class="sub-panel" data-time-panel="range">
+                    <div class="time-slot"><span>00:00</span><span>→</span><span>23:59</span></div>
+                    <div class="time-slot"><span>14:00</span><span>→</span><span>17:00</span></div>
+                    <div class="link-row">+ 添加活动时段（最多允许3个）</div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动商品标签</div>
+                  <div class="input">例如第二份半价、买一送一</div>
+                </div>
+                <div class="field-row">
+                  <div class="label">标签样式</div>
+                  <div class="choice-row">
+                    <span class="choice active"><span class="check"></span>字体颜色</span>
+                    <span class="choice active"><span class="check"></span>边框颜色</span>
+                    <span class="choice active"><span class="check"></span>背景颜色</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">活动价角标</div>
+                  <div class="switch-line"><span class="switch on" data-switch-target="corner-panel"></span></div>
+                  <div class="sub-panel" data-panel="corner-panel">
+                    <div class="input">请输入角标文案</div>
+                    <div class="choice-row">
+                      <span class="choice active"><span class="check"></span>字体颜色</span>
+                      <span class="choice active"><span class="check"></span>背景颜色</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">原价划线展示</div>
+                  <div class="switch-line"><span class="switch" data-switch-target="line-price-panel" data-invert="true"></span></div>
+                  <div class="sub-panel" data-panel="line-price-panel">
+                    <div class="label required">说明文案</div>
+                    <div class="input">请输入关闭划线价后的说明文案</div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">活动说明</div>
+                  <div class="textarea">请输入</div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-store">
+                <div class="form-title">活动门店/商品</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动门店</div>
+                    <div class="value-row">
+                      <span class="selected-text">指定门店参与</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="hint-text">仅可选择当前账号管理门店范围内的门店</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与渠道</div>
+                    <div class="value-row">
+                      <span class="selected-text">微信小程序、支付宝小程序、POS&APP</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与订单业务</div>
+                    <div class="value-row">
+                      <span class="selected-text">堂食&自提、自营外卖</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">优惠人群</div>
+                    <div class="value-row">
+                      <span class="selected-text">权益卡用户</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="audience-panel" data-audience-panel="card">
+                    <div class="row-head">
+                      <div class="label required">选择权益卡</div>
+                      <div class="value-row">
+                        <span class="selected-text">权益卡A、生日权益卡</span>
+                        <span class="chevron">›</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="audience-panel hidden" data-audience-panel="level">
+                    <div class="row-head">
+                      <div class="label required">选择会员等级</div>
+                      <div class="value-row">
+                        <span class="selected-text">黄金会员、铂金会员</span>
+                        <span class="chevron">›</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hint-text">企微好友：已添加品牌客服为好友的客户；学生用户：成功认证大学生身份的用户</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">支付方式</div>
+                    <div class="value-row">
+                      <span class="selected-text">线上支付、余额支付、礼品卡支付、自定义支付、现金支付</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">按商品设置优惠</div>
+                  <div class="switch-line"><span class="switch on" data-product-benefit-switch></span></div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动商品</div>
+                  <div class="input red" data-open-product-picker>+ 添加商品</div>
+                </div>
+                <div class="field-row hidden" data-general-benefit>
+                  <div class="label required">优惠设置</div>
+                  <div class="choice-row" data-choice-group="benefit">
+                    <span class="choice active" data-benefit="折">折扣</span>
+                    <span class="choice" data-benefit="元">立减</span>
+                    <span class="choice" data-benefit="元">特价</span>
+                  </div>
+                  <div class="inline-input">
+                    <div class="input">请输入优惠值</div>
+                    <span class="label-text" data-benefit-unit>折</span>
+                  </div>
+                </div>
+                <div class="field-row" data-product-benefit-panel>
+                  <div class="label required">商品优惠</div>
+                  <div class="product-benefit-card">
+                    <div class="product-benefit-title"><span>刮刮乐-钥匙扣挂件(标准)</span><span>0.00元</span></div>
+                    <div class="product-benefit-meta">编号：500383</div>
+                    <div class="benefit-row">
+                      <div class="select">折扣</div>
+                      <div class="input">请输入折扣</div>
+                    </div>
+                    <div class="benefit-row">
+                      <div class="select">活动库存</div>
+                      <div class="input">不限制</div>
+                    </div>
+                    <div class="product-card-actions">取消参与</div>
+                  </div>
+                  <div class="product-benefit-card">
+                    <div class="product-benefit-title"><span>刮刮乐-藤椒鸡尖5个</span><span>0.00元</span></div>
+                    <div class="product-benefit-meta">编号：500384</div>
+                    <div class="benefit-row">
+                      <div class="select">立减</div>
+                      <div class="input">请输入金额</div>
+                    </div>
+                    <div class="benefit-row">
+                      <div class="select">活动库存</div>
+                      <div class="input">不限制</div>
+                    </div>
+                    <div class="product-card-actions">取消参与</div>
+                  </div>
+                  <div class="batch-actions">
+                    <div class="batch-btn">批量取消</div>
+                    <div class="batch-btn active">批量设置优惠</div>
+                    <div class="batch-btn">批量设置活动库存</div>
+                  </div>
+                </div>
+                <div class="field-row hidden" data-general-stock>
+                  <div class="label">活动库存</div>
+                  <div class="input">请输入库存份数</div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-rule">
+                <div class="form-title">活动规则</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">加料优惠规则</div>
+                    <div class="value-row">
+                      <span class="selected-text">不参与优惠</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">商品优惠限制</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">每日购买数量</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="hint-text">开启限制后，数量需大于等于每单每商品优惠限制</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动购买数量</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">自定义共享互斥规则</div>
+                  <div class="switch-line"><span class="switch on" data-switch-target="share-panel"></span></div>
+                  <div class="sub-panel" data-panel="share-panel">
+                    <div class="row-head">
+                      <div class="label">共享/互斥</div>
+                      <div class="value-row">
+                        <span class="selected-text">与全部活动/券互斥</span>
+                        <span class="chevron">›</span>
+                      </div>
+                    </div>
+                    <div class="hint-text">默认与所有活动互斥，如需共享需在共享关系中配置</div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动优先级</div>
+                  <div class="input">数字越大优先级越高</div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-actions">
+              <div class="btn">取消</div>
+              <div class="btn primary">立即创建</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">限时折扣作废确认</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>限时折扣</div>
+            <div class="modal-wrap">
+              <div class="modal">
+                <div class="modal-title"><span class="warn">!</span><span>作废后该活动将提前失效，且不可恢复，确认作废吗？</span></div>
+                <div class="modal-actions">
+                  <div class="btn">取消</div>
+                  <div class="btn primary">确定作废</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">限时折扣操作记录</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>操作记录</div>
+            <div class="content">
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">斩鸿凯<br><span class="muted">15901867879 · APP</span></div>
+                  <div class="record-time">2026-04-08<br>13:41:18</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改活动内容</span><button class="record-link" data-open-record-detail>查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">郭宁<br><span class="muted">15071239830 · 运营后台</span></div>
+                  <div class="record-time">2026-04-01<br>09:03:09</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改活动内容</span><button class="record-link" data-open-record-detail>查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">郭宁<br><span class="muted">15071239830 · 运营后台</span></div>
+                  <div class="record-time">2026-04-01<br>09:02:13</div>
+                </div>
+                <div class="record-info"><span class="record-type publish">发布</span><span>发布活动</span><span class="muted">—</span></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">郭宁<br><span class="muted">15071239830 · 运营后台</span></div>
+                  <div class="record-time">2026-04-01<br>09:02:09</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link" data-open-record-detail>查看配置 ›</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">限时折扣数据查看</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>数据查看</div>
+            <div class="content">
+              <div class="data-filter">
+                <div class="select">昨天</div>
+                <div class="select">全部门店</div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric active"><div class="metric-label">活动订单</div><div class="metric-value">0</div></div>
+                <div class="metric active"><div class="metric-label">活动订单收入（元）</div><div class="metric-value">0.00</div></div>
+                <div class="metric"><div class="metric-label">活动收入（元）</div><div class="metric-value">0.00</div></div>
+                <div class="metric"><div class="metric-label">活动客单价（元）</div><div class="metric-value">0.00</div></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-y-axis">
+                  <span>100</span>
+                  <span>50</span>
+                  <span>0</span>
+                </div>
+                <div class="chart-line"></div>
+                <span class="chart-dot d1"></span>
+                <span class="chart-dot d2"></span>
+                <span class="chart-dot d3"></span>
+                <span class="chart-dot d4"></span>
+                <span class="chart-dot d5"></span>
+                <span class="chart-dot d6"></span>
+                <div class="chart-axis">
+                  <span>04-15</span>
+                  <span>04-16</span>
+                  <span>04-17</span>
+                  <span>04-18</span>
+                  <span>04-19</span>
+                  <span>04-20</span>
+                </div>
+              </div>
+              <div class="form-title">数据明细</div>
+              <div class="empty-card">暂无数据</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- ===========  购N件享折扣（5 个页面）  ====================== -->
+      <!-- ============================================================ -->
+
+      <div class="screen-row">
+      <section>
+        <h2 class="section-title">购N件享折扣列表</h2>
+        <div class="phone-frame">
+          <div class="phone with-bottom-cta">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>购N件享折扣</div>
+            <div class="content">
+              <div class="search-card">
+                <div class="mobile-filter">
+                  <div class="search-compact">
+                    <div class="search-pill">请输入活动名称或ID</div>
+                    <div class="filter-button">筛选</div>
+                  </div>
+                </div>
+              </div>
+              <div class="status-tabs">
+                <span class="status-tab">全部</span>
+                <span class="status-tab active">进行中</span>
+                <span class="status-tab">未开始</span>
+                <span class="status-tab">待发布</span>
+                <span class="status-tab">已结束</span>
+                <span class="status-tab">已作废</span>
+              </div>
+              <div class="activity-list">
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">第二份半价 · 夏日饮品</div>
+                      <div class="activity-id">42001</div>
+                      <div class="creator-line">创建人：<span class="creator-name">李四</span> · 运营后台 · 2026-04-10 10:30:22</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">5件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">活动内容</div><div class="info-value">折扣/5折（每满 2 份优惠 1 份）</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-10<br>至：2026-08-31</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">2家参与</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">全部</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">85</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+                <div class="activity-card" data-creator="store" data-mine="true">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">新店开业 · N件特惠</div>
+                      <div class="activity-id">42002</div>
+                      <div class="creator-line">创建人：<span class="creator-name">王芳</span> · APP · 2026-04-15 16:08:51</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">3件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">活动内容</div><div class="info-value">折扣/8折（满 2 份优惠 1 份）</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-15<br>至：2026-05-15</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">1家参与</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">会员</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">75</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-cta">
+              <div class="float-btn">新建活动</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">购N件享折扣新建/编辑活动</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>新增活动</div>
+            <div class="content">
+              <div class="form-card" id="anchor-basic-piece">
+                <div class="form-title">基础信息</div>
+                <div class="field-row">
+                  <div class="label required">活动名称</div>
+                  <div class="input">请输入活动名称，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动日期</div>
+                  <div class="input">2026-04-10　→　2026-08-31</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动周期</div>
+                  <div class="choice-row">
+                    <span class="choice active">每天</span>
+                    <span class="choice">每周</span>
+                    <span class="choice">每月</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动时段</div>
+                  <div class="choice-row">
+                    <span class="choice active">全天</span>
+                    <span class="choice">指定时间段</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动商品标签</div>
+                  <div class="input">第二份半价</div>
+                  <div class="hint-text">限10字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label">标签样式</div>
+                  <div class="choice-row">
+                    <span class="choice active"><span class="check"></span>字体颜色<span style="display:inline-block;width:14px;height:14px;background:#ffffff;border:1px solid #e5e7eb;border-radius:2px;vertical-align:middle;margin-left:4px;"></span></span>
+                    <span class="choice active"><span class="check"></span>边框颜色<span style="display:inline-block;width:14px;height:14px;background:#ff4d4f;border-radius:2px;vertical-align:middle;margin-left:4px;"></span></span>
+                    <span class="choice active"><span class="check"></span>背景颜色<span style="display:inline-block;width:14px;height:14px;background:#ff4d4f;border-radius:2px;vertical-align:middle;margin-left:4px;"></span></span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">活动说明</div>
+                  <div class="textarea">请输入活动说明</div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-store-piece">
+                <div class="form-title">活动门店/商品</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动门店</div>
+                    <div class="value-row">
+                      <span class="selected-text">指定门店参与</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">按商品设置库存</div>
+                  <div class="switch-line"><span class="switch"></span></div>
+                  <div class="hint-text">关闭：使用统一活动库存；开启：每个商品独立库存</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动商品</div>
+                  <div class="input red">+ 添加商品</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动库存</div>
+                  <div class="input">请输入库存份数</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与渠道</div>
+                    <div class="value-row">
+                      <span class="selected-text">微信小程序、支付宝小程序、POS&APP</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与订单业务</div>
+                    <div class="value-row">
+                      <span class="selected-text">堂食&自提、自营外卖</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">优惠人群</div>
+                    <div class="value-row">
+                      <span class="selected-text">全部</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">支付方式</div>
+                    <div class="value-row">
+                      <span class="selected-text">线上支付、余额支付、礼品卡支付、自定义支付、现金支付</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-rule-piece">
+                <div class="form-title">活动规则</div>
+                <div class="field-row">
+                  <div class="label required">优惠条件</div>
+                  <div class="choice-row">
+                    <span class="choice active">购买N份其中M份享受优惠</span>
+                    <span class="choice">每购买N份其中M份享受优惠</span>
+                  </div>
+                  <div class="inline-input">
+                    <span class="label-text">购买</span>
+                    <div class="input">2</div>
+                    <span class="label-text">份其中</span>
+                    <div class="input">1</div>
+                    <span class="label-text">份享受优惠</span>
+                  </div>
+                  <div class="hint-text">第一种：买够 N 份其中 M 份享优惠；第二种：每凑齐 N 份循环享受 M 份优惠</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">商品优惠</div>
+                  <div class="inline-input">
+                    <div class="select">折扣</div>
+                    <div class="input">5</div>
+                    <span class="label-text">折</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">加料优惠规则</div>
+                    <div class="value-row">
+                      <span class="selected-text">不参与优惠</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="hint-text">加料是否随主商品参与折扣</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">商品限制</div>
+                    <div class="value-row">
+                      <span class="selected-text">单商品</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="hint-text">单商品：仅同一商品可凑单；跨商品：活动内任意商品可凑单</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">每日参与限制</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动整体限制</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">自定义共享互斥规则</div>
+                  <div class="switch-line"><span class="switch on"></span></div>
+                  <div class="sub-panel">
+                    <div class="row-head">
+                      <div class="label">共享/互斥</div>
+                      <div class="value-row">
+                        <span class="selected-text">与全部活动/券互斥</span>
+                        <span class="chevron">›</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动优先级</div>
+                  <div class="input">数字越大优先级越高</div>
+                  <div class="choice-row">
+                    <span class="choice"><span class="check"></span>最高活动优先级</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-actions">
+              <div class="btn">取消</div>
+              <div class="btn primary">立即创建</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">购N件享折扣作废确认</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>购N件享折扣</div>
+            <div class="modal-wrap">
+              <div class="modal">
+                <div class="modal-title"><span class="warn">!</span><span>作废后该活动将提前失效，且不可恢复，确认作废吗？</span></div>
+                <div class="modal-actions">
+                  <div class="btn">取消</div>
+                  <div class="btn primary">确定作废</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">购N件享折扣操作记录</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>操作记录</div>
+            <div class="content">
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-18<br>10:22:35</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改优惠条件</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">王芳<br><span class="muted">15071239830 · APP-北葵门店A</span></div>
+                  <div class="record-time">2026-04-15<br>14:08:11</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改活动商品</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-10<br>09:15:02</div>
+                </div>
+                <div class="record-info"><span class="record-type publish">发布</span><span>发布活动</span><span class="muted">—</span></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-10<br>09:14:30</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">购N件享折扣数据查看</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>数据查看</div>
+            <div class="content">
+              <div class="data-filter">
+                <div class="select">昨天</div>
+                <div class="select">全部门店</div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric active"><div class="metric-label">活动订单</div><div class="metric-value">12</div></div>
+                <div class="metric active"><div class="metric-label">活动订单收入（元）</div><div class="metric-value">486.00</div></div>
+                <div class="metric"><div class="metric-label">活动收入（元）</div><div class="metric-value">243.00</div></div>
+                <div class="metric"><div class="metric-label">活动客单价（元）</div><div class="metric-value">40.50</div></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-y-axis">
+                  <span>100</span>
+                  <span>50</span>
+                  <span>0</span>
+                </div>
+                <div class="chart-line"></div>
+                <span class="chart-dot d1"></span>
+                <span class="chart-dot d2"></span>
+                <span class="chart-dot d3"></span>
+                <span class="chart-dot d4"></span>
+                <span class="chart-dot d5"></span>
+                <span class="chart-dot d6"></span>
+                <div class="chart-axis">
+                  <span>04-15</span>
+                  <span>04-16</span>
+                  <span>04-17</span>
+                  <span>04-18</span>
+                  <span>04-19</span>
+                  <span>04-20</span>
+                </div>
+              </div>
+              <div class="form-title">数据明细</div>
+              <div class="empty-card">暂无数据</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- ===========  订单满减（5 个页面）  ========================= -->
+      <!-- ============================================================ -->
+
+      <div class="screen-row">
+      <section>
+        <h2 class="section-title">订单满减列表</h2>
+        <div class="phone-frame">
+          <div class="phone with-bottom-cta">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>订单满减</div>
+            <div class="content">
+              <div class="search-card">
+                <div class="mobile-filter">
+                  <div class="search-compact">
+                    <div class="search-pill">请输入活动名称或ID</div>
+                    <div class="filter-button">筛选</div>
+                  </div>
+                </div>
+              </div>
+              <div class="status-tabs">
+                <span class="status-tab">全部</span>
+                <span class="status-tab active">进行中</span>
+                <span class="status-tab">未开始</span>
+                <span class="status-tab">待发布</span>
+                <span class="status-tab">已结束</span>
+                <span class="status-tab">已作废</span>
+              </div>
+              <div class="activity-list">
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">周末满减 · 全场</div>
+                      <div class="activity-id">43001</div>
+                      <div class="creator-line">创建人：<span class="creator-name">张三</span> · 总部 · 运营后台 · 2026-04-05 11:20:15</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">优惠内容</div><div class="info-value">每满 100 减 20</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">全部门店</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-05<br>至：2026-12-31</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">全部</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">90</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">新客首单立减</div>
+                      <div class="activity-id">43002</div>
+                      <div class="creator-line">创建人：<span class="creator-name">李四</span> · 总部 · 运营后台 · 2026-04-12 15:45:33</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">优惠内容</div><div class="info-value">阶梯满减 · 满100减10 / 满200减30 / 满500减100</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">全部门店</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-12<br>至：2026-06-12</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">新客专享</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">95</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+                <div class="activity-card" data-creator="store" data-mine="true">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">门店满200减50</div>
+                      <div class="activity-id">43003</div>
+                      <div class="creator-line">创建人：<span class="creator-name">王芳</span> · APP · 2026-04-20 18:12:07</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="grey-dot"></span>待发布</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">优惠内容</div><div class="info-value">每满 200 减 50</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">1家参与</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-05-01<br>至：2026-05-31</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">注册用户</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">70</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">发布</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-cta">
+              <div class="float-btn">新建活动</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">订单满减新建/编辑活动</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>新增活动</div>
+            <div class="content">
+              <div class="form-card" id="anchor-basic-full">
+                <div class="form-title">基础信息</div>
+                <div class="field-row">
+                  <div class="label required">活动名称</div>
+                  <div class="input">请输入活动名称，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label">活动备注</div>
+                  <div class="input">请输入备注，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动日期</div>
+                  <div class="input is-picker">开始日期　→　结束日期</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动周期</div>
+                  <div class="choice-row">
+                    <span class="choice active">每天</span>
+                    <span class="choice">每周</span>
+                    <span class="choice">每月</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动时段</div>
+                  <div class="choice-row">
+                    <span class="choice active">全天</span>
+                    <span class="choice">指定时间段</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">活动描述</div>
+                  <div class="input">请输入活动描述，限50字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label">活动说明</div>
+                  <div class="textarea">请输入活动说明，限3000字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动优先级</div>
+                  <div class="input">数字越大优先级越高</div>
+                  <div class="choice-row">
+                    <span class="choice"><span class="check"></span>最高活动优先级</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-setting-full">
+                <div class="form-title">活动门店/商品</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动门店</div>
+                    <div class="value-row">
+                      <span class="selected-text">指定门店参与</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与渠道</div>
+                    <div class="value-row">
+                      <span class="selected-text">微信小程序、支付宝小程序、POS&APP</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与订单业务</div>
+                    <div class="value-row">
+                      <span class="selected-text">堂食&自提</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">优惠人群</div>
+                    <div class="value-row">
+                      <span class="selected-text">全部</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-rule-full">
+                <div class="form-title">活动规则</div>
+                <div class="field-row">
+                  <div class="label required">选择参与商品</div>
+                  <div class="choice-row">
+                    <span class="choice active">所有商品</span>
+                    <span class="choice">指定商品或商品分类</span>
+                    <span class="choice">指定商品或商品分类不可用</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">优惠方式</div>
+                  <div class="choice-row">
+                    <span class="choice active">阶梯优惠</span>
+                    <span class="choice">循环优惠</span>
+                  </div>
+                  <div class="sub-panel">
+                    <div class="row-head"><div class="label">订单金额 / 优惠内容 / 操作</div></div>
+                    <div class="time-slot"><span>满 100 元</span><span>立减 20 元</span><span class="muted">删除</span></div>
+                    <div class="time-slot"><span>满 200 元</span><span>立减 50 元</span><span class="muted">删除</span></div>
+                    <div class="link-row">+ 添加优惠（还可以再添加 3 级优惠）</div>
+                    <div class="hint-text">优惠类型可选：立减 元 / 折扣 折 / 商品免单 件</div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">每日参与限制</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动整体限制</div>
+                    <div class="value-row">
+                      <span class="selected-text">不限</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">自定义共享互斥规则</div>
+                  <div class="switch-line"><span class="switch on"></span></div>
+                  <div class="sub-panel">
+                    <div class="row-head">
+                      <div class="label">共享/互斥</div>
+                      <div class="value-row">
+                        <span class="selected-text">与全部活动/券互斥</span>
+                        <span class="chevron">›</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-actions">
+              <div class="btn">取消</div>
+              <div class="btn primary">立即创建</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">订单满减作废确认</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>订单满减</div>
+            <div class="modal-wrap">
+              <div class="modal">
+                <div class="modal-title"><span class="warn">!</span><span>作废后该活动将提前失效，且不可恢复，确认作废吗？</span></div>
+                <div class="modal-actions">
+                  <div class="btn">取消</div>
+                  <div class="btn primary">确定作废</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">订单满减操作记录</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>操作记录</div>
+            <div class="content">
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-18<br>16:30:22</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改阶梯优惠</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-12<br>11:08:45</div>
+                </div>
+                <div class="record-info"><span class="record-type publish">发布</span><span>发布活动</span><span class="muted">—</span></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-12<br>11:07:55</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-05<br>09:30:00</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">订单满减数据查看</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>数据查看</div>
+            <div class="content">
+              <div class="data-filter">
+                <div class="select">昨天</div>
+                <div class="select">全部门店</div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric active"><div class="metric-label">活动订单</div><div class="metric-value">38</div></div>
+                <div class="metric active"><div class="metric-label">活动订单收入（元）</div><div class="metric-value">5,420.00</div></div>
+                <div class="metric"><div class="metric-label">活动客单价（元）</div><div class="metric-value">142.63</div></div>
+                <div class="metric"><div class="metric-label">优惠总金额（元）</div><div class="metric-value">760.00</div></div>
+                <div class="metric"><div class="metric-label">钱效</div><div class="metric-value">7.13</div></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-y-axis">
+                  <span>100</span>
+                  <span>50</span>
+                  <span>0</span>
+                </div>
+                <div class="chart-line"></div>
+                <span class="chart-dot d1"></span>
+                <span class="chart-dot d2"></span>
+                <span class="chart-dot d3"></span>
+                <span class="chart-dot d4"></span>
+                <span class="chart-dot d5"></span>
+                <span class="chart-dot d6"></span>
+                <div class="chart-axis">
+                  <span>04-15</span>
+                  <span>04-16</span>
+                  <span>04-17</span>
+                  <span>04-18</span>
+                  <span>04-19</span>
+                  <span>04-20</span>
+                </div>
+              </div>
+              <div class="form-title">数据明细</div>
+              <div class="empty-card">暂无数据</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- ===========  超值加购（5 个页面）  ========================= -->
+      <!-- ============================================================ -->
+
+      <div class="screen-row">
+      <section>
+        <h2 class="section-title">超值加购列表</h2>
+        <div class="phone-frame">
+          <div class="phone with-bottom-cta">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>超值加购</div>
+            <div class="content">
+              <div class="search-card">
+                <div class="mobile-filter">
+                  <div class="search-compact">
+                    <div class="search-pill">请输入活动名称或ID</div>
+                    <div class="filter-button">筛选</div>
+                  </div>
+                </div>
+              </div>
+              <div class="status-tabs">
+                <span class="status-tab">全部</span>
+                <span class="status-tab active">进行中</span>
+                <span class="status-tab">未开始</span>
+                <span class="status-tab">待发布</span>
+                <span class="status-tab">已结束</span>
+                <span class="status-tab">已作废</span>
+              </div>
+              <div class="activity-list">
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">饮品+小食套餐加购</div>
+                      <div class="activity-id">44001</div>
+                      <div class="creator-line">创建人：<span class="creator-name">张三</span> · 总部 · 运营后台 · 2026-04-08 13:25:40</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">3件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">优惠门槛</div><div class="info-value">购买指定 3 件商品</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-08<br>至：2026-07-08</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">全部门店</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">全部</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">60</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">工作日午餐加购券</div>
+                      <div class="activity-id">44002</div>
+                      <div class="creator-line">创建人：<span class="creator-name">李四</span> · 总部 · 运营后台 · 2026-04-15 14:55:22</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">活动商品</div><div class="info-value red">2件活动商品</div></div>
+                    <div class="info-item"><div class="info-label">优惠门槛</div><div class="info-value">满 50 元</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-15<br>至：2026-12-31</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">2家参与</div></div>
+                    <div class="info-item"><div class="info-label">优惠人群</div><div class="info-value">注册用户</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">75</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-cta">
+              <div class="float-btn">新建活动</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">超值加购新建/编辑活动</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>新增活动</div>
+            <div class="content">
+              <div class="form-card" id="anchor-basic-addon">
+                <div class="form-title">基础信息</div>
+                <div class="field-row">
+                  <div class="label required">活动名称</div>
+                  <div class="input">请输入活动名称，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动日期</div>
+                  <div class="input is-picker">开始日期　→　结束日期</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动周期</div>
+                  <div class="choice-row">
+                    <span class="choice active">每天</span>
+                    <span class="choice">每周</span>
+                    <span class="choice">每月</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动时段</div>
+                  <div class="choice-row">
+                    <span class="choice active">全天</span>
+                    <span class="choice">指定时间段</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-rule-addon">
+                <div class="form-title">活动规则</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动门店</div>
+                    <div class="value-row">
+                      <span class="selected-text">指定门店参与</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与渠道</div>
+                    <div class="value-row">
+                      <span class="selected-text">微信小程序、支付宝小程序、POS</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">参与订单业务</div>
+                    <div class="value-row">
+                      <span class="selected-text">堂食&自提</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">优惠人群</div>
+                    <div class="value-row">
+                      <span class="selected-text">全部</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">加购条件 - 金额门槛</div>
+                  <div class="switch-line"><span class="switch on"></span></div>
+                  <div class="sub-panel">
+                    <div class="inline-input">
+                      <span class="label-text">消费满</span>
+                      <div class="input">50</div>
+                      <span class="label-text">元</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">加购条件 - 购指定商品才可加购</div>
+                  <div class="switch-line"><span class="switch on"></span></div>
+                  <div class="sub-panel">
+                    <div class="choice-row">
+                      <span class="choice active">指定商品</span>
+                      <span class="choice">指定分类参与</span>
+                      <span class="choice">指定分类不参与</span>
+                    </div>
+                    <div class="link-row">+ 选择商品　|　+ 选择分类</div>
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>手工小鲜肉馄饨</span><span>18.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502055 · 分类：主食</div>
+                    </div>
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>大块番茄茄汁面</span><span>22.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502056 · 分类：主食</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">特惠加购商品</div>
+                  <div class="input red">+ 选择商品</div>
+                  <div class="sub-panel">
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>1. 秘制凉皮</span><span>标准售价 16.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502057</div>
+                      <div class="benefit-row">
+                        <div class="select">特价</div>
+                        <div class="input">8 元</div>
+                      </div>
+                      <div class="benefit-row">
+                        <div class="select">加购限制</div>
+                        <div class="input">每单限购 1 份</div>
+                      </div>
+                      <div class="product-card-actions">删除</div>
+                    </div>
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>2. 招牌酸梅汤</span><span>标准售价 12.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502058</div>
+                      <div class="benefit-row">
+                        <div class="select">特价</div>
+                        <div class="input">6 元</div>
+                      </div>
+                      <div class="benefit-row">
+                        <div class="select">加购限制</div>
+                        <div class="input">不限</div>
+                      </div>
+                      <div class="product-card-actions">删除</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label">自定义共享互斥规则</div>
+                  <div class="switch-line"><span class="switch on"></span></div>
+                  <div class="sub-panel">
+                    <div class="row-head">
+                      <div class="label">共享/互斥</div>
+                      <div class="value-row">
+                        <span class="selected-text">与全部活动/券互斥</span>
+                        <span class="chevron">›</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">活动优先级</div>
+                  <div class="input">数字越大优先级越高</div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-actions">
+              <div class="btn">取消</div>
+              <div class="btn primary">提交</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">超值加购作废确认</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>超值加购</div>
+            <div class="modal-wrap">
+              <div class="modal">
+                <div class="modal-title"><span class="warn">!</span><span>作废后该活动将提前失效，且不可恢复，确认作废吗？</span></div>
+                <div class="modal-actions">
+                  <div class="btn">取消</div>
+                  <div class="btn primary">确定作废</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">超值加购操作记录</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>操作记录</div>
+            <div class="content">
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-18<br>15:42:08</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改加购商品</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-15<br>10:11:22</div>
+                </div>
+                <div class="record-info"><span class="record-type publish">发布</span><span>发布活动</span><span class="muted">—</span></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-15<br>10:08:33</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-08<br>14:20:00</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">超值加购数据查看</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>数据查看</div>
+            <div class="content">
+              <div class="data-filter">
+                <div class="select">昨天</div>
+                <div class="select">全部门店</div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric active"><div class="metric-label">活动订单</div><div class="metric-value">26</div></div>
+                <div class="metric active"><div class="metric-label">活动订单收入（元）</div><div class="metric-value">2,108.00</div></div>
+                <div class="metric"><div class="metric-label">活动收入（元）</div><div class="metric-value">312.00</div></div>
+                <div class="metric"><div class="metric-label">活动客单价（元）</div><div class="metric-value">81.08</div></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-y-axis">
+                  <span>100</span>
+                  <span>50</span>
+                  <span>0</span>
+                </div>
+                <div class="chart-line"></div>
+                <span class="chart-dot d1"></span>
+                <span class="chart-dot d2"></span>
+                <span class="chart-dot d3"></span>
+                <span class="chart-dot d4"></span>
+                <span class="chart-dot d5"></span>
+                <span class="chart-dot d6"></span>
+                <div class="chart-axis">
+                  <span>04-15</span>
+                  <span>04-16</span>
+                  <span>04-17</span>
+                  <span>04-18</span>
+                  <span>04-19</span>
+                  <span>04-20</span>
+                </div>
+              </div>
+              <div class="form-title">数据明细</div>
+              <div class="empty-card">暂无数据</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- ===========  商品推荐（7 个页面）  ========================= -->
+      <!-- ============================================================ -->
+
+      <div class="screen-row">
+      <section>
+        <h2 class="section-title">商品推荐列表</h2>
+        <div class="phone-frame">
+          <div class="phone with-bottom-cta">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>商品推荐</div>
+            <div class="content">
+              <div class="search-card">
+                <div class="mobile-filter">
+                  <div class="search-compact">
+                    <div class="search-pill">请输入活动名称或ID</div>
+                    <div class="filter-button">筛选</div>
+                  </div>
+                </div>
+              </div>
+              <div class="status-tabs">
+                <span class="status-tab">全部</span>
+                <span class="status-tab active">进行中</span>
+                <span class="status-tab">未开始</span>
+                <span class="status-tab">待发布</span>
+                <span class="status-tab">已结束</span>
+                <span class="status-tab">已作废</span>
+              </div>
+              <div class="activity-list">
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">首页智能推荐位</div>
+                      <div class="activity-id">45001</div>
+                      <div class="creator-line">创建人：<span class="creator-name">张三</span> · 运营后台 · 2026-04-01 09:08:14</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">模式</div><div class="info-value red">多点位智能推荐</div></div>
+                    <div class="info-item"><div class="info-label">推荐商品</div><div class="info-value">3件</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-01<br>至：不限期</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">全部门店</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">100</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+                <div class="activity-card" data-creator="hq" data-mine="false">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">招牌菜详情页搭售</div>
+                      <div class="activity-id">45002</div>
+                      <div class="creator-line">创建人：<span class="creator-name">李四</span> · 运营后台 · 2026-04-10 16:30:48</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="green-dot"></span>进行中</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">模式</div><div class="info-value red">详情页搭售推荐</div></div>
+                    <div class="info-item"><div class="info-label">推荐商品组</div><div class="info-value">5组</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-04-10<br>至：2026-12-31</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">全部门店</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">80</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">作废</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+                <div class="activity-card" data-creator="store" data-mine="true">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">新品详情搭售</div>
+                      <div class="activity-id">45003</div>
+                      <div class="creator-line">创建人：<span class="creator-name">王芳</span> · APP · 2026-04-20 11:25:33</div>
+                    </div>
+                    <div class="status"><span class="tag-pill tag-me">我创建</span><span class="tag-pill tag-store-built">门店建</span><span class="grey-dot"></span>待发布</div>
+                  </div>
+                  <div class="info-grid">
+                    <div class="info-item"><div class="info-label">模式</div><div class="info-value red">详情页搭售推荐</div></div>
+                    <div class="info-item"><div class="info-label">推荐商品组</div><div class="info-value">2组</div></div>
+                    <div class="info-item"><div class="info-label">活动时间</div><div class="info-value">起：2026-05-01<br>至：2026-06-30</div></div>
+                    <div class="info-item"><div class="info-label">参与门店</div><div class="info-value">1家参与</div></div>
+                    <div class="info-item"><div class="info-label">活动优先级</div><div class="info-value">65</div></div>
+                  </div>
+                  <div class="action-row">
+                    <span class="action primary-action">编辑</span>
+                    <span class="action">发布</span>
+                    <span class="action">数据</span>
+                    <span class="action more-action">···</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-cta">
+              <div class="float-btn">新建活动</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">商品推荐 - 模式选择</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>新建活动</div>
+            <div class="content">
+              <div class="form-card">
+                <div class="form-title">请选择推荐模式</div>
+                <div class="activity-card">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">多点位智能推荐</div>
+                      <div class="creator-line">支持点单页 / 详情页 / 购物车结算页 3 个推荐位独立配置</div>
+                    </div>
+                    <span class="chevron">›</span>
+                  </div>
+                </div>
+                <div class="activity-card">
+                  <div class="activity-head">
+                    <div>
+                      <div class="activity-title">详情页搭售推荐</div>
+                      <div class="creator-line">按商品组在详情页展示搭售推荐</div>
+                    </div>
+                    <span class="chevron">›</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">商品推荐 - 多点位智能推荐 编辑</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>多点位智能推荐</div>
+            <div class="content">
+              <div class="form-card" id="anchor-basic-rec1">
+                <div class="form-title">基础信息</div>
+                <div class="field-row">
+                  <div class="label required">活动名称</div>
+                  <div class="input">请输入活动名称，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动日期</div>
+                    <div class="value-row">
+                      <span class="selected-text">2026-04-01 起 不限期</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动优先级</div>
+                    <div class="value-row">
+                      <span class="selected-text">最高优先级</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="hint-text">门店有对应多个推荐加购的商品活动时，根据活动优先级取对应的商品推荐活动</div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-rule-rec1">
+                <div class="form-title">活动规则</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动门店</div>
+                    <div class="value-row">
+                      <span class="selected-text">全部门店</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">推荐商品</div>
+                  <div class="input red">+ 添加商品</div>
+                  <div class="sub-panel">
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>手工小鲜肉馄饨</span><span>18.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502055</div>
+                      <div class="choice-row">
+                        <span class="choice active"><span class="check"></span>点单页</span>
+                        <span class="choice active"><span class="check"></span>商品详情页</span>
+                        <span class="choice active"><span class="check"></span>购物车结算页</span>
+                      </div>
+                      <div class="product-card-actions">移除 ｜ 设置菜品 ｜ 置顶</div>
+                    </div>
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>大块番茄茄汁面</span><span>22.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502056</div>
+                      <div class="choice-row">
+                        <span class="choice active"><span class="check"></span>点单页</span>
+                        <span class="choice"><span class="check"></span>商品详情页</span>
+                        <span class="choice active"><span class="check"></span>购物车结算页</span>
+                      </div>
+                      <div class="product-card-actions">移除 ｜ 设置菜品 ｜ 置顶</div>
+                    </div>
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>秘制凉皮</span><span>16.00 元</span></div>
+                      <div class="product-benefit-meta">编号：502057</div>
+                      <div class="choice-row">
+                        <span class="choice"><span class="check"></span>点单页</span>
+                        <span class="choice active"><span class="check"></span>商品详情页</span>
+                        <span class="choice active"><span class="check"></span>购物车结算页</span>
+                      </div>
+                      <div class="product-card-actions">移除 ｜ 设置菜品 ｜ 置顶</div>
+                    </div>
+                    <div class="batch-actions">
+                      <div class="batch-btn active">批量编辑推荐位</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-style-rec1">
+                <div class="form-title">样式设置</div>
+                <div class="field-row">
+                  <div class="label required">点单页推荐样式</div>
+                  <div class="choice-row">
+                    <span class="choice active">默认样式</span>
+                    <span class="choice">自定义样式</span>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">商品详情页推荐样式</div>
+                  <div class="choice-row">
+                    <span class="choice">默认样式</span>
+                    <span class="choice active">自定义样式</span>
+                  </div>
+                  <div class="sub-panel">
+                    <div class="field-row">
+                      <div class="label">标题</div>
+                      <div class="inline-input">
+                        <div class="input">猜你还想要</div>
+                        <div class="input is-picker"><span style="display:inline-block;width:14px;height:14px;background:#ff4d4f;border-radius:2px;vertical-align:middle;"></span> 颜色</div>
+                      </div>
+                    </div>
+                    <div class="field-row">
+                      <div class="label">描述</div>
+                      <div class="inline-input">
+                        <div class="input">店长精选搭配</div>
+                        <div class="input is-picker"><span style="display:inline-block;width:14px;height:14px;background:#666;border-radius:2px;vertical-align:middle;"></span> 颜色</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">购物车结算推荐样式</div>
+                  <div class="choice-row">
+                    <span class="choice active">默认样式</span>
+                    <span class="choice">自定义样式</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-actions">
+              <div class="btn">取消</div>
+              <div class="btn primary">立即创建</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">商品推荐 - 详情页搭售推荐 编辑</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>详情页搭售推荐</div>
+            <div class="content">
+              <div class="form-card" id="anchor-basic-rec2">
+                <div class="form-title">基础信息</div>
+                <div class="field-row">
+                  <div class="label required">活动名称</div>
+                  <div class="input">请输入活动名称，限20个字以内</div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动日期</div>
+                    <div class="value-row">
+                      <span class="selected-text">2026-04-10 至 2026-12-31</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动优先级</div>
+                    <div class="value-row">
+                      <span class="selected-text">数字越大优先级越高</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                  <div class="hint-text">门店有对应多个推荐加购的商品活动时，根据活动优先级取对应的商品推荐活动</div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-rule-rec2">
+                <div class="form-title">活动规则</div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">活动门店</div>
+                    <div class="value-row">
+                      <span class="selected-text">全部门店</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="row-head">
+                    <div class="label required">适用商品</div>
+                    <div class="value-row">
+                      <span class="selected-text">所有商品</span>
+                      <span class="chevron">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">推荐商品组</div>
+                  <div class="sub-panel">
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>分组 1：主食推荐</span><span class="muted">删除分组</span></div>
+                      <div class="input">分组名称</div>
+                      <div class="product-benefit-meta">商品列表</div>
+                      <div class="time-slot"><span>手工小鲜肉馄饨</span><span>编号 502055 · 主食</span><span>18.00 元</span></div>
+                      <div class="time-slot"><span>大块番茄茄汁面</span><span>编号 502056 · 主食</span><span>22.00 元</span></div>
+                      <div class="link-row">+ 添加商品</div>
+                    </div>
+                    <div class="product-benefit-card">
+                      <div class="product-benefit-title"><span>分组 2：饮品搭配</span><span class="muted">删除分组</span></div>
+                      <div class="input">分组名称</div>
+                      <div class="product-benefit-meta">商品列表</div>
+                      <div class="time-slot"><span>招牌酸梅汤</span><span>编号 502058 · 饮品</span><span>12.00 元</span></div>
+                      <div class="time-slot"><span>柠檬冰红茶</span><span>编号 502059 · 饮品</span><span>10.00 元</span></div>
+                      <div class="link-row">+ 添加商品</div>
+                    </div>
+                    <div class="link-row">+ 添加自定义分组（最多 50 个）</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card" id="anchor-style-rec2">
+                <div class="form-title">样式设置</div>
+                <div class="field-row">
+                  <div class="label">适用商品跳转详情</div>
+                  <div class="switch-line"><span class="switch on"></span></div>
+                  <div class="hint-text">开启后，点击推荐商品将跳转到对应商品详情页</div>
+                </div>
+                <div class="field-row">
+                  <div class="label required">详情页推荐样式</div>
+                  <div class="choice-row">
+                    <span class="choice">默认样式</span>
+                    <span class="choice active">自定义样式</span>
+                  </div>
+                  <div class="sub-panel">
+                    <div class="field-row">
+                      <div class="label">背景头图</div>
+                      <div class="input">点击上传图片</div>
+                      <div class="hint-text">建议尺寸 750px 宽，PNG/JPG 格式</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-actions">
+              <div class="btn">取消</div>
+              <div class="btn primary">立即创建</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">商品推荐作废确认</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>商品推荐</div>
+            <div class="modal-wrap">
+              <div class="modal">
+                <div class="modal-title"><span class="warn">!</span><span>作废后该活动将提前失效，且不可恢复，确认作废吗？</span></div>
+                <div class="modal-actions">
+                  <div class="btn">取消</div>
+                  <div class="btn primary">确定作废</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">商品推荐操作记录</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>操作记录</div>
+            <div class="content">
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-19<br>11:25:18</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改推荐商品：手工小鲜肉馄饨、大块番茄茄汁面</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">李四<br><span class="muted">13800138001 · 运营后台</span></div>
+                  <div class="record-time">2026-04-10<br>14:08:55</div>
+                </div>
+                <div class="record-info"><span class="record-type edit">编辑</span><span>修改样式设置：调整推荐位字体颜色</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-01<br>09:30:00</div>
+                </div>
+                <div class="record-info"><span class="record-type publish">发布</span><span>发布活动</span><span class="muted">—</span></div>
+              </div>
+              <div class="record-card">
+                <div class="record-top">
+                  <div class="record-user">张三<br><span class="muted">13501234567 · 运营后台</span></div>
+                  <div class="record-time">2026-04-01<br>09:28:42</div>
+                </div>
+                <div class="record-info"><span class="record-type add">新增</span><span>新建活动</span><button class="record-link">查看配置 ›</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">商品推荐数据查看</h2>
+        <div class="phone-frame">
+          <div class="phone">
+            <div class="statusbar"><span>15:15</span><span>4月21日 周二</span><span>100%</span></div>
+            <div class="topbar"><span class="back">‹</span>数据查看</div>
+            <div class="content">
+              <div class="data-filter">
+                <div class="select">昨天</div>
+                <div class="select">全部门店</div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric active"><div class="metric-label">推荐成功订单</div><div class="metric-value">158</div></div>
+                <div class="metric active"><div class="metric-label">推荐订单占比</div><div class="metric-value">42.6%</div></div>
+                <div class="metric"><div class="metric-label">加购商品数</div><div class="metric-value">236</div></div>
+                <div class="metric"><div class="metric-label">推荐命中率</div><div class="metric-value">35.8%</div></div>
+                <div class="metric"><div class="metric-label">订单客单价（元）</div><div class="metric-value">68.42</div></div>
+                <div class="metric"><div class="metric-label">增收金额（元）</div><div class="metric-value">3,256.00</div></div>
+                <div class="metric"><div class="metric-label">AC 提升金额（元）</div><div class="metric-value">12.85</div></div>
+                <div class="metric"><div class="metric-label">AC 提升比例</div><div class="metric-value">23.1%</div></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-y-axis">
+                  <span>100</span>
+                  <span>50</span>
+                  <span>0</span>
+                </div>
+                <div class="chart-line"></div>
+                <span class="chart-dot d1"></span>
+                <span class="chart-dot d2"></span>
+                <span class="chart-dot d3"></span>
+                <span class="chart-dot d4"></span>
+                <span class="chart-dot d5"></span>
+                <span class="chart-dot d6"></span>
+                <div class="chart-axis">
+                  <span>04-15</span>
+                  <span>04-16</span>
+                  <span>04-17</span>
+                  <span>04-18</span>
+                  <span>04-19</span>
+                  <span>04-20</span>
+                </div>
+              </div>
+              <div class="form-title">数据明细</div>
+              <div class="empty-card">暂无数据</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 商品选择浮层 - 默认 SKU 维度（含规格），适用：限时折扣 / 购N件 / 订单满减 / 超值加购的特惠加购 -->
+  <!-- 切换 SPU 维度：data-product-picker-mode="spu" -->
+  <div class="product-picker hidden" data-product-picker data-product-picker-mode="sku">
+    <div class="picker-sheet">
+      <div class="picker-head">
+        <span data-picker-title>添加商品（SKU）</span>
+        <span class="picker-close" data-close-product-picker>×</span>
+      </div>
+      <div class="picker-body">
+        <div class="picker-filter">
+          <div class="select">归属：总部</div>
+          <div class="select">全部分类</div>
+          <div class="select sku-only">标准商品</div>
+          <div class="select sku-only">全部售卖</div>
+          <div class="search-pill">请输入商品名称</div>
+        </div>
+        <div class="product-option">
+          <span class="check"></span>
+          <div class="product-cover">待上传</div>
+          <div class="product-info">
+            <div class="product-name">手工小鲜肉馄饨</div>
+            <div class="product-meta sku-meta">编号 502055 · TKK菜品 · 单品 · - · 12.00 元</div>
+            <div class="product-meta spu-meta">SPUID 502055 · 967081 · TKK菜品 · 12.00 元</div>
+          </div>
+        </div>
+        <div class="product-option">
+          <span class="check"></span>
+          <div class="product-cover">待上传</div>
+          <div class="product-info">
+            <div class="product-name">大块番茄茄汁面</div>
+            <div class="product-meta sku-meta">编号 502056 · TKK菜品 · 单品 · - · 12.00 元</div>
+            <div class="product-meta spu-meta">SPUID 502056 · 967083 · TKK菜品 · 12.00 元</div>
+          </div>
+        </div>
+        <div class="product-option">
+          <span class="check"></span>
+          <div class="product-cover">待上传</div>
+          <div class="product-info">
+            <div class="product-name">秘制凉皮</div>
+            <div class="product-meta sku-meta">编号 502057 · TKK菜品 · 单品 · - · 10.00 元</div>
+            <div class="product-meta spu-meta">SPUID 502057 · 967085 · TKK菜品 · 10.00 元</div>
+          </div>
+        </div>
+        <div class="product-option">
+          <span class="check"></span>
+          <div class="product-cover">待上传</div>
+          <div class="product-info">
+            <div class="product-name">重庆酸辣粉</div>
+            <div class="product-meta sku-meta">编号 502058 · TKK菜品 · 单品 · - · 12.00 元</div>
+            <div class="product-meta spu-meta">SPUID 502058 · 967087 · TKK菜品 · 12.00 元</div>
+          </div>
+        </div>
+        <div class="product-option">
+          <span class="check"></span>
+          <div class="product-cover">待上传</div>
+          <div class="product-info">
+            <div class="product-name">三合一油泼面</div>
+            <div class="product-meta sku-meta">编号 502059 · TKK菜品 · 单品 · - · 12.00 元</div>
+            <div class="product-meta spu-meta">SPUID 502059 · 967089 · TKK菜品 · 12.00 元</div>
+          </div>
+        </div>
+      </div>
+      <div class="picker-footer">
+        <div class="selected-count">已选 0 个商品</div>
+        <div class="btn" data-close-product-picker>取消</div>
+        <div class="btn primary" data-close-product-picker>确定</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 门店选择浮层 - 参考运营后台门店选择，含组织树 + 标签筛选 + 已选 strip -->
+  <div class="store-picker hidden" data-store-picker>
+    <div class="picker-sheet">
+      <div class="picker-head">
+        <span>门店选择</span>
+        <span class="picker-close" data-close-store-picker>×</span>
+      </div>
+      <div class="picker-body">
+        <div class="picker-filter">
+          <div class="select">全部组织</div>
+          <div class="search-pill">请输入门店名称或ID</div>
+          <div class="select">门店标签</div>
+        </div>
+        <div class="store-selected-strip" data-store-selected-strip>
+          <span data-strip-label>已选 <b>2</b> 家门店</span>
+          <span class="clear-link" data-clear-stores>全部删除</span>
+        </div>
+        <div class="store-tree-list">
+          <div class="tree-node level-0 expanded">
+            <span class="tree-arrow">▾</span><span class="check"></span><span class="tree-label">全部门店</span>
+          </div>
+          <div class="tree-node level-1 expanded">
+            <span class="tree-arrow">▾</span><span class="check"></span><span class="tree-label">上海</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check active"></span><span class="tree-label">食亨测试门店297（sh297）</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check active"></span><span class="tree-label">食亨测试门店298（sh298）</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check"></span><span class="tree-label">食亨测试门店299（sh299）</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check"></span><span class="tree-label">食亨测试门店300（sh300）</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check"></span><span class="tree-label">食亨测试门店301（sh301）</span>
+          </div>
+          <div class="tree-node level-1 expanded">
+            <span class="tree-arrow">▾</span><span class="check"></span><span class="tree-label">北京</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check"></span><span class="tree-label">北葵门店A（bk001）</span>
+          </div>
+          <div class="tree-node level-2 leaf">
+            <span class="check"></span><span class="tree-label">北葵门店B（bk002）</span>
+          </div>
+        </div>
+      </div>
+      <div class="picker-footer">
+        <div class="selected-count selected-store-count">已选 2 家门店</div>
+        <div class="btn" data-close-store-picker>取消</div>
+        <div class="btn primary" data-confirm-store-picker>确定</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="perm-toast" data-perm-toast>您当前无该操作权限，请联系管理员开通</div>
+
+  <div class="action-sheet hidden" data-action-sheet>
+    <div style="width:min(390px,100%);">
+      <div class="action-sheet-card">
+        <div class="action-sheet-row" data-sheet-action="copy"><span>复制方案</span><span class="chevron">›</span></div>
+        <div class="action-sheet-row" data-sheet-action="record"><span>操作记录</span><span class="chevron">›</span></div>
+      </div>
+      <div class="action-sheet-cancel" data-close-action-sheet>取消</div>
+    </div>
+  </div>
+
+  <div class="record-detail hidden" data-record-detail>
+    <div class="record-sheet">
+      <div class="picker-head">
+        <span>操作后配置</span>
+        <span class="picker-close" data-close-record-detail>×</span>
+      </div>
+      <div class="record-detail-body">
+        <div class="change-card">
+          <div class="change-title">限时折扣-权益卡</div>
+          <div class="change-row"><span>操作人</span><span>斩鸿凯 15901867879</span></div>
+          <div class="change-row"><span>操作时间</span><span>2026-04-08 13:41:18</span></div>
+        </div>
+        <div class="change-card">
+          <div class="change-title">活动配置快照</div>
+          <div class="change-row"><span>活动状态</span><span>进行中</span></div>
+          <div class="change-row"><span>活动时间</span><span>2026-04-01 至 2026-05-26</span></div>
+          <div class="change-row"><span>活动门店</span><span>指定门店/组织参与：北葵门店A、北葵门店B</span></div>
+          <div class="change-row"><span>活动商品</span><span>3件活动商品</span></div>
+          <div class="change-row"><span>优惠设置</span><span>折扣/5折</span></div>
+          <div class="change-row"><span>参与渠道</span><span>微信小程序、支付宝小程序、POS&APP</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const hide = (node, shouldHide) => node && node.classList.toggle('hidden', shouldHide);
+
+    const filterToggle = document.querySelector('[data-toggle-filters]');
+    filterToggle.addEventListener('click', () => {
+      const shouldOpen = filterToggle.textContent === '筛选';
+      document.querySelectorAll('[data-more-filters]').forEach((panel) => hide(panel, !shouldOpen));
+      filterToggle.classList.toggle('active', shouldOpen);
+      filterToggle.textContent = shouldOpen ? '收起' : '筛选';
+    });
+
+    document.querySelectorAll('[data-choice-group="period"] [data-period]').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('[data-choice-group="period"] [data-period]').forEach((choice) => choice.classList.remove('active'));
+        item.classList.add('active');
+        const value = item.dataset.period;
+        document.querySelectorAll('[data-period-panel]').forEach((panel) => {
+          hide(panel, panel.dataset.periodPanel !== value);
+        });
+      });
+    });
+
+    document.querySelectorAll('[data-choice-group="time"] [data-time]').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('[data-choice-group="time"] [data-time]').forEach((choice) => choice.classList.remove('active'));
+        item.classList.add('active');
+        hide(document.querySelector('[data-time-panel="range"]'), item.dataset.time !== 'range');
+      });
+    });
+
+    document.querySelectorAll('[data-choice-group="store"] [data-store]').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('[data-choice-group="store"] [data-store]').forEach((choice) => choice.classList.remove('active'));
+        item.classList.add('active');
+        hide(document.querySelector('[data-store-panel]'), item.dataset.store === 'all');
+      });
+    });
+
+    document.querySelectorAll('[data-choice-group="benefit"] [data-benefit]').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('[data-choice-group="benefit"] [data-benefit]').forEach((choice) => choice.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelector('[data-benefit-unit]').textContent = item.dataset.benefit;
+      });
+    });
+
+    document.querySelectorAll('[data-choice-group="audience"] [data-audience]').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('[data-choice-group="audience"] [data-audience]').forEach((choice) => choice.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('[data-audience-panel]').forEach((panel) => {
+          hide(panel, panel.dataset.audiencePanel !== item.dataset.audience);
+        });
+      });
+    });
+
+    document.querySelectorAll('[data-switch-target]').forEach((item) => {
+      item.addEventListener('click', () => {
+        const isOn = item.classList.toggle('on');
+        const panel = document.querySelector(`[data-panel="${item.dataset.switchTarget}"]`);
+        const invert = item.dataset.invert === 'true';
+        hide(panel, invert ? isOn : !isOn);
+      });
+    });
+
+    const productBenefitSwitch = document.querySelector('[data-product-benefit-switch]');
+    productBenefitSwitch.addEventListener('click', () => {
+      const isOn = productBenefitSwitch.classList.toggle('on');
+      hide(document.querySelector('[data-general-benefit]'), isOn);
+      hide(document.querySelector('[data-product-benefit-panel]'), !isOn);
+      hide(document.querySelector('[data-general-stock]'), isOn);
+    });
+
+    document.querySelectorAll('.store-tool').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.store-tool').forEach((tool) => tool.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.day-cell, .week-grid .choice').forEach((item) => {
+      item.addEventListener('click', () => item.classList.toggle('active'));
+    });
+
+    document.querySelectorAll('.audience-panel .choice').forEach((item) => {
+      item.addEventListener('click', () => item.classList.toggle('active'));
+    });
+
+    const productPicker = document.querySelector('[data-product-picker]');
+    document.querySelector('[data-open-product-picker]').addEventListener('click', () => {
+      productPicker.classList.remove('hidden');
+    });
+    document.querySelectorAll('[data-close-product-picker]').forEach((item) => {
+      item.addEventListener('click', () => productPicker.classList.add('hidden'));
+    });
+
+    const updateProductCount = () => {
+      const count = document.querySelectorAll('.product-option .check.active').length;
+      document.querySelector('.selected-count').textContent = `已选 ${count} 个商品`;
+    };
+
+    document.querySelectorAll('.product-option').forEach((item) => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('selected');
+        item.querySelector('.check').classList.toggle('active');
+        updateProductCount();
+      });
+    });
+    updateProductCount();
+
+    const storePicker = document.querySelector('[data-store-picker]');
+    document.querySelectorAll('[data-open-store-picker]').forEach((item) => {
+      item.addEventListener('click', () => storePicker.classList.remove('hidden'));
+    });
+    document.querySelectorAll('[data-close-store-picker]').forEach((item) => {
+      item.addEventListener('click', () => storePicker.classList.add('hidden'));
+    });
+
+    const getSelectedStores = () => Array.from(document.querySelectorAll('.store-row .check.active'))
+      .map((item) => item.nextElementSibling.textContent.trim());
+
+    const updateStoreCount = () => {
+      const count = getSelectedStores().length;
+      document.querySelector('.selected-store-count').textContent = `已选 ${count} 个门店`;
+    };
+
+    document.querySelectorAll('.store-row').forEach((item) => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('selected');
+        item.querySelector('.check').classList.toggle('active');
+        updateStoreCount();
+      });
+    });
+    updateStoreCount();
+
+    document.querySelector('[data-confirm-store-picker]').addEventListener('click', () => {
+      const stores = getSelectedStores();
+      const summary = stores.length ? stores.join('、') : '全部门店';
+      document.querySelector('[data-store-filter-text]').textContent = summary;
+      document.querySelector('[data-store-title]').textContent = stores.length ? `已选择 ${stores.length} 个门店` : '请选择门店/组织/标签';
+      document.querySelector('[data-store-desc]').textContent = stores.length ? summary : '支持按门店、组织、标签选择';
+      const tags = document.querySelector('[data-store-tags]');
+      tags.innerHTML = stores.map((store) => `<span class="mini-tag">${store} ×</span>`).join('');
+      hide(tags, !stores.length);
+      storePicker.classList.add('hidden');
+    });
+
+    const recordDetail = document.querySelector('[data-record-detail]');
+    document.querySelectorAll('[data-open-record-detail]').forEach((item) => {
+      item.addEventListener('click', () => recordDetail.classList.remove('hidden'));
+    });
+    document.querySelectorAll('[data-close-record-detail]').forEach((item) => {
+      item.addEventListener('click', () => recordDetail.classList.add('hidden'));
+    });
+
+    /* ===== 视角切换（方案B：基于角色 × 管理门店范围 × 操作权限统一规则） ===== */
+    const PERSPECTIVE_META = {
+      'hq': '总部视角｜管辖全部门店；活动适用门店 ⊆ 管辖范围 → 全功能可维护；部分管辖 → 仅可查看',
+      'store-multi': '门店视角（多店账号，管辖 A、B）｜活动适用门店 ⊆ 管辖范围 → 可改；部分管辖 → 仅可查看',
+      'store-single': '门店视角（单店账号，仅管辖 A）｜活动适用门店为本店 → 可改；部分管辖 → 仅可查看',
+    };
+    const perspectiveMeta = document.querySelector('[data-perspective-meta]');
+    /* 视角切换时联动重置 data-mine：hq 视角下所有 mine=false；门店视角下 store creator 的 mine=true */
+    const syncMineByPerspective = (perspective) => {
+      document.querySelectorAll('.activity-card').forEach((card) => {
+        if (perspective === 'hq') {
+          card.dataset.mine = 'false';
+        } else {
+          card.dataset.mine = card.dataset.creator === 'store' ? 'true' : 'false';
+        }
+      });
+    };
+    document.body.dataset.perspective = 'hq';
+    syncMineByPerspective('hq');
+    document.querySelectorAll('[data-perspective-options] [data-perspective]').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('[data-perspective-options] [data-perspective]').forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        const value = chip.dataset.perspective;
+        document.body.dataset.perspective = value;
+        syncMineByPerspective(value);
+        if (perspectiveMeta) perspectiveMeta.textContent = PERSPECTIVE_META[value] || '';
+      });
+    });
+
+    /* ===== 列表筛选（方案A 仅保留"仅看自己创建"开关） ===== */
+    const activityList = document.querySelector('[data-activity-list]');
+    const onlyMineSwitch = document.querySelector('[data-list-toggle="mine"]');
+    const applyActivityFilters = () => {
+      if (!activityList) return;
+      const onlyMine = onlyMineSwitch ? onlyMineSwitch.classList.contains('on') : false;
+      activityList.querySelectorAll('.activity-card').forEach((card) => {
+        const matchMine = !onlyMine || card.dataset.mine === 'true';
+        card.hidden = !matchMine;
+      });
+    };
+    if (onlyMineSwitch) {
+      onlyMineSwitch.addEventListener('click', () => {
+        onlyMineSwitch.classList.toggle('on');
+        applyActivityFilters();
+      });
+    }
+    applyActivityFilters();
+
+    /* ===== Toast 无权限提示 ===== */
+    const permToast = document.querySelector('[data-perm-toast]');
+    let toastTimer = null;
+    const showToast = (msg) => {
+      if (!permToast) return;
+      permToast.textContent = msg;
+      permToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => permToast.classList.remove('show'), 2200);
+    };
+
+    /* ===== 卡片属性 → 操作 allow 判定 + 拦截文案 =====
+       方案B 规则：基于「管理门店范围 × 活动适用门店」统一判定
+       - 数据 / 操作记录：始终可点（演示假设有权限）
+       - 全管辖（适用门店 ⊆ 管辖范围）→ 可改
+       - 部分管辖 → 拦截 A
+       - 不再依赖身份维度的"自建限制"——管辖范围管够了 */
+    const evalAction = (card, action) => {
+      if (action === 'data' || action === 'record') return { allow: true };
+
+      const scope = card.dataset.scope; // full | partial
+
+      if (scope === 'partial') {
+        return { allow: false, msg: '活动适用门店仅部分在您管辖范围内，仅可查看' };
+      }
+      return { allow: true };
+    };
+
+    /* ===== 卡片操作按钮点击：先判定 allow，再决定动作 ===== */
+    document.querySelectorAll('.activity-card .action-row .action').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const action = btn.dataset.action;
+        if (action === 'more') return; // ActionSheet 走另一个分支
+        const card = btn.closest('.activity-card');
+        if (!card) return;
+        const verdict = evalAction(card, action);
+        if (!verdict.allow) {
+          e.stopPropagation();
+          showToast(verdict.msg);
+        }
+        // allow=true 时不弹 toast，保持原本默认行为（演示为静默）
+      });
+    });
+
+    /* ===== ActionSheet 更多操作 ===== */
+    const actionSheet = document.querySelector('[data-action-sheet]');
+    const openActionSheet = () => actionSheet && actionSheet.classList.remove('hidden');
+    const closeActionSheet = () => actionSheet && actionSheet.classList.add('hidden');
+    document.querySelectorAll('[data-action="more"]').forEach((item) => {
+      item.addEventListener('click', openActionSheet);
+    });
+    document.querySelectorAll('[data-close-action-sheet]').forEach((item) => {
+      item.addEventListener('click', closeActionSheet);
+    });
+    if (actionSheet) {
+      actionSheet.addEventListener('click', (e) => {
+        if (e.target === actionSheet) closeActionSheet();
+      });
+    }
+    document.querySelectorAll('[data-sheet-action]').forEach((row) => {
+      row.addEventListener('click', closeActionSheet);
+    });
+
+    /* ===== 表单顶部锚点导航 ===== */
+    document.querySelectorAll('[data-form-anchor]').forEach((container) => {
+      container.querySelectorAll('[data-anchor-target]').forEach((anchor) => {
+        anchor.addEventListener('click', () => {
+          container.querySelectorAll('[data-anchor-target]').forEach((a) => a.classList.remove('active'));
+          anchor.classList.add('active');
+          const target = document.getElementById(anchor.dataset.anchorTarget);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    });
+
+    /* ===== 门店选择器：已选回看 strip ===== */
+    const stripLabel = document.querySelector('[data-strip-label]');
+    const stripTags = document.querySelector('[data-strip-tags]');
+    const refreshSelectedStrip = () => {
+      const stores = getSelectedStores();
+      if (stripLabel) stripLabel.textContent = `已选 ${stores.length} 项`;
+      if (stripTags) stripTags.innerHTML = stores.map((store) => `<span class="mini-tag">${store} ×</span>`).join('');
+    };
+    document.querySelectorAll('.store-row').forEach((item) => {
+      item.addEventListener('click', refreshSelectedStrip);
+    });
+    refreshSelectedStrip();
+
+    document.querySelectorAll('[data-clear-stores]').forEach((item) => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.store-row.selected').forEach((row) => {
+          row.classList.remove('selected');
+          const check = row.querySelector('.check');
+          if (check) check.classList.remove('active');
+        });
+        updateStoreCount();
+        refreshSelectedStrip();
+      });
+    });
+
+    /* ===== 已选 strip tag 点击移除 ===== */
+    if (stripTags) {
+      stripTags.addEventListener('click', (e) => {
+        const tag = e.target.closest('.mini-tag');
+        if (!tag) return;
+        const name = tag.textContent.replace('×', '').trim();
+        document.querySelectorAll('.store-row').forEach((row) => {
+          const label = row.querySelector('span:last-child');
+          if (label && label.textContent.trim() === name) {
+            row.classList.remove('selected');
+            const check = row.querySelector('.check');
+            if (check) check.classList.remove('active');
+          }
+        });
+        updateStoreCount();
+        refreshSelectedStrip();
+      });
+    }
+
+  </script>
+</body>
+</html>
